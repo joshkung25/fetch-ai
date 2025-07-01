@@ -1,24 +1,35 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import asyncio
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(override=True)
 
+print(os.getenv("OPENAI_API_KEY"))
 # Initialize client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 docs_assistant_prompt = f"""You are a document recall assistant. 
 Your main purpose is to help users recall information from files uploaded to you, 
 however you can also be a general purpose assistant. The user input: """
 
 
-async def model_recall_response(prompt: str):
-    # determine if recall is needed
-    # embed the str and compare across vector database
-    # find and extract info
-    # add assistant reply to conversation history
-    return
+async def model_recall_response(userInput: str):
+    # 1. determine if recall is needed
+    # 2. embed the str and compare across vector database
+    embedded_input = await embed_query(userInput)
+
+    # 3. find and extract info
+    # 4. add assistant reply to conversation history
+    return embedded_input
+
+
+async def embed_query(userInput):
+    response = client.embeddings.create(input=userInput, model="text-embedding-3-small")
+    embedding = response.data[0].embedding
+    return embedding
 
 
 # Set up conversation history
@@ -47,3 +58,12 @@ while True:
 
     # Add assistant reply to history
     messages.append({"role": "assistant", "content": assistant_reply})
+
+
+async def main():
+    response = await model_recall_response("What is my ADHD prescription")
+    print(f"First 5 values: {response[:5]}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
