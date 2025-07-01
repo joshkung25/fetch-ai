@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "docsai"
+version = "0.1.0"
+description = "AI-powered documentation assistant"
+authors = ["Josh Kung"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+openai = "^1.93.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
