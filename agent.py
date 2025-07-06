@@ -25,7 +25,8 @@ however you can also be a general purpose assistant. """
 def model_recall_response(
     user_input: str,
 ):
-    """Generate a response to the user input."""
+    """Fetches relevant information from the vector database, and then uses that information in the prompt for the model.
+    Returns the prompt for the model to use."""
 
     # embed the input
     embedded_input = embed_text(user_input)
