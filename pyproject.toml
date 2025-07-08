@@ -12,6 +12,7 @@ dotenv = "^0.9.9"
 certifi = "^2025.6.15"
 requests = "^2.32.4"
 chromadb = "^1.0.15"
+pymupdf = "^1.26.3"
 
 
 [build-system]

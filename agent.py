@@ -4,6 +4,7 @@ from chromadb.config import Settings
 from dotenv import load_dotenv
 import os
 import asyncio
+from pdf_parser import parse_pdf
 
 # --- SETUP ---
 
@@ -38,13 +39,13 @@ def model_recall_response(
         n_results=1,
         include=["documents", "distances"],
     )
-    # print(results)
-    # check if relevant information found
+    print(results)
+    # check if relevant information found, change to check for multiple results
     if results["distances"][0][0] > 0.8:
         RAG_ASSISTANT_PROMPT = (
-            "There was relevant information found, use this information in your response: "
+            "There was relevant information found about the user, use this information in your response: "
             + results["documents"][0][0]
-            + "This was the user's input: "
+            + " This was the user's input: "
             + user_input
         )
     else:
@@ -70,12 +71,17 @@ def model_recall_response(
 
 
 # Change later to input document, parse, and add to collection
-def add_doc_to_collection(doc_text):
+def add_doc_to_collection(doc_chunks, title):
     """Add a document to the vector collection."""
-    # Embed the text
-    embedding = embed_text(doc_text)
-    # Add to collection
-    collection.add(documents=[doc_text], ids=[doc_text], embeddings=[embedding])
+    embedded_chunks = []
+    ids = [f"{title}_chunk_{i}" for i in range(len(doc_chunks))]
+
+    # Embed each chunk
+    for chunk in doc_chunks:
+        print(chunk)
+        embedded_chunks.append(embed_text(chunk))
+        # Add to collection
+    collection.add(documents=doc_chunks, ids=ids, embeddings=embedded_chunks)
 
 
 def embed_text(user_input):
@@ -87,10 +93,17 @@ def embed_text(user_input):
     return embedding
 
 
-add_doc_to_collection("The patient was prescribed Adderall 20mg daily for ADHD.")
 add_doc_to_collection(
-    "The patient was diagnosed with anxiety and was prescribed Xanax 1mg daily"
+    ["The patient was prescribed Adderall 20mg daily for ADHD."], "adhd"
 )
+
+add_doc_to_collection(
+    ["The patient was diagnosed with anxiety and was prescribed Xanax 1mg daily."],
+    "anxiety",
+)
+
+add_doc_to_collection(parse_pdf("public/Josh_Kung_Resume_2025_v4.pdf"), "resume")
+
 # Set up conversation history
 messages = []
 
