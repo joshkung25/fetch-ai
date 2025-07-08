@@ -4,7 +4,7 @@ from chromadb.config import Settings
 from dotenv import load_dotenv
 import os
 import asyncio
-from pdf_parser import parse_pdf
+from pdf_parser import parse_pdf, parse_pdf_v2
 
 # --- SETUP ---
 
@@ -78,7 +78,7 @@ def add_doc_to_collection(doc_chunks, title):
 
     # Embed each chunk
     for chunk in doc_chunks:
-        print(chunk)
+        # print(chunk)
         embedded_chunks.append(embed_text(chunk))
         # Add to collection
     collection.add(documents=doc_chunks, ids=ids, embeddings=embedded_chunks)
@@ -103,6 +103,11 @@ add_doc_to_collection(
 )
 
 add_doc_to_collection(parse_pdf("public/Josh_Kung_Resume_2025_v4.pdf"), "resume")
+
+add_doc_to_collection(
+    parse_pdf_v2("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"),
+    "academic_transcript",
+)
 
 # Set up conversation history
 messages = []
