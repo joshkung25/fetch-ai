@@ -4,7 +4,7 @@ from chromadb.config import Settings
 from dotenv import load_dotenv
 import os
 import asyncio
-from pdf_parser import parse_pdf, parse_pdf_v2
+from pdf_parser import parse_pdf_v1, parse_pdf
 
 # --- SETUP ---
 
@@ -36,15 +36,21 @@ def model_recall_response(
     # can change so it checks for multiple results, and then includes all of the relevant ones in the response
     results = collection.query(
         query_embeddings=[embedded_input],
-        n_results=1,
+        n_results=3,
         include=["documents", "distances"],
     )
     print(results)
     # check if relevant information found, change to check for multiple results
-    if results["distances"][0][0] > 0.8:
+
+    results_input = ""
+    for i in range(len(results["distances"][0])):
+        if results["distances"][0][i] > 0.8:
+            results_input += results["documents"][0][i] + "\n"
+
+    if results_input != "":
         RAG_ASSISTANT_PROMPT = (
             "There was relevant information found about the user, use this information in your response: "
-            + results["documents"][0][0]
+            + results_input
             + " This was the user's input: "
             + user_input
         )
@@ -105,7 +111,7 @@ add_doc_to_collection(
 add_doc_to_collection(parse_pdf("public/Josh_Kung_Resume_2025_v4.pdf"), "resume")
 
 add_doc_to_collection(
-    parse_pdf_v2("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"),
+    parse_pdf("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"),
     "academic_transcript",
 )
 
