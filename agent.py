@@ -4,7 +4,7 @@ from chromadb.config import Settings
 from dotenv import load_dotenv
 import os
 import asyncio
-from pdf_parser import parse_pdf_v1, parse_pdf
+from parser.pdf_parser import parse_pdf_v1, parse_pdf
 
 # --- SETUP ---
 
