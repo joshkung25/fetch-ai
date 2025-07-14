@@ -13,10 +13,9 @@ if __name__ == "__main__":
     # add_doc_to_collection(resume_chunks, "resume")
     # add_doc_to_collection(transcript_chunks, "transcript")
 
+    # ================================
     # resume_chunks = parse_pdf("public/Josh_Kung_Resume_2025_v4.pdf")
     # add_doc_to_collection(resume_chunks, "resume")
-
-    # ================================
 
     # transcript_chunks = parse_pdf(
     #     "public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"

@@ -16,6 +16,7 @@ pymupdf = "^1.26.3"
 pytesseract = "^0.3.13"
 pdf2image = "^1.17.0"
 pillow = "^11.3.0"
+spacypdfreader = "^0.3.2"
 
 
 [build-system]
