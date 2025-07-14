@@ -67,4 +67,4 @@ def parse_pdf_v1(filepath, splitter):
 
 
 # print(parse_pdf("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"))
-# print(parse_pdf("public/acesstatscw.pdf"))
+print(parse_pdf("public/eye_prescription.pdf"))
