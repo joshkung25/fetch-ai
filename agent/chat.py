@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import os
 
-from parser.pdf_parser import parse_pdf, parse_pdf_v2
+from parser.pdf_parser import parse_pdf
 from agent.retriever import add_doc_to_collection
 from agent.agent import model_recall_response
 
@@ -22,7 +22,7 @@ add_doc_to_collection(
 )
 add_doc_to_collection(parse_pdf("public/Josh_Kung_Resume_2025_v4.pdf"), "resume")
 add_doc_to_collection(
-    parse_pdf_v2("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"),
+    parse_pdf("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"),
     "academic_transcript",
 )
 
