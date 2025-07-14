@@ -1,0 +1,10 @@
+openai
+chromadb
+python-dotenv
+PyMuPDF
+tiktoken
+pytesseract
+pdf2image
+Pillow
+
+#pip install pytesseract pdf2image Pillow
