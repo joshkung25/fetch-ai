@@ -2,8 +2,9 @@ import chromadb
 from chromadb.config import Settings
 from agent.embedder import embed_text
 
-chroma_client = chromadb.Client(Settings())
+chroma_client = chromadb.PersistentClient(path="chroma_store")
 collection = chroma_client.get_or_create_collection("mydocs")
+
 
 def add_doc_to_collection(doc_chunks, title):
     embedded_chunks = []
@@ -13,6 +14,7 @@ def add_doc_to_collection(doc_chunks, title):
         embedded_chunks.append(embed_text(chunk))
 
     collection.add(documents=doc_chunks, ids=ids, embeddings=embedded_chunks)
+
 
 def query_collection(embedded_input, n_results=1):
     return collection.query(

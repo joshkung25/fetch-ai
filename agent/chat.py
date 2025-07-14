@@ -17,13 +17,13 @@ def start_chat():
     messages = []
 
     # Add documents to collection (only the medical examples, since resume/transcript are loaded in main.py)
-    add_doc_to_collection(
-        ["The patient was prescribed Adderall 20mg daily for ADHD."], "adhd"
-    )
-    add_doc_to_collection(
-        ["The patient was diagnosed with anxiety and was prescribed Xanax 1mg daily."],
-        "anxiety",
-    )
+    # add_doc_to_collection(
+    #     ["The patient was prescribed Adderall 20mg daily for ADHD."], "adhd"
+    # )
+    # add_doc_to_collection(
+    #     ["The patient was diagnosed with anxiety and was prescribed Xanax 1mg daily."],
+    #     "anxiety",
+    # )
 
     # Chat loop
     print("Chat with your assistant (type 'exit' to quit):")

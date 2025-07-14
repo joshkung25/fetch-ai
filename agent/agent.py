@@ -25,7 +25,7 @@ def model_recall_response(user_input: str):
 
     results_input = ""
     for i in range(len(results["distances"][0])):
-        if results["distances"][0][i] > 0.8:
+        if results["distances"][0][i] < 1.5:
             results_input += results["documents"][0][i] + "\n"
 
     if results_input != "":
