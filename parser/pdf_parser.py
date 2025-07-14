@@ -44,15 +44,19 @@ def determine_splitter(text):
         raise ValueError("Unknown PDF format")
 
 
+# ================================
+# ================================
+
+
 def parse_pdf(filepath):
     """
     Parse the PDF. Handles text-based PDFs and scanned PDFs.
     """
     doc = fitz.open(filepath)
-    text = get_sample_text(doc)
-    # print(text)
-    splitter = determine_splitter(text)
-    if len(text) < 20:
+    sample_text = get_sample_text(doc)
+    # print(sample_text)
+    splitter = determine_splitter(sample_text)
+    if len(sample_text) < 20:
         print("OCR true")
         return ocr_pdf(filepath)
     else:
@@ -68,6 +72,7 @@ def parse_pdf_v1(filepath, splitter):
     chunks = []
     for page in doc:
         text = page.get_text()
+        print(repr(text))
         sections = text.split(splitter)
 
         for section in sections:
@@ -77,7 +82,21 @@ def parse_pdf_v1(filepath, splitter):
     return chunks  # List of strings, one per page
 
 
-# print(parse_pdf("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"))
+# def get_signature(chunk):
+#     sig = []
+#     for line in chunk:
+#         doc = nlp(line.strip())
+#         sig.append(" ".join([t.pos_ for t in doc]))
+#     return sig
+
+
+# def find_most_common_pattern(text):
+#     """
+#     Find the most common pattern in the text.
+#     """
+#     return max(set(text), key=text.count)
+
+parse_pdf("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf")
 # print(parse_pdf("public/acesstatscw.pdf"))
 # parse_pdf("public/Jacob_Transcript_Test.pdf")
 # print(parse_pdf("public/alec_hw_test.pdf"))
