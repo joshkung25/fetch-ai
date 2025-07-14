@@ -42,5 +42,4 @@ def model_recall_response(user_input: str):
             + user_input
         )
 
-    # return model_response.choices[0].message.content
     return DOCS_ASSISTANT_PROMPT + RAG_ASSISTANT_PROMPT
