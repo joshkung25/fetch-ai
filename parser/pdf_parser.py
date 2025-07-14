@@ -30,29 +30,40 @@ def get_sample_text(doc):
     return sample
 
 
+def determine_splitter(text):
+    """
+    Determine the splitter for the PDF.
+    """
+    if "\n20\n" in text:
+        return "\n20\n"
+    if "\xa0\n\xa0\n\xa0\n" in text:
+        return "\xa0\n\xa0\n\xa0\n"
+    elif "\n" in text:
+        return "\n"
+    else:
+        raise ValueError("Unknown PDF format")
+
+
 def parse_pdf(filepath):
     """
     Parse the PDF. Handles text-based PDFs and scanned PDFs.
     """
     doc = fitz.open(filepath)
     text = get_sample_text(doc)
-
+    # print(text)
+    splitter = determine_splitter(text)
     if len(text) < 20:
         print("OCR true")
         return ocr_pdf(filepath)
-    if "\xa0\n\xa0\n\xa0\n" in text:
-        return parse_pdf_v1(filepath, "\xa0\n\xa0\n\xa0\n")
-    elif "\n" in text:
-        return parse_pdf_v1(filepath, "\n")
     else:
-        raise ValueError("Unknown PDF format")
+        return parse_pdf_v1(filepath, splitter)
 
 
 def parse_pdf_v1(filepath, splitter):
     """
     Parse the PDF based on the splitter.
     """
-    # print(f"Parsing PDF with splitter: {splitter}")
+    print(f"Parsing PDF with splitter: {repr(splitter)}")
     doc = fitz.open(filepath)
     chunks = []
     for page in doc:
@@ -62,9 +73,12 @@ def parse_pdf_v1(filepath, splitter):
         for section in sections:
             if section.strip():
                 chunks.append(section)
-
+    # print(chunks)
     return chunks  # List of strings, one per page
 
 
 # print(parse_pdf("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf"))
 # print(parse_pdf("public/acesstatscw.pdf"))
+# parse_pdf("public/Jacob_Transcript_Test.pdf")
+# print(parse_pdf("public/alec_hw_test.pdf"))
+# 20\n2020-2021\n1\n9\nAB3010\nAlgebra II H\n\xa0\nP\nH\nA\n5.00\n5.00\n\xa0\n
