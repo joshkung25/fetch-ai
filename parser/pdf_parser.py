@@ -30,18 +30,18 @@ def get_sample_text(doc):
     return sample
 
 
-def determine_splitter(text):
-    """
-    Determine the splitter for the PDF.
-    """
-    if "\n20\n" in text:
-        return "\n20\n"
-    if "\xa0\n\xa0\n\xa0\n" in text:
-        return "\xa0\n\xa0\n\xa0\n"
-    elif "\n" in text:
-        return "\n"
-    else:
-        raise ValueError("Unknown PDF format")
+# def determine_splitter(text):
+#     """
+#     Determine the splitter for the PDF.
+#     """
+#     if "\n20\n" in text:
+#         return "\n20\n"
+#     if "\xa0\n\xa0\n\xa0\n" in text:
+#         return "\xa0\n\xa0\n\xa0\n"
+#     elif "\n" in text:
+#         return "\n"
+#     else:
+#         raise ValueError("Unknown PDF format")
 
 
 # ================================
@@ -55,7 +55,7 @@ def parse_pdf(filepath):
     doc = fitz.open(filepath)
     sample_text = get_sample_text(doc)
     # print(sample_text)
-    splitter = determine_splitter(sample_text)
+    splitter = "\n"
     if len(sample_text) < 20:
         print("OCR true")
         return ocr_pdf(filepath)
@@ -72,8 +72,9 @@ def parse_pdf_v1(filepath, splitter):
     chunks = []
     for page in doc:
         text = page.get_text()
-        print(repr(text))
-        sections = text.split(splitter)
+        # print(repr(text))
+        # Split by every 12th occurrence instead of every occurrence
+        sections = split_by_nth_occurrence(text, splitter, 16)
 
         for section in sections:
             if section.strip():
@@ -82,22 +83,31 @@ def parse_pdf_v1(filepath, splitter):
     return chunks  # List of strings, one per page
 
 
-# def get_signature(chunk):
-#     sig = []
-#     for line in chunk:
-#         doc = nlp(line.strip())
-#         sig.append(" ".join([t.pos_ for t in doc]))
-#     return sig
+def split_by_nth_occurrence(text, splitter, n=12):
+    """
+    Split text by every nth occurrence of the splitter.
+    """
+    parts = text.split(splitter)
+    result = []
+    current_chunk = []
+
+    for i, part in enumerate(parts):
+        current_chunk.append(part)
+        if (i + 1) % n == 0:  # Every nth occurrence
+            result.append(splitter.join(current_chunk))
+            current_chunk = []
+
+    # Add any remaining parts
+    if current_chunk:
+        result.append(splitter.join(current_chunk))
+
+    return result
 
 
-# def find_most_common_pattern(text):
-#     """
-#     Find the most common pattern in the text.
-#     """
-#     return max(set(text), key=text.count)
-
-parse_pdf("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf")
+# parse_pdf("public/Josh_Kung_Resume_2025_v4.pdf")
+# parse_pdf("public/JoshuaKung_AcademicTranscript_Northeastern_2026.pdf")
 # print(parse_pdf("public/acesstatscw.pdf"))
-# parse_pdf("public/Jacob_Transcript_Test.pdf")
+parse_pdf("public/Jacob_Transcript_Test.pdf")
 # print(parse_pdf("public/alec_hw_test.pdf"))
 # 20\n2020-2021\n1\n9\nAB3010\nAlgebra II H\n\xa0\nP\nH\nA\n5.00\n5.00\n\xa0\n
+# 200\n2020-2021\n4\n9\nLC1010\nHealth\n\xa0\n\xa0\n\xa0\nA\n5.00\n5.00\n\xa0\n
