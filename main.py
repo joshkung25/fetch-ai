@@ -1,8 +1,15 @@
+from fastapi import FastAPI
+from routes.routes import router
+
 from agent.chat import start_chat
 
 # from parser.pdf_parser import parse_pdf_token_chunks
 from parser.pdf_parser import parse_pdf
 from agent.retriever import add_doc_to_collection
+
+app = FastAPI()
+app.include_router(router)
+
 
 if __name__ == "__main__":
     # resume_chunks = parse_pdf_token_chunks("public/resume.pdf", doc_type="resume")
