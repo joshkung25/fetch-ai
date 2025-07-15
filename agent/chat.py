@@ -15,8 +15,6 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def start_chat():
     """Start the chat interface with the AI assistant."""
     messages = []
-
-    # Add documents to collection (only the medical examples, since resume/transcript are loaded in main.py)
     # add_doc_to_collection(
     #     ["The patient was prescribed Adderall 20mg daily for ADHD."], "adhd"
     # )
@@ -45,6 +43,23 @@ def start_chat():
         print(f"Assistant: {assistant_reply}")
 
         messages.append({"role": "assistant", "content": assistant_reply})
+
+
+def chat(user_input, messages):
+    """
+    Takes in a user input and a list of messages, and returns a response from the AI assistant.
+    """
+    messages.append({"role": "user", "content": model_recall_response(user_input)})
+
+    # model response
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # or gpt-4o
+        messages=messages,
+    )
+    assistant_reply = response.choices[0].message.content
+
+    messages.append({"role": "assistant", "content": assistant_reply})
+    return assistant_reply
 
 
 if __name__ == "__main__":

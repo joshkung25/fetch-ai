@@ -45,3 +45,7 @@ def query_collection(embedded_input, n_results=1):
         n_results=n_results,
         include=["documents", "distances", "metadatas"],
     )
+
+
+def get_collection():
+    return chroma_client.get_or_create_collection("mydocs")
