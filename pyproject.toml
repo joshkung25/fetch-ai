@@ -18,6 +18,7 @@ pytesseract = "^0.3.13"
 pdf2image = "^1.17.0"
 pillow = "^11.3.0"
 tiktoken = "^0.7.0"
+spacypdfreader = "^0.3.2"
 
 
 [build-system]
