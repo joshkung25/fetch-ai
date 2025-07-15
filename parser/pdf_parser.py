@@ -1,31 +1,82 @@
 import fitz  # PyMuPDF
-
 from PIL import Image
 import pytesseract
 from pdf2image import convert_from_path
+import tiktoken
 
 
-def ocr_pdf(filepath: str) -> str:
-    """
-    Turn the PDF into an image, and then use OCR to extract the text.
-    """
-    images = convert_from_path(filepath, dpi=300)  # convert PDF to images
-    full_text = ""
+def tokenize_and_chunk(
+    text, max_tokens=400, overlap=50, model_name="text-embedding-3-small"
+):
+    tokenizer = tiktoken.encoding_for_model(model_name)
+    tokens = tokenizer.encode(text)
+
+    chunks = []
+    start = 0
+    while start < len(tokens):
+        end = start + max_tokens
+        chunk_tokens = tokens[start:end]
+        chunk_text = tokenizer.decode(chunk_tokens)
+        chunks.append(chunk_text)
+        start += max_tokens - overlap
+
+    return chunks
+
+
+def ocr_pdf(filepath: str):
+    images = convert_from_path(filepath, dpi=300)
+    all_chunks = []
 
     for i, img in enumerate(images):
         print(f"OCR'ing page {i + 1}")
         text = pytesseract.image_to_string(img, lang="eng")
-        full_text += f"\n--- Page {i + 1} ---\n{text}"
+        page_chunks = tokenize_and_chunk(text)
 
-    return full_text
+        for j, chunk in enumerate(page_chunks):
+            all_chunks.append(
+                {
+                    "text": chunk,
+                    "page": i + 1,
+                    "chunk_index": j,
+                    "source_file": filepath,
+                    "doc_type": "ocr",
+                }
+            )
+
+    return all_chunks
+
+
+def parse_pdf(filepath, doc_type=None):
+    doc = fitz.open(filepath)
+    sample_text = get_sample_text(doc)
+
+    if len(sample_text.strip()) < 20:
+        print("OCR fallback triggered.")
+        return ocr_pdf(filepath)
+
+    print("Token-based parsing triggered.")
+    all_chunks = []
+    for page_number, page in enumerate(doc):
+        full_text = page.get_text()
+        page_chunks = tokenize_and_chunk(full_text)
+
+        for i, chunk in enumerate(page_chunks):
+            all_chunks.append(
+                {
+                    "text": chunk,
+                    "page": page_number + 1,
+                    "chunk_index": i,
+                    "source_file": filepath,
+                    "doc_type": doc_type,
+                }
+            )
+
+    return all_chunks
 
 
 def get_sample_text(doc):
-    """
-    Get the sample text of the first few pages of the PDF.
-    """
     sample = ""
-    for i in range(min(len(doc), 3)):  # Check first few pages
+    for i in range(min(len(doc), 3)):
         sample += doc[i].get_text()
     return sample
 
@@ -48,39 +99,39 @@ def get_sample_text(doc):
 # ================================
 
 
-def parse_pdf(filepath):
-    """
-    Parse the PDF. Handles text-based PDFs and scanned PDFs.
-    """
-    doc = fitz.open(filepath)
-    sample_text = get_sample_text(doc)
-    # print(sample_text)
-    splitter = "\n"
-    if len(sample_text) < 20:
-        print("OCR true")
-        return ocr_pdf(filepath)
-    else:
-        return parse_pdf_v1(filepath, splitter)
+# def parse_pdf(filepath):
+#     """
+#     Parse the PDF. Handles text-based PDFs and scanned PDFs.
+#     """
+#     doc = fitz.open(filepath)
+#     sample_text = get_sample_text(doc)
+#     # print(sample_text)
+#     splitter = "\n"
+#     if len(sample_text) < 20:
+#         print("OCR true")
+#         return ocr_pdf(filepath)
+#     else:
+#         return parse_pdf_v1(filepath, splitter)
 
 
-def parse_pdf_v1(filepath, splitter):
-    """
-    Parse the PDF based on the splitter.
-    """
-    print(f"Parsing PDF with splitter: {repr(splitter)}")
-    doc = fitz.open(filepath)
-    chunks = []
-    for page in doc:
-        text = page.get_text()
-        # print(repr(text))
-        # Split by every 12th occurrence instead of every occurrence
-        sections = split_by_nth_occurrence(text, splitter, 16)
+# def parse_pdf_v1(filepath, splitter):
+#     """
+#     Parse the PDF based on the splitter.
+#     """
+#     print(f"Parsing PDF with splitter: {repr(splitter)}")
+#     doc = fitz.open(filepath)
+#     chunks = []
+#     for page in doc:
+#         text = page.get_text()
+#         # print(repr(text))
+#         # Split by every 12th occurrence instead of every occurrence
+#         sections = split_by_nth_occurrence(text, splitter, 16)
 
-        for section in sections:
-            if section.strip():
-                chunks.append(section)
-    # print(chunks)
-    return chunks  # List of strings, one per page
+#         for section in sections:
+#             if section.strip():
+#                 chunks.append(section)
+#     # print(chunks)
+#     return chunks  # List of strings, one per page
 
 
 def split_by_nth_occurrence(text, splitter, n=12):
