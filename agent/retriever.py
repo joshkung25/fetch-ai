@@ -4,7 +4,7 @@ from agent.embedder import embed_text_batch
 from agent.embedder import embed_text
 
 # Persistent vector DB store
-chroma_client = chromadb.PersistentClient(path="chroma_store")
+chroma_client = chromadb.HttpClient(host="localhost", port=8000)
 collection = chroma_client.get_or_create_collection("mydocs")
 
 
@@ -23,12 +23,8 @@ def add_doc_to_collection(doc_chunks, title):
 
     embeddings = embed_text_batch(texts)
 
-    collection.add(
-        documents=texts,
-        ids=ids,
-        embeddings=embeddings,
-        metadatas=metadatas
-    )
+    collection.add(documents=texts, ids=ids, embeddings=embeddings, metadatas=metadatas)
+
 
 # def add_doc_to_collection(doc_chunks, title):
 #     embedded_chunks = []

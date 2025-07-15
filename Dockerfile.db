@@ -1,0 +1,14 @@
+# Dockerfile for ChromaDB Server
+FROM python:3.11-slim
+
+# Install ChromaDB server dependencies
+RUN pip install chromadb
+
+# Create a volume for persistent storage
+VOLUME ["/chroma_data"]
+
+# Expose default ChromaDB server port
+EXPOSE 8000
+
+# Start ChromaDB server using persistent storage
+CMD ["chroma", "run", "--host", "0.0.0.0", "--port", "8000", "--path", "/chroma_data"]
