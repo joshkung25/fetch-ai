@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File, Form
 from agent.retriever import add_doc_to_collection
 from parser.pdf_parser import parse_pdf
 from agent.chat import chat
@@ -15,9 +15,10 @@ def root():
 
 
 @router.post("/add")
-def add_doc_route(doc: str, title: str):
+def add_doc_route(file: UploadFile = File(...), title: str = Form(...)):
     try:
-        doc_chunks = parse_pdf(doc)
+        file_path = f"public/{file.filename}"  # Change later to not use public folder
+        doc_chunks = parse_pdf(file_path)
         add_doc_to_collection(doc_chunks, title)
         return {"status": "ok"}
     except Exception as e:
