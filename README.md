@@ -30,7 +30,7 @@ poetry update
 
 ```bash
 # Activate Python virtual environment
-poetry env activate
+eval $(poetry env activate)
 ```
 
 Create an .env file
