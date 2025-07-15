@@ -21,6 +21,8 @@ tiktoken = "^0.7.0"
 spacypdfreader = "^0.3.2"
 fastapi = "^0.116.1"
 uvicorn = "^0.35.0"
+pytest = "^8.4.1"
+python-multipart = "^0.0.20"
 
 
 [build-system]
