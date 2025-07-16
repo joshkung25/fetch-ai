@@ -5,7 +5,7 @@ from agent.chat import start_chat
 
 # from parser.pdf_parser import parse_pdf_token_chunks
 from parser.pdf_parser import parse_pdf
-from agent.retriever import add_doc_to_collection
+from agent.retriever import add_doc_to_collection, remove_collection
 
 app = FastAPI()
 app.include_router(router)
@@ -31,5 +31,5 @@ if __name__ == "__main__":
 
     # transcript_chunks_jacob = parse_pdf("public/Jacob_Transcript_Test.pdf")
     # add_doc_to_collection(transcript_chunks_jacob, "jacob_transcript")
-
+    # remove_collection()
     start_chat()
