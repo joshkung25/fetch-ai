@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Paperclip, X } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 interface ChatbotInputProps {
   placeholder?: string;
@@ -14,6 +14,7 @@ export default function ChatbotInput({
   placeholder = "Type your message...",
   disabled = false,
 }: ChatbotInputProps) {
+  const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAttachment = () => {
@@ -21,17 +22,14 @@ export default function ChatbotInput({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileUpload = async () => {
+    if (!files) return;
 
-    console.log("Selected file:", file.name);
+    console.log("Selected file:", files[0].name);
 
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("title", file.name);
+    formData.append("file", files[0]);
+    formData.append("title", files[0].name);
 
     try {
       const response = await fetch("http://localhost:8001/add", {
@@ -86,6 +84,7 @@ export default function ChatbotInput({
             disabled={disabled}
             size="sm"
             className="h-8 w-8 p-0 hover:cursor-pointer"
+            onClick={handleFileUpload}
           >
             <Send className="h-4 w-4" />
           </Button>
@@ -99,7 +98,12 @@ export default function ChatbotInput({
         multiple
         className="hidden"
         accept="image/*,text/*,.pdf,.doc,.docx"
-        onChange={handleFileChange}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            setFiles([...files, file]);
+          }
+        }}
       />
     </div>
   );
