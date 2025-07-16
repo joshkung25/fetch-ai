@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/app/navbar";
+import { ThemeProvider } from "next-themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +25,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          {/* <Navbar collapsed={collapsed} setCollapsed={setCollapsed} /> */}
+          <div className="h-screen flex flex-col">
+            <Navbar />
+            <div className="flex md:flex-row flex-col justify-between items-stretch -mt-4 overflow-y-auto">
+              {/* <Sidebar collapsed={collapsed} /> */}
+              <main className="flex-1">{children}</main>
+            </div>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
