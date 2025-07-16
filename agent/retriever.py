@@ -7,6 +7,8 @@ from agent.embedder import embed_text
 chroma_client = chromadb.HttpClient(host="localhost", port=8000)
 collection = chroma_client.get_or_create_collection("mydocs")
 
+print(collection.count())
+
 
 def add_doc_to_collection(doc_chunks, title):
     ids = [f"{title}_chunk_{i}" for i in range(len(doc_chunks))]
@@ -24,6 +26,7 @@ def add_doc_to_collection(doc_chunks, title):
     embeddings = embed_text_batch(texts)
 
     collection.add(documents=texts, ids=ids, embeddings=embeddings, metadatas=metadatas)
+    print(collection.count())
 
 
 # def add_doc_to_collection(doc_chunks, title):
@@ -49,3 +52,8 @@ def query_collection(embedded_input, n_results=1):
 
 def get_collection():
     return chroma_client.get_or_create_collection("mydocs")
+
+
+def remove_collection():
+    chroma_client.delete_collection("mydocs")
+    print(collection.count())
