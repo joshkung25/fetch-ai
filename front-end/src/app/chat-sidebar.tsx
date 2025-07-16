@@ -9,6 +9,7 @@ import {
   Edit3,
   MessageSquare,
   FileText,
+  FileUp,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -160,11 +161,19 @@ export default function ChatSidebar() {
         <SidebarHeader className="border-b p-4">
           <Button
             onClick={handleNewChat}
-            className="w-full justify-start gap-2 h-10"
+            className="w-full justify-start gap-2 h-10 bg-gray-400"
             size="sm"
           >
-            <FileText className="h-4 w-4" />
+            <MessageSquarePlus className="h-4 w-4" />
             New Chat
+          </Button>
+          <Button
+            onClick={handleNewChat}
+            className="w-full justify-start gap-2 h-10 bg-gray-400"
+            size="sm"
+          >
+            <FileUp className="h-4 w-4" />
+            New Document
           </Button>
         </SidebarHeader>
 
