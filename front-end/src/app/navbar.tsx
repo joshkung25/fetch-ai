@@ -26,7 +26,7 @@ export default function Navbar() {
   //   setCollapsed: (collapsed: boolean) => void;
   // }
   return (
-    <div className="sticky top-0 z-50 flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-800">
+    <div className="sticky top-0 z-50 flex justify-between items-center p-3">
       <NavigationMenu className="max-w-full w-full flex justify-between">
         <IoMdHome
           className="size-10 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full p-1"
