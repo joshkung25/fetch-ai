@@ -83,6 +83,27 @@ const mockChats = [
     timestamp: new Date("2024-01-11T11:30:00"),
     isActive: false,
   },
+  {
+    id: "6",
+    title: "CSS Grid Layout",
+    lastMessage: "How to create responsive layouts",
+    timestamp: new Date("2024-01-11T11:30:00"),
+    isActive: false,
+  },
+  {
+    id: "7",
+    title: "CSS Grid Layout",
+    lastMessage: "How to create responsive layouts",
+    timestamp: new Date("2024-01-11T11:30:00"),
+    isActive: false,
+  },
+  {
+    id: "8",
+    title: "CSS Grid Layout",
+    lastMessage: "How to create responsive layouts",
+    timestamp: new Date("2024-01-11T11:30:00"),
+    isActive: false,
+  },
 ];
 
 type SortOption = "recent" | "oldest" | "alphabetical";
@@ -158,18 +179,20 @@ export default function ChatSidebar() {
   return (
     <SidebarProvider>
       <Sidebar className="border-r">
-        <SidebarHeader className="border-b p-4">
+        <SidebarHeader className="border-b p-2 pt-15 border-t">
           <Button
+            variant="ghost"
             onClick={handleNewChat}
-            className="w-full justify-start gap-2 h-10 bg-gray-400"
+            className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
             size="sm"
           >
             <MessageSquarePlus className="h-4 w-4" />
             New Chat
           </Button>
           <Button
+            variant="ghost"
             onClick={handleNewChat}
-            className="w-full justify-start gap-2 h-10 bg-gray-400"
+            className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
             size="sm"
           >
             <FileUp className="h-4 w-4" />
@@ -177,7 +200,7 @@ export default function ChatSidebar() {
           </Button>
         </SidebarHeader>
 
-        <SidebarContent className="p-2">
+        <SidebarContent className="p-0">
           <SidebarGroup>
             <SidebarGroupContent>
               {/* Search Input */}
@@ -212,7 +235,7 @@ export default function ChatSidebar() {
 
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-2 mb-2">
-              Recent Chats ({sortedChats.length})
+              Chats ({sortedChats.length})
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>

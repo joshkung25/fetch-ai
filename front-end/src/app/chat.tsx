@@ -1,18 +1,14 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { FileText } from "lucide-react";
 import ThemeToggle from "./theme-toggle";
+import { Input } from "@/components/ui/input";
+import NavbarNew from "./navbar-new";
+import InputField from "./input-field";
 
 export default function Chat() {
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 justify-between">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger className="-ml-1" />
-          <FileText className="h-5 w-5" />
-          <h1 className="font-semibold">Fetch AI</h1>
-        </div>
-        <ThemeToggle />
-      </header>
+      <NavbarNew />
       <div className="flex flex-1 flex-col gap-4 p-4">
         <div className="grid auto-rows-min gap-4 md:grid-cols-1">
           <div className="aspect-video rounded-xl bg-muted/50 flex items-center justify-center">
@@ -28,6 +24,7 @@ export default function Chat() {
             </div>
           </div>
         </div>
+        <InputField />
       </div>
     </>
   );

@@ -41,12 +41,7 @@ export default function RootLayout({
           <div className="flex flex-row h-screen w-full">
             {/* <Sidebar collapsed={collapsed} /> */}
             <ChatSidebar />
-            {/* <div className="h-screen flex flex-col gap-4 w-full">
-              <Navbar />
-              <div className="flex md:flex-row flex-col justify-between items-stretch -mt-4 overflow-y-auto">
-                <main className="flex-1">{children}</main>
-              </div>
-            </div> */}
+            {/*  */}
           </div>
         </ThemeProvider>
       </body>
