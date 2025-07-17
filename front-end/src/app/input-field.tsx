@@ -14,14 +14,34 @@ export default function ChatbotInput({
   placeholder = "Type your message...",
   disabled = false,
 }: ChatbotInputProps) {
+  const [userInput, setUserInput] = useState<String>("");
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [messages, setMessages] = useState<[]>([]);
   const handleAttachment = () => {
     // Trigger the file input click to open file picker
     fileInputRef.current?.click();
   };
-
+  const handleUserInput = async () => {
+    console.log("User input to send:", userInput);
+    try {
+      const response = await fetch("http://localhost:8001/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_input: userInput,
+          message_history: messages,
+        }),
+      });
+      const data = await response.json();
+      console.log(data[0]);
+      setMessages(data[1]);
+    } catch (error) {
+      console.error("Error sending user input:", error);
+    }
+  };
   const handleFileUpload = async () => {
     if (!files) return;
 
@@ -44,7 +64,10 @@ export default function ChatbotInput({
       console.error("Error uploading file:", error);
     }
   };
-
+  const handleAllInput = async () => {
+    await handleFileUpload();
+    await handleUserInput();
+  };
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* File preview - you can conditionally show this */}
@@ -64,6 +87,9 @@ export default function ChatbotInput({
             placeholder={placeholder}
             disabled={disabled}
             className="border-0 shadow-none focus-visible:ring-0 resize-none"
+            onChange={(e) => {
+              setUserInput(e.target.value);
+            }}
           />
         </div>
 
@@ -84,7 +110,8 @@ export default function ChatbotInput({
             disabled={disabled}
             size="sm"
             className="h-8 w-8 p-0 hover:cursor-pointer"
-            onClick={handleFileUpload}
+            // onClick={handleFileUpload}
+            onClick={handleAllInput}
           >
             <Send className="h-4 w-4" />
           </Button>
