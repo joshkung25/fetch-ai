@@ -59,7 +59,7 @@ def chat(user_input, messages):
     assistant_reply = response.choices[0].message.content
 
     messages.append({"role": "assistant", "content": assistant_reply})
-    return assistant_reply
+    return assistant_reply, messages
 
 
 if __name__ == "__main__":
