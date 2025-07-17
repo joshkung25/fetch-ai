@@ -314,7 +314,6 @@ export default function ChatSidebar() {
         </SidebarContent>
         <SidebarRail />
       </Sidebar>
-
       <SidebarInset>
         <Chat />
       </SidebarInset>

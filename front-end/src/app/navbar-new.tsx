@@ -5,7 +5,7 @@ import ThemeToggle from "./theme-toggle";
 export default function NavbarNew() {
   return (
     <>
-      <header className="fixed top-0 z-50 flex h-16 w-full shrink-0 items-center gap-2 px-4 justify-between">
+      <header className="absolute top-0 flex h-16 w-full shrink-0 items-center gap-2 px-4 justify-between bg-transparent z-10">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
           <FileText className="h-5 w-5" />
