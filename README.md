@@ -38,3 +38,25 @@ Create an .env file
 ```bash
 cp .env.example .env
 ```
+
+Run the following command to start the backend. It will be hosted on http://0.0.0.0:8001
+
+```bash
+uvicorn main:app --reload --port 8001
+
+```
+
+Docker
+
+```bash
+docker compose up --build
+
+```
+
+Front end
+
+```bash
+npm install
+npm run dev
+
+```
