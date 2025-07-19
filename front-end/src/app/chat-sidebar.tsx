@@ -259,9 +259,9 @@ export default function ChatSidebar() {
                               {chat.title}
                             </span>
                           </div>
-                          <span className="text-xs text-muted-foreground shrink-0">
+                          {/* <span className="text-xs text-muted-foreground shrink-0">
                             {formatTimestamp(chat.timestamp)}
-                          </span>
+                          </span> */}
                         </div>
                         <p className="text-xs text-muted-foreground truncate mt-1 pl-6">
                           {chat.lastMessage}
@@ -271,13 +271,9 @@ export default function ChatSidebar() {
                     <SidebarMenuAction showOnHover>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                          >
+                          <div className="h-6 w-6 inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground cursor-pointer">
                             <MoreHorizontal className="h-4 w-4" />
-                          </Button>
+                          </div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuItem
