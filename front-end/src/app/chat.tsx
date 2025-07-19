@@ -4,16 +4,18 @@ import ThemeToggle from "./theme-toggle";
 import { Input } from "@/components/ui/input";
 import NavbarNew from "./navbar-new";
 import InputField from "./input-field";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Message } from "./chat-sidebar";
 
-interface Message {
-  role: string;
-  content: string;
-}
+export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
+  const [messages, setMessages] = useState<Message[]>(chatMessages);
 
-export default function Chat() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  // Update internal state when prop changes
+  useEffect(() => {
+    setMessages(chatMessages);
+  }, [chatMessages]);
 
+  console.log("Messages:", messages);
   const cleanMessages = (messages: Message[]) => {
     return messages.map((message) =>
       message.role === "user"
@@ -65,7 +67,10 @@ export default function Chat() {
 
         {/* Input area - fixed at bottom */}
         <div className="flex-shrink-0 p-4 bg-background border-t">
-          <InputField setMessagesHandler={setMessages} />
+          <InputField
+            setMessagesHandler={setMessages}
+            chatMessages={chatMessages}
+          />
         </div>
       </div>
     </div>

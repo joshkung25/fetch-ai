@@ -108,11 +108,15 @@ const mockChats = [
 
 type SortOption = "recent" | "oldest" | "alphabetical";
 
+export interface Message {
+  role: string;
+  content: string;
+}
 export default function ChatSidebar() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<SortOption>("recent");
   const [chats, setChats] = React.useState(mockChats);
-
+  const [chatMessages, setChatMessages] = React.useState<Message[]>([]);
   // Filter chats based on search query
   const filteredChats = React.useMemo(() => {
     return chats.filter(
@@ -144,6 +148,7 @@ export default function ChatSidebar() {
   const handleNewChat = () => {
     // Logic to start a new chat
     console.log("Starting new chat...");
+    setChatMessages([]);
   };
 
   const handleDeleteChat = (chatId: string) => {
@@ -315,7 +320,7 @@ export default function ChatSidebar() {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <Chat />
+        <Chat chatMessages={chatMessages} />
       </SidebarInset>
     </SidebarProvider>
   );

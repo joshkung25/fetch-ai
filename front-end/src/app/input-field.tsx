@@ -2,30 +2,34 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Paperclip, X } from "lucide-react";
-import { useRef, useState } from "react";
-
-interface Message {
-  role: string;
-  content: string;
-}
+import { Send, Paperclip, X, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Message } from "./chat-sidebar";
 
 interface ChatbotInputProps {
   placeholder?: string;
   disabled?: boolean;
   setMessagesHandler?: (messages: Message[]) => void;
+  chatMessages?: Message[];
 }
 
 export default function ChatbotInput({
   placeholder = "Type your message...",
   disabled = false,
   setMessagesHandler,
+  chatMessages,
 }: ChatbotInputProps) {
   const [userInput, setUserInput] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(chatMessages || []);
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMessages(chatMessages || []);
+  }, [chatMessages]);
+
+  console.log("Files:", files);
 
   const handleAttachment = () => {
     // Trigger the file input click to open file picker
@@ -33,6 +37,7 @@ export default function ChatbotInput({
   };
   const handleUserInput = async () => {
     console.log("User input to send:", userInput);
+
     try {
       const response = await fetch("http://localhost:8001/chat", {
         method: "POST",
@@ -63,48 +68,61 @@ export default function ChatbotInput({
     }
     console.log("Selected file:", files[0].name);
 
-    const formData = new FormData();
-    formData.append("file", files[0]);
-    formData.append("title", files[0].name);
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("title", file.name);
 
-    try {
-      const response = await fetch("http://localhost:8001/add", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error("Failed to upload file");
+      try {
+        const response = await fetch("http://localhost:8001/add", {
+          method: "POST",
+          body: formData,
+        });
+        if (!response.ok) {
+          throw new Error("Failed to upload file");
+        }
+        console.log("File uploaded successfully:", response);
+      } catch (error) {
+        console.error("Error uploading file:", error);
       }
-      console.log("File uploaded successfully:", response);
-    } catch (error) {
-      console.error("Error uploading file:", error);
     }
+    // setFiles([]);
   };
   const handleAllInput = async () => {
     if (!loading && userInput !== "") {
+      setUserInput("");
       setLoading(true);
       setMessagesHandler?.([...messages, { role: "user", content: userInput }]);
       await handleFileUpload();
       await handleUserInput();
       setLoading(false);
+      setFiles([]);
     }
   };
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* File preview - you can conditionally show this */}
-      <div className="mb-2 p-2 bg-muted rounded-md flex items-center justify-between hidden">
-        <span className="text-sm text-muted-foreground truncate">
-          Selected files will appear here
-        </span>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <X className="h-3 w-3" />
-        </Button>
-      </div>
+      {files.length > 0 && (
+        <div className="mb-2 p-2 bg-muted rounded-md flex items-center justify-between">
+          <span className="text-sm text-muted-foreground truncate">
+            {files.map((file) => file.name).join(", ")}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0"
+            onClick={() => setFiles([])}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
 
       {/* Input area */}
       <div className="flex items-end gap-2 p-2 border rounded-lg bg-background shadow-sm">
         <div className="flex-1">
           <Input
+            value={userInput}
             placeholder={placeholder}
             disabled={disabled}
             className="border-0 shadow-none focus-visible:ring-0 resize-none"
@@ -135,7 +153,7 @@ export default function ChatbotInput({
             onClick={handleAllInput}
           >
             {loading ? (
-              <Paperclip className="h-4 w-4" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />
             )}
