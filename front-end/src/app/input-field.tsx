@@ -25,6 +25,8 @@ export default function ChatbotInput({
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
   const handleAttachment = () => {
     // Trigger the file input click to open file picker
     fileInputRef.current?.click();
@@ -79,9 +81,13 @@ export default function ChatbotInput({
     }
   };
   const handleAllInput = async () => {
-    setMessagesHandler?.([...messages, { role: "user", content: userInput }]);
-    await handleFileUpload();
-    await handleUserInput();
+    if (!loading && userInput !== "") {
+      setLoading(true);
+      setMessagesHandler?.([...messages, { role: "user", content: userInput }]);
+      await handleFileUpload();
+      await handleUserInput();
+      setLoading(false);
+    }
   };
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -128,7 +134,11 @@ export default function ChatbotInput({
             // onClick={handleFileUpload}
             onClick={handleAllInput}
           >
-            <Send className="h-4 w-4" />
+            {loading ? (
+              <Paperclip className="h-4 w-4" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
