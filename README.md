@@ -53,7 +53,9 @@ docker compose up --build
 
 ```
 
-Front end
+### Frontend (Next.js)
+
+cd into front-end folder
 
 ```bash
 npm install
