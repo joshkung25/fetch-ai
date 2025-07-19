@@ -5,19 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Send, Paperclip, X } from "lucide-react";
 import { useRef, useState } from "react";
 
+interface Message {
+  role: string;
+  content: string;
+}
+
 interface ChatbotInputProps {
   placeholder?: string;
   disabled?: boolean;
+  setMessagesHandler?: (messages: Message[]) => void;
 }
 
 export default function ChatbotInput({
   placeholder = "Type your message...",
   disabled = false,
+  setMessagesHandler,
 }: ChatbotInputProps) {
-  const [userInput, setUserInput] = useState<String>("");
+  const [userInput, setUserInput] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [messages, setMessages] = useState<[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const handleAttachment = () => {
     // Trigger the file input click to open file picker
     fileInputRef.current?.click();
@@ -36,15 +43,22 @@ export default function ChatbotInput({
         }),
       });
       const data = await response.json();
+
+      // Console
       console.log(data[0]);
+      console.log(data[1]);
       setMessages(data[1]);
+      // Update UI
+      setMessagesHandler?.(data[1]);
     } catch (error) {
       console.error("Error sending user input:", error);
     }
   };
   const handleFileUpload = async () => {
-    if (!files) return;
-
+    if (files.length === 0) {
+      console.log("No files selected");
+      return;
+    }
     console.log("Selected file:", files[0].name);
 
     const formData = new FormData();
@@ -65,6 +79,7 @@ export default function ChatbotInput({
     }
   };
   const handleAllInput = async () => {
+    setMessagesHandler?.([...messages, { role: "user", content: userInput }]);
     await handleFileUpload();
     await handleUserInput();
   };
