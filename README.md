@@ -9,7 +9,7 @@ Fetch is an AI-powered document recall system that can save/read your docs/files
 To clone the repository with the submodules, use the following command:
 
 ```bash
-git clone https://github.com/tinyfish-io/catfish.git
+git clone https://github.com/joshkung25/fetch-ai.git
 ```
 
 ### Backend (Python fastapi)
