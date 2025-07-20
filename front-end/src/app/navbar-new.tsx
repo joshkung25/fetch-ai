@@ -1,5 +1,5 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { FileText } from "lucide-react";
+import { FileText, LogOut, User } from "lucide-react";
 import ThemeToggle from "./theme-toggle";
 import { useUser } from "@auth0/nextjs-auth0";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function NavbarNew() {
   const { user } = useUser();
 
-  console.log(user?.sub);
+  console.log(user);
 
   return (
     <>
@@ -22,13 +22,15 @@ export default function NavbarNew() {
           {user ? (
             <a href="/auth/logout">
               <Button variant="outline" className="hover:cursor-pointer">
+                <LogOut className="h-5 w-5" />
                 Logout
               </Button>
             </a>
           ) : (
             <a href="/auth/login">
               <Button variant="outline" className="hover:cursor-pointer">
-                Login
+                <User className="h-5 w-5" />
+                Sign in
               </Button>
             </a>
           )}

@@ -6,14 +6,25 @@ import NavbarNew from "./navbar-new";
 import InputField from "./input-field";
 import { useState, useEffect } from "react";
 import { Message } from "./chat-sidebar";
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { useUser } from "@auth0/nextjs-auth0";
 
 export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
+  const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>(chatMessages);
-
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   // Update internal state when prop changes
   useEffect(() => {
     setMessages(chatMessages);
   }, [chatMessages]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   console.log("Messages:", messages);
   const cleanMessages = (messages: Message[]) => {
@@ -30,6 +41,9 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
     );
   };
 
+  const logoSrc =
+    theme === "dark" ? "/fetchai_logo_dark.png" : "/fetchai_logo.png";
+
   return (
     <div className="flex flex-col h-screen">
       <NavbarNew />
@@ -38,9 +52,18 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
         <div className="flex-1 overflow-y-auto pb-20 sm:p-4 md:p-10 lg:p-24">
           {messages.length === 0 ? (
             <div className="text-center py-8">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <Image
+                src={logoSrc}
+                alt="Fetch Logo"
+                width={200}
+                height={200}
+                className="mx-auto mb-4"
+              />
+              {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
               <h2 className="text-xl font-semibold mb-2">
-                Welcome to Fetch AI Assistant
+                {user
+                  ? "Welcome back, " + user.given_name + "!"
+                  : "Welcome to Fetch AI"}
               </h2>
               <p className="text-muted-foreground">
                 Start a new conversation or select an existing chat from the

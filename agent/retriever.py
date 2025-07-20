@@ -2,9 +2,12 @@ import chromadb
 from chromadb.config import Settings
 from agent.embedder import embed_text_batch
 from agent.embedder import embed_text
+import os
 
-# Persistent vector DB store
-chroma_client = chromadb.HttpClient(host="localhost", port=8000)
+# Persistent vector DB store - use environment variables for Docker compatibility
+chroma_host = os.getenv("CHROMA_SERVER_HOST", "localhost")
+chroma_port = int(os.getenv("CHROMA_SERVER_PORT", "8000"))
+chroma_client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
 
 
 def add_doc_to_collection(doc_chunks, title, user_id):
