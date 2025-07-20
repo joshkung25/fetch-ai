@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Send, Paperclip, X, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Message } from "./chat-sidebar";
+import { useUser } from "@auth0/nextjs-auth0";
 
 interface ChatbotInputProps {
   placeholder?: string;
@@ -24,12 +25,11 @@ export default function ChatbotInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<Message[]>(chatMessages || []);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const { user } = useUser();
   useEffect(() => {
     setMessages(chatMessages || []);
   }, [chatMessages]);
-
-  console.log("Files:", files);
+  const clean_id = user?.sub?.replace("|", "") || "guest";
 
   const handleAttachment = () => {
     // Trigger the file input click to open file picker
@@ -37,7 +37,6 @@ export default function ChatbotInput({
   };
   const handleUserInput = async () => {
     console.log("User input to send:", userInput);
-
     try {
       const response = await fetch("http://localhost:8001/chat", {
         method: "POST",
@@ -47,6 +46,7 @@ export default function ChatbotInput({
         body: JSON.stringify({
           user_input: userInput,
           message_history: messages,
+          user_id: clean_id,
         }),
       });
       const data = await response.json();
@@ -72,6 +72,7 @@ export default function ChatbotInput({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", file.name);
+      formData.append("user_id", clean_id);
 
       try {
         const response = await fetch("http://localhost:8001/add", {
@@ -94,6 +95,7 @@ export default function ChatbotInput({
       setLoading(true);
       setMessagesHandler?.([...messages, { role: "user", content: userInput }]);
       await handleFileUpload();
+      console.log("Files uploaded successfully");
       await handleUserInput();
       setLoading(false);
       setFiles([]);

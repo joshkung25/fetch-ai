@@ -11,6 +11,10 @@ load_dotenv(override=True)
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+DOCS_ASSISTANT_PROMPT = """You are a document recall assistant.
+Your main purpose is to help users recall information from files uploaded to you, 
+however you can also be a general purpose assistant. """
+
 
 def start_chat():
     """Start the chat interface with the AI assistant."""
@@ -32,7 +36,14 @@ def start_chat():
         if user_input.lower() in ["exit", "quit"]:
             break
 
-        messages.append({"role": "user", "content": model_recall_response(user_input)})
+        messages.append(
+            {
+                "role": "user",
+                "content": model_recall_response(
+                    user_input, "google-oauth2112897530008069583936"
+                ),
+            }
+        )
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",  # or gpt-4o
@@ -45,11 +56,15 @@ def start_chat():
         messages.append({"role": "assistant", "content": assistant_reply})
 
 
-def chat(user_input, messages):
+def chat(user_input, messages, user_id):
     """
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
-    messages.append({"role": "user", "content": model_recall_response(user_input)})
+    input_to_model = model_recall_response(user_input, user_id)
+    if len(messages) == 0:
+        input_to_model = DOCS_ASSISTANT_PROMPT + input_to_model
+
+    messages.append({"role": "user", "content": input_to_model})
 
     # model response
     response = client.chat.completions.create(

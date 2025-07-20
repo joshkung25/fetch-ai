@@ -5,12 +5,10 @@ from agent.embedder import embed_text
 
 # Persistent vector DB store
 chroma_client = chromadb.HttpClient(host="localhost", port=8000)
-collection = chroma_client.get_or_create_collection("mydocs")
-
-print(collection.count())
 
 
-def add_doc_to_collection(doc_chunks, title):
+def add_doc_to_collection(doc_chunks, title, user_id):
+    collection = get_collection(user_id)
     ids = [f"{title}_chunk_{i}" for i in range(len(doc_chunks))]
     texts = [chunk["text"] for chunk in doc_chunks]
 
@@ -39,21 +37,21 @@ def add_doc_to_collection(doc_chunks, title):
 #     collection.add(documents=doc_chunks, ids=ids, embeddings=embedded_chunks)
 
 
-def query_collection(embedded_input, n_results=1):
+def query_collection(embedded_input, user_id, n_results=1):
     """
     Query the collection with a vector and return top-k matching chunks.
     """
-    return collection.query(
+    return get_collection(user_id).query(
         query_embeddings=[embedded_input],
         n_results=n_results,
         include=["documents", "distances", "metadatas"],
     )
 
 
-def get_collection():
-    return chroma_client.get_or_create_collection("mydocs")
+def get_collection(user_id):
+    return chroma_client.get_or_create_collection(f"{user_id}_docs")
 
 
-def remove_collection():
-    chroma_client.delete_collection("mydocs")
-    print(collection.count())
+def remove_collection(user_id):
+    chroma_client.delete_collection(f"{user_id}_docs")
+    # print(get_collection(user_id).count())

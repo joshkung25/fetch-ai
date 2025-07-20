@@ -201,7 +201,7 @@ export default function ChatSidebar() {
             size="sm"
           >
             <FileUp className="h-4 w-4" />
-            New Document
+            Upload a Document
           </Button>
         </SidebarHeader>
 

@@ -15,6 +15,7 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     user_input: str
     message_history: List[Dict]
+    user_id: str
 
 
 @router.get("/")
@@ -23,7 +24,9 @@ def root():
 
 
 @router.post("/add")
-async def add_doc_route(file: UploadFile = File(...), title: str = Form(...)):
+async def add_doc_route(
+    file: UploadFile = File(...), title: str = Form(...), user_id: str = Form(...)
+):
     try:
         # Save file to temporary location
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
@@ -32,7 +35,7 @@ async def add_doc_route(file: UploadFile = File(...), title: str = Form(...)):
             doc_chunks = parse_pdf(tmp_path)
 
         # Add to collection
-        add_doc_to_collection(doc_chunks, title)
+        add_doc_to_collection(doc_chunks, title, user_id)
         return {"status": "ok"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -42,4 +45,5 @@ async def add_doc_route(file: UploadFile = File(...), title: str = Form(...)):
 async def chat_route(request: ChatRequest):
     user_input = request.user_input
     messages = request.message_history
-    return chat(user_input, messages)
+    user_id = request.user_id
+    return chat(user_input, messages, user_id)
