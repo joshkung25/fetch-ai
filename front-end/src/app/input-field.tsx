@@ -38,7 +38,9 @@ export default function ChatbotInput({
   const handleUserInput = async () => {
     console.log("User input to send:", userInput);
     try {
-      const response = await fetch("http://localhost:8001/chat", {
+      // http://localhost:8001/chat
+      //http://18.225.92.118:8001/chat
+      const response = await fetch("http://18.225.92.118:8001/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +77,9 @@ export default function ChatbotInput({
       formData.append("user_id", clean_id);
 
       try {
-        const response = await fetch("http://localhost:8001/add", {
+        // http://localhost:8001/add
+        // http://18.225.92.118:8001/add
+        const response = await fetch("http://18.225.92.118:8001/add", {
           method: "POST",
           body: formData,
         });
