@@ -10,7 +10,13 @@ from agent.retriever import add_doc_to_collection, remove_collection
 
 app = FastAPI()
 
-origins = ["http://localhost:3000", "https://fetch-ai-mu.vercel.app"]
+origins = [
+    "http://localhost:3000",
+    "https://fetch-ai-mu.vercel.app",
+    "https://fetchfileai.com",
+    "https://www.fetchfileai.com",
+    "https://api.fetchfileai.com",
+]
 
 app.add_middleware(
     CORSMiddleware,
