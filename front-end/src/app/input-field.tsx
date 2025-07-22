@@ -40,7 +40,8 @@ export default function ChatbotInput({
     try {
       // http://localhost:8001/chat
       //http://18.225.92.118:8001/chat
-      const response = await fetch("http://18.225.92.118:8001/chat", {
+      //https://api.fetchfileai.com/chat
+      const response = await fetch("https://api.fetchfileai.com/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +80,8 @@ export default function ChatbotInput({
       try {
         // http://localhost:8001/add
         // http://18.225.92.118:8001/add
-        const response = await fetch("http://18.225.92.118:8001/add", {
+        // https://api.fetchfileai.com/add
+        const response = await fetch("https://api.fetchfileai.com/add", {
           method: "POST",
           body: formData,
         });
