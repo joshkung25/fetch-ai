@@ -45,7 +45,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Chat from "./chat";
-
+import { useEffect, useRef } from "react";
+import { useUser } from "@auth0/nextjs-auth0";
+import { toast } from "sonner";
 // Mock data for existing chats
 const mockChats = [
   {
@@ -117,6 +119,11 @@ export default function ChatSidebar() {
   const [sortBy, setSortBy] = React.useState<SortOption>("recent");
   const [chats, setChats] = React.useState(mockChats);
   const [chatMessages, setChatMessages] = React.useState<Message[]>([]);
+  const [file, setFile] = React.useState<File>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useUser();
+  const clean_id = user?.sub?.replace("|", "") || "guest";
+
   // Filter chats based on search query
   const filteredChats = React.useMemo(() => {
     return chats.filter(
@@ -181,6 +188,44 @@ export default function ChatSidebar() {
     }
   };
 
+  const handleAttachment = () => {
+    console.log("handleAttachment");
+    // Trigger the file input click to open file picker
+    fileInputRef.current?.click();
+  };
+
+  const handleUploadDocument = async () => {
+    console.log("handleUploadDocument", file);
+    if (file === undefined) {
+      console.log("No files selected");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", file.name);
+    formData.append("user_id", clean_id);
+    try {
+      const response = await fetch("https://api.fetchfileai.com/add", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error("Failed to upload file");
+      }
+      console.log("File uploaded successfully:", response);
+      toast.success("File uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("useEffect", file);
+    if (file) {
+      handleUploadDocument();
+    }
+  }, [file]);
+
   return (
     <SidebarProvider>
       <Sidebar className="border-r">
@@ -196,7 +241,7 @@ export default function ChatSidebar() {
           </Button>
           <Button
             variant="ghost"
-            onClick={handleNewChat}
+            onClick={handleAttachment}
             className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
             size="sm"
           >
@@ -318,6 +363,20 @@ export default function ChatSidebar() {
       <SidebarInset>
         <Chat chatMessages={chatMessages} />
       </SidebarInset>
+      {/* Hidden file input - you can add ref and onChange */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        accept="image/*,text/*,.pdf,.doc,.docx"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            setFile(file);
+          }
+        }}
+      />
     </SidebarProvider>
   );
 }

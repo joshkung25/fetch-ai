@@ -2,12 +2,12 @@
 // import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/app/navbar";
 import { ThemeProvider } from "next-themes";
 // import { useState } from "react";
 // import Sidebar from "./sidebar";
 import ChatSidebar from "./chat-sidebar";
 import { Metadata } from "next";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +46,7 @@ export default function RootLayout({
             {/*  */}
           </div>
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );

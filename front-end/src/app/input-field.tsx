@@ -6,6 +6,7 @@ import { Send, Paperclip, X, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Message } from "./chat-sidebar";
 import { useUser } from "@auth0/nextjs-auth0";
+import { toast } from "sonner";
 
 interface ChatbotInputProps {
   placeholder?: string;
@@ -89,6 +90,7 @@ export default function ChatbotInput({
           throw new Error("Failed to upload file");
         }
         console.log("File uploaded successfully:", response);
+        toast.success("File uploaded successfully");
       } catch (error) {
         console.error("Error uploading file:", error);
       }

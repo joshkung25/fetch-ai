@@ -26,7 +26,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
 
   if (!mounted) return null;
 
-  console.log("Messages:", messages);
+  // console.log("Messages:", messages);
   const cleanMessages = (messages: Message[]) => {
     return messages.map((message) =>
       message.role === "user"
