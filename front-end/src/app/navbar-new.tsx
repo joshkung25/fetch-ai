@@ -20,14 +20,14 @@ export default function NavbarNew() {
         <div className="flex items-center gap-8 pr-8">
           <ThemeToggle />
           {user ? (
-            <a href="/api/auth/logout">
+            <a href="/auth/logout">
               <Button variant="outline" className="hover:cursor-pointer">
                 <LogOut className="h-5 w-5" />
                 Logout
               </Button>
             </a>
           ) : (
-            <a href="/api/auth/login">
+            <a href="/auth/login">
               <Button variant="outline" className="hover:cursor-pointer">
                 <User className="h-5 w-5" />
                 Sign in
