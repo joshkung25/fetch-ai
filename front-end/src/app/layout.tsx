@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   title: "Fetch AI",
   description: "Fetch AI",
   icons: {
-    icon: "/fetchicon.ico",
+    icon: "/favicon.ico",
   },
 };
 
