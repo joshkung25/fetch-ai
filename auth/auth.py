@@ -16,7 +16,7 @@ def verify_jwt(token: str):
     Verify the JWT token. Return the payload if valid, otherwise raise an error.
     """
     jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
-    jwks = requests.get(jwks_url).json()
+    jwks = requests.get(jwks_url, timeout=10).json()
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = next(
         (key for key in jwks["keys"] if key["kid"] == unverified_header["kid"]), None
