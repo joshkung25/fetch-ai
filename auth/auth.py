@@ -3,10 +3,16 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 import requests
 from typing import Optional
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 auth_scheme = HTTPBearer(auto_error=False)
 
-AUTH0_DOMAIN = "dev-0123456789012345.us.auth0.com"
+AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
+
 API_AUDIENCE = "https://api.fetchfileai.com"
 ALGORITHMS = ["RS256"]
 
@@ -16,7 +22,13 @@ def verify_jwt(token: str):
     Verify the JWT token. Return the payload if valid, otherwise raise an error.
     """
     jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
-    jwks = requests.get(jwks_url, timeout=10).json()
+    try:
+        response = requests.get(jwks_url, timeout=10)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        jwks = response.json()
+    except (requests.RequestException, ValueError) as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch JWKS: {str(e)}")
+
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = next(
         (key for key in jwks["keys"] if key["kid"] == unverified_header["kid"]), None
