@@ -13,6 +13,7 @@ interface ChatbotInputProps {
   disabled?: boolean;
   setMessagesHandler?: (messages: Message[]) => void;
   chatMessages?: Message[];
+  setIsThinking?: (isThinking: boolean) => void;
 }
 
 export default function ChatbotInput({
@@ -20,6 +21,7 @@ export default function ChatbotInput({
   disabled = false,
   setMessagesHandler,
   chatMessages,
+  setIsThinking,
 }: ChatbotInputProps) {
   const [userInput, setUserInput] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
@@ -40,6 +42,7 @@ export default function ChatbotInput({
   };
 
   const handleUserInput = async () => {
+    setIsThinking?.(true);
     console.log("User input to send:", userInput);
     try {
       // Get the access token from the session
@@ -74,6 +77,8 @@ export default function ChatbotInput({
       setMessagesHandler?.(data[1]);
     } catch (error) {
       console.error("Error sending user input:", error);
+    } finally {
+      setIsThinking?.(false);
     }
   };
 
@@ -160,6 +165,11 @@ export default function ChatbotInput({
             className="border-0 shadow-none focus-visible:ring-0 resize-none"
             onChange={(e) => {
               setUserInput(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAllInput();
+              }
             }}
           />
         </div>

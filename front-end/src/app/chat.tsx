@@ -1,5 +1,5 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { FileText } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import ThemeToggle from "./theme-toggle";
 import { Input } from "@/components/ui/input";
 import NavbarNew from "./navbar-new";
@@ -9,12 +9,16 @@ import { Message } from "./chat-sidebar";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useUser } from "@auth0/nextjs-auth0";
+import { Leapfrog } from "ldrs/react";
+import "ldrs/react/Leapfrog.css";
 
 export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>(chatMessages);
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+
   // Update internal state when prop changes
   useEffect(() => {
     setMessages(chatMessages);
@@ -83,6 +87,15 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                   {message.content}
                 </li>
               ))}
+              {isThinking && (
+                <li className="pl-6">
+                  <Leapfrog
+                    size="20"
+                    speed="3"
+                    color={theme === "dark" ? "white" : "black"}
+                  />
+                </li>
+              )}
             </ul>
           )}
         </div>
@@ -92,6 +105,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
           <InputField
             setMessagesHandler={setMessages}
             chatMessages={chatMessages}
+            setIsThinking={setIsThinking}
           />
         </div>
       </div>
