@@ -66,8 +66,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                   : "Welcome to Fetch AI"}
               </h2>
               <p className="text-muted-foreground">
-                Start a new conversation or select an existing chat from the
-                sidebar.
+                Upload a file and ask a question to get started.
               </p>
             </div>
           ) : (

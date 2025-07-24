@@ -17,24 +17,17 @@ def verify_jwt(token: str):
     Verify the JWT token. Return the payload if valid, otherwise raise an error.
     """
     if not token:
-        raise HTTPException(status_code=401, detail="Token is required")
-
+        return
     if not AUTH0_DOMAIN:
         raise HTTPException(status_code=500, detail="AUTH0_DOMAIN not configured")
 
     jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
 
-    try:
-        response = requests.get(jwks_url, timeout=10)
-        response.raise_for_status()  # Raise an exception for bad status codes
-        jwks = response.json()
-    except (requests.RequestException, ValueError) as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch JWKS: {str(e)}")
+    response = requests.get(jwks_url, timeout=10)
+    response.raise_for_status()  # Raise an exception for bad status codes
+    jwks = response.json()
 
-    try:
-        unverified_header = jwt.get_unverified_header(token)
-    except Exception as e:
-        raise HTTPException(status_code=401, detail="Invalid token format")
+    unverified_header = jwt.get_unverified_header(token)
 
     kid = unverified_header.get("kid")
 
@@ -42,22 +35,15 @@ def verify_jwt(token: str):
     if not rsa_key:
         raise HTTPException(status_code=401, detail="Invalid token header")
 
-    try:
-        # return the payload. a payload is a dictionary of the token
-        payload = jwt.decode(
-            token,
-            rsa_key,
-            algorithms=ALGORITHMS,
-            audience=API_AUDIENCE,
-            issuer=f"https://{AUTH0_DOMAIN}/",
-        )
-        return payload
-    except JWTError as e:
-        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Token verification error: {str(e)}"
-        )
+    # return the payload. a payload is a dictionary of the token
+    payload = jwt.decode(
+        token,
+        rsa_key,
+        algorithms=ALGORITHMS,
+        audience=API_AUDIENCE,
+        issuer=f"https://{AUTH0_DOMAIN}/",
+    )
+    return payload
 
 
 def get_current_user(

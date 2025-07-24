@@ -43,6 +43,10 @@ export default function ChatbotInput({
     console.log("User input to send:", userInput);
     try {
       // Get the access token from the session
+      if (!user) {
+        toast.error("Please login to continue");
+        return;
+      }
       const accessToken = await getAccessToken();
 
       // http://localhost:8001/chat
@@ -88,6 +92,10 @@ export default function ChatbotInput({
 
       try {
         // Get the access token from the session
+        if (!user) {
+          toast.error("Please login to upload files");
+          return;
+        }
         const accessToken = await getAccessToken();
 
         // http://localhost:8001/add

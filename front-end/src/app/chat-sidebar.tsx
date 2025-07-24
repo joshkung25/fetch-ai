@@ -46,7 +46,7 @@ import {
 } from "@/components/ui/select";
 import Chat from "./chat";
 import { useEffect, useRef } from "react";
-import { useUser } from "@auth0/nextjs-auth0";
+import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
 // Mock data for existing chats
 const mockChats = [
@@ -200,12 +200,20 @@ export default function ChatSidebar() {
       console.log("No files selected");
       return;
     }
+    if (!user) {
+      toast.error("Please login to upload files");
+      return;
+    }
+    const accessToken = await getAccessToken();
     const formData = new FormData();
     formData.append("file", file);
     formData.append("title", file.name);
-    formData.append("user_id", clean_id);
+    // formData.append("user_id", clean_id);
     try {
       const response = await fetch("https://api.fetchfileai.com/add", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
         method: "POST",
         body: formData,
       });
