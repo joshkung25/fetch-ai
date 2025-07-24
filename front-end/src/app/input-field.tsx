@@ -55,7 +55,7 @@ export default function ChatbotInput({
       // http://localhost:8001/chat
       //http://18.225.92.118:8001/chat
       //https://api.fetchfileai.com/chat
-      const chatResponse = await fetch("http://localhost:8001/chat", {
+      const chatResponse = await fetch("https://api.fetchfileai.com/chat", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
