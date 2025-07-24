@@ -30,7 +30,8 @@ export default function ChatbotInput({
   useEffect(() => {
     setMessages(chatMessages || []);
   }, [chatMessages]);
-  const clean_id = user?.sub?.replace("|", "") || "guest";
+  // const clean_id = user?.sub?.replace("|", "") || "guest";
+  console.log("auth token", user?.accessToken);
 
   const handleAttachment = () => {
     // Trigger the file input click to open file picker
@@ -45,12 +46,13 @@ export default function ChatbotInput({
       const response = await fetch("https://api.fetchfileai.com/chat", {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${user?.accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           user_input: userInput,
           message_history: messages,
-          user_id: clean_id,
+          // user_id: clean_id,
         }),
       });
       const data = await response.json();
@@ -76,13 +78,16 @@ export default function ChatbotInput({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", file.name);
-      formData.append("user_id", clean_id);
+      // formData.append("user_id", clean_id);
 
       try {
         // http://localhost:8001/add
         // http://18.225.92.118:8001/add
         // https://api.fetchfileai.com/add
         const response = await fetch("https://api.fetchfileai.com/add", {
+          headers: {
+            Authorization: `Bearer ${user?.accessToken}`,
+          },
           method: "POST",
           body: formData,
         });

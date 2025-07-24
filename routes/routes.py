@@ -1,10 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, Depends
+from fastapi.security import HTTPAuthorizationCredentials
 from agent.retriever import add_doc_to_collection
 from parser.pdf_parser import parse_pdf
 from agent.chat import chat
 import tempfile
 from pydantic import BaseModel
 from typing import List, Dict
+from auth.auth import get_current_user
 
 router = APIRouter()
 # @router.get("/search")
@@ -15,7 +17,6 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     user_input: str
     message_history: List[Dict]
-    user_id: str
 
 
 @router.get("/")
@@ -25,7 +26,9 @@ def root():
 
 @router.post("/add")
 async def add_doc_route(
-    file: UploadFile = File(...), title: str = Form(...), user_id: str = Form(...)
+    file: UploadFile = File(...),
+    title: str = Form(...),
+    user_id: str = Depends(get_current_user),
 ):
     try:
         # Save file to temporary location
@@ -42,8 +45,10 @@ async def add_doc_route(
 
 
 @router.post("/chat")
-async def chat_route(request: ChatRequest):
+async def chat_route(
+    request: ChatRequest,
+    user_id: str = Depends(get_current_user),
+):
     user_input = request.user_input
     messages = request.message_history
-    user_id = request.user_id
     return chat(user_input, messages, user_id)
