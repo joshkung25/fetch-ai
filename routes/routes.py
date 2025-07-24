@@ -7,6 +7,11 @@ import tempfile
 from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 # @router.get("/search")
@@ -49,6 +54,7 @@ async def chat_route(
     request: ChatRequest,
     user_id: str = Depends(get_current_user),
 ):
+    logger.info(f"user_id: {user_id}")
     user_input = request.user_input
     messages = request.message_history
     return chat(user_input, messages, user_id)

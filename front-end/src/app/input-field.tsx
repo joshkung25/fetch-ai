@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Send, Paperclip, X, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Message } from "./chat-sidebar";
-import { useUser } from "@auth0/nextjs-auth0";
+import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
 
 interface ChatbotInputProps {
@@ -27,26 +27,31 @@ export default function ChatbotInput({
   const [messages, setMessages] = useState<Message[]>(chatMessages || []);
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useUser();
+
   useEffect(() => {
     setMessages(chatMessages || []);
   }, [chatMessages]);
+
   // const clean_id = user?.sub?.replace("|", "") || "guest";
-  console.log("auth token", user?.accessToken);
 
   const handleAttachment = () => {
     // Trigger the file input click to open file picker
     fileInputRef.current?.click();
   };
+
   const handleUserInput = async () => {
     console.log("User input to send:", userInput);
     try {
+      // Get the access token from the session
+      const accessToken = await getAccessToken();
+
       // http://localhost:8001/chat
       //http://18.225.92.118:8001/chat
       //https://api.fetchfileai.com/chat
-      const response = await fetch("https://api.fetchfileai.com/chat", {
+      const chatResponse = await fetch("http://localhost:8001/chat", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${user?.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -55,7 +60,7 @@ export default function ChatbotInput({
           // user_id: clean_id,
         }),
       });
-      const data = await response.json();
+      const data = await chatResponse.json();
 
       // Console
       console.log(data[0]);
@@ -67,6 +72,7 @@ export default function ChatbotInput({
       console.error("Error sending user input:", error);
     }
   };
+
   const handleFileUpload = async () => {
     if (files.length === 0) {
       console.log("No files selected");
@@ -81,12 +87,15 @@ export default function ChatbotInput({
       // formData.append("user_id", clean_id);
 
       try {
+        // Get the access token from the session
+        const accessToken = await getAccessToken();
+
         // http://localhost:8001/add
         // http://18.225.92.118:8001/add
         // https://api.fetchfileai.com/add
         const response = await fetch("https://api.fetchfileai.com/add", {
           headers: {
-            Authorization: `Bearer ${user?.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           method: "POST",
           body: formData,

@@ -60,6 +60,7 @@ def chat(user_input, messages, user_id):
     """
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
+    user_id = user_id.replace("|", "")
     input_to_model = model_recall_response(user_input, user_id)
     if len(messages) == 0:
         input_to_model = DOCS_ASSISTANT_PROMPT + input_to_model

@@ -11,6 +11,7 @@ chroma_client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
 
 
 def add_doc_to_collection(doc_chunks, title, user_id):
+    user_id = user_id.replace("|", "")
     collection = get_collection(user_id)
     ids = [f"{title}_chunk_{i}" for i in range(len(doc_chunks))]
     texts = [chunk["text"] for chunk in doc_chunks]
