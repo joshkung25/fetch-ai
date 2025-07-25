@@ -124,6 +124,9 @@ export default function ChatSidebar() {
   const { user } = useUser();
   const clean_id = user?.sub?.replace("|", "") || "guest";
 
+  // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   // Filter chats based on search query
   const filteredChats = React.useMemo(() => {
     return chats.filter(
@@ -210,7 +213,7 @@ export default function ChatSidebar() {
     formData.append("title", file.name);
     // formData.append("user_id", clean_id);
     try {
-      const response = await fetch("https://api.fetchfileai.com/add", {
+      const response = await fetch(`${apiUrl}/add`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -218,17 +221,21 @@ export default function ChatSidebar() {
         body: formData,
       });
       if (!response.ok) {
-        throw new Error("Failed to upload file");
+        if (response.status === 413) {
+          toast.error("File size too large");
+        } else {
+          toast.error("Failed to upload file");
+        }
+        return;
       }
-      console.log("File uploaded successfully:", response);
       toast.success("File uploaded successfully");
     } catch (error) {
-      console.error("Error uploading file:", error);
+      toast.error("Failed to upload file");
     }
+    setFile(undefined);
   };
 
   useEffect(() => {
-    console.log("useEffect", file);
     if (file) {
       handleUploadDocument();
     }

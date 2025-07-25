@@ -49,5 +49,4 @@ if __name__ == "__main__":
 
     # transcript_chunks_jacob = parse_pdf("public/Jacob_Transcript_Test.pdf")
     # add_doc_to_collection(transcript_chunks_jacob, "jacob_transcript")
-    # remove_collection()
     start_chat()

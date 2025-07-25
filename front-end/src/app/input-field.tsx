@@ -30,6 +30,10 @@ export default function ChatbotInput({
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useUser();
 
+  // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  // console.log("apiUrl", apiUrl);
+
   useEffect(() => {
     setMessages(chatMessages || []);
   }, [chatMessages]);
@@ -55,7 +59,7 @@ export default function ChatbotInput({
       // http://localhost:8001/chat
       //http://18.225.92.118:8001/chat
       //https://api.fetchfileai.com/chat
-      const chatResponse = await fetch("https://api.fetchfileai.com/chat", {
+      const chatResponse = await fetch(`${apiUrl}/chat`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -106,23 +110,29 @@ export default function ChatbotInput({
         // http://localhost:8001/add
         // http://18.225.92.118:8001/add
         // https://api.fetchfileai.com/add
-        const response = await fetch("https://api.fetchfileai.com/add", {
+        const response = await fetch(`${apiUrl}/add`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
           method: "POST",
           body: formData,
         });
+
         if (!response.ok) {
-          throw new Error("Failed to upload file");
+          if (response.status === 413) {
+            toast.error("File size too large");
+          } else {
+            toast.error("Failed to upload file");
+          }
+          return;
         }
-        console.log("File uploaded successfully:", response);
         toast.success("File uploaded successfully");
       } catch (error) {
-        console.error("Error uploading file:", error);
+        console.log("error", error);
+        toast.error("Failed to upload file");
       }
     }
-    // setFiles([]);
+    setFiles([]);
   };
   const handleAllInput = async () => {
     if (!loading && userInput !== "") {
@@ -133,7 +143,7 @@ export default function ChatbotInput({
       console.log("Files uploaded successfully");
       await handleUserInput();
       setLoading(false);
-      setFiles([]);
+      // setFiles([]);
     }
   };
   return (

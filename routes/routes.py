@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from agent.retriever import add_doc_to_collection
 from parser.pdf_parser import parse_pdf
@@ -46,7 +46,12 @@ async def add_doc_route(
         add_doc_to_collection(doc_chunks, title, user_id)
         return {"status": "ok"}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        logger.error(f"Error processing document: {str(e)}")
+        if "413" in str(e):
+            raise HTTPException(status_code=413, detail="413 File size too large")
+
+        raise HTTPException(status_code=500, detail="500 Internal server error")
+        # return {"status": "error", "message": str(e)}
 
 
 @router.post("/chat")
