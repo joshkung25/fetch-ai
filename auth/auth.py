@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 import requests
+import logging
 from typing import Optional
 
 auth_scheme = HTTPBearer(auto_error=False)
@@ -17,6 +18,7 @@ def verify_jwt(token: str):
     Verify the JWT token. Return the payload if valid, otherwise raise an error.
     """
     if not token:
+        logging.info("No token provided, returning guest user")
         return
     if not AUTH0_DOMAIN:
         raise HTTPException(status_code=500, detail="AUTH0_DOMAIN not configured")
@@ -52,7 +54,9 @@ def get_current_user(
     """
     Get the current user id from the JWT token
     """
+    logging.info(f"credentials: {credentials}")
     if not credentials:
+        logging.info("No credentials provided, returning guest user")
         return "guest"
     try:
         token = credentials.credentials
