@@ -11,6 +11,9 @@ import { useTheme } from "next-themes";
 import { useUser } from "@auth0/nextjs-auth0";
 import { Leapfrog } from "ldrs/react";
 import "ldrs/react/Leapfrog.css";
+import ReactMarkdown from "react-markdown";
+import formatAgentResponse from "./format-response";
+import { useRef } from "react";
 
 export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   const { user } = useUser();
@@ -18,6 +21,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  const messageEndRef = useRef<HTMLLIElement>(null);
 
   // Update internal state when prop changes
   useEffect(() => {
@@ -27,6 +31,12 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   if (!mounted) return null;
 
@@ -83,8 +93,11 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                       ? "bg-blue-200/50 dark:bg-blue-900/50 ml-auto w-fit max-w-xs md:max-w-lg"
                       : "bg-gray-200/50 dark:bg-gray-900/50 mr-auto w-fit max-w-xs md:max-w-lg"
                   }`}
+                  ref={messageEndRef}
                 >
-                  {message.content}
+                  {/* {message.content} */}
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                  {/* {formatAgentResponse(message.content)} */}
                 </li>
               ))}
               {isThinking && (
