@@ -30,8 +30,8 @@ export default function ChatbotInput({
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useUser();
 
-  // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
+  // const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // console.log("apiUrl", apiUrl);
 
   useEffect(() => {
@@ -122,14 +122,18 @@ export default function ChatbotInput({
           if (response.status === 413) {
             toast.error("File size too large");
           } else {
-            toast.error("Failed to upload file");
+            toast.error("Failed to upload file"); // 500 Internal server error
           }
           return;
         }
         toast.success("File uploaded successfully");
       } catch (error) {
         console.log("error", error);
-        toast.error("Failed to upload file");
+        if (error instanceof Error && error.message.includes("413")) {
+          toast.error("File size too large");
+        } else {
+          toast.error("Failed to upload file");
+        }
       }
     }
     setFiles([]);
