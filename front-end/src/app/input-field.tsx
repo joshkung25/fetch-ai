@@ -30,8 +30,8 @@ export default function ChatbotInput({
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useUser();
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
-  // const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // console.log("apiUrl", apiUrl);
 
   useEffect(() => {

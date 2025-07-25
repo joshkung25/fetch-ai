@@ -124,9 +124,10 @@ export default function ChatSidebar() {
   const { user } = useUser();
   const clean_id = user?.sub?.replace("|", "") || "guest";
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
-  // const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
+  // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  console.log("apiUrl", apiUrl);
+  // const apiUrl = https://api.fetchfileai.com
   // Filter chats based on search query
   const filteredChats = React.useMemo(() => {
     return chats.filter(
