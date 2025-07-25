@@ -27,3 +27,20 @@ def embed_text_batch(text_list):
     )
 
     return [item.embedding for item in response.data]
+
+def delete_embeddings_by_source(source: str):
+    try:
+        collection = client.get_or_create_collection("documents")
+
+        # Get all IDs with the given source
+        results = collection.get(include=["metadatas", "ids"])
+        ids_to_delete = [id for id, meta in zip(results["ids"], results["metadatas"]) if meta.get("source") == source]
+
+        if ids_to_delete:
+            collection.delete(ids=ids_to_delete)
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"Error deleting embeddings: {e}")
+        return False

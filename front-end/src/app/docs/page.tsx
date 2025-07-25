@@ -1,0 +1,481 @@
+"use client"
+
+import * as React from "react"
+import {
+  Search,
+  Upload,
+  FileText,
+  File,
+  Filter,
+  Grid3X3,
+  List,
+  MoreHorizontal,
+  Download,
+  Trash2,
+  Eye,
+  X,
+} from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+
+// Mock data for documents
+const mockDocuments = [
+  {
+    id: "doc1",
+    name: "project-requirements.pdf",
+    type: "PDF",
+    size: "2.4 MB",
+    uploadDate: new Date("2024-01-15T14:20:00"),
+    tags: ["requirements", "project"],
+    description: "Detailed project requirements and specifications",
+  },
+  {
+    id: "doc2",
+    name: "api-documentation.md",
+    type: "Markdown",
+    size: "156 KB",
+    uploadDate: new Date("2024-01-14T09:15:00"),
+    tags: ["api", "documentation"],
+    description: "Complete API documentation with examples",
+  },
+  {
+    id: "doc3",
+    name: "database-schema.sql",
+    type: "SQL",
+    size: "45 KB",
+    uploadDate: new Date("2024-01-13T16:30:00"),
+    tags: ["database", "schema"],
+    description: "Database schema definition and migrations",
+  },
+  {
+    id: "doc4",
+    name: "user-guide.docx",
+    type: "Word",
+    size: "1.8 MB",
+    uploadDate: new Date("2024-01-12T11:45:00"),
+    tags: ["guide", "user"],
+    description: "Comprehensive user guide and tutorials",
+  },
+  {
+    id: "doc5",
+    name: "config.json",
+    type: "JSON",
+    size: "12 KB",
+    uploadDate: new Date("2024-01-11T08:30:00"),
+    tags: ["config", "settings"],
+    description: "Application configuration file",
+  },
+  {
+    id: "doc6",
+    name: "test-results.xlsx",
+    type: "Excel",
+    size: "890 KB",
+    uploadDate: new Date("2024-01-10T16:45:00"),
+    tags: ["testing", "results"],
+    description: "Test execution results and metrics",
+  },
+]
+
+type ViewMode = "grid" | "list"
+type SortOption = "name" | "date" | "size" | "type"
+type FilterOption = "all" | "pdf" | "markdown" | "sql" | "word" | "json" | "excel"
+
+export default function DocumentsPage() {
+  const [documents, setDocuments] = React.useState(mockDocuments)
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const [viewMode, setViewMode] = React.useState<ViewMode>("grid")
+  const [sortBy, setSortBy] = React.useState<SortOption>("date")
+  const [filterBy, setFilterBy] = React.useState<FilterOption>("all")
+  const [selectedDocuments, setSelectedDocuments] = React.useState<string[]>([])
+
+  // Filter and search documents
+  const filteredDocuments = React.useMemo(() => {
+    let filtered = documents
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (doc) =>
+          doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doc.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
+      )
+    }
+
+    // Apply type filter
+    if (filterBy !== "all") {
+      filtered = filtered.filter((doc) => doc.type.toLowerCase() === filterBy)
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name)
+        case "date":
+          return b.uploadDate.getTime() - a.uploadDate.getTime()
+        case "size":
+          return Number.parseFloat(b.size) - Number.parseFloat(a.size)
+        case "type":
+          return a.type.localeCompare(b.type)
+        default:
+          return 0
+      }
+    })
+
+    return filtered
+  }, [documents, searchQuery, filterBy, sortBy])
+
+  const getFileIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case "pdf":
+        return <FileText className="h-8 w-8 text-red-500" />
+      case "markdown":
+        return <FileText className="h-8 w-8 text-blue-500" />
+      case "sql":
+        return <FileText className="h-8 w-8 text-green-500" />
+      case "word":
+        return <FileText className="h-8 w-8 text-blue-600" />
+      case "json":
+        return <FileText className="h-8 w-8 text-yellow-600" />
+      case "excel":
+        return <FileText className="h-8 w-8 text-green-600" />
+      default:
+        return <File className="h-8 w-8 text-gray-500" />
+    }
+  }
+
+  const getSmallFileIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case "pdf":
+        return <FileText className="h-4 w-4 text-red-500" />
+      case "markdown":
+        return <FileText className="h-4 w-4 text-blue-500" />
+      case "sql":
+        return <FileText className="h-4 w-4 text-green-500" />
+      case "word":
+        return <FileText className="h-4 w-4 text-blue-600" />
+      case "json":
+        return <FileText className="h-4 w-4 text-yellow-600" />
+      case "excel":
+        return <FileText className="h-4 w-4 text-green-600" />
+      default:
+        return <File className="h-4 w-4 text-gray-500" />
+    }
+  }
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
+  const handleDeleteDocument = (docId: string) => {
+    setDocuments((prev) => prev.filter((doc) => doc.id !== docId))
+    setSelectedDocuments((prev) => prev.filter((id) => id !== docId))
+  }
+
+  const handleUploadDocument = () => {
+    console.log("Opening upload dialog...")
+  }
+
+  const handleBulkDelete = () => {
+    setDocuments((prev) => prev.filter((doc) => !selectedDocuments.includes(doc.id)))
+    setSelectedDocuments([])
+  }
+
+  const toggleDocumentSelection = (docId: string) => {
+    setSelectedDocuments((prev) => (prev.includes(docId) ? prev.filter((id) => id !== docId) : [...prev, docId]))
+  }
+
+  const selectAllDocuments = () => {
+    if (selectedDocuments.length === filteredDocuments.length) {
+      setSelectedDocuments([])
+    } else {
+      setSelectedDocuments(filteredDocuments.map((doc) => doc.id))
+    }
+  }
+
+  return (
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-16 items-center px-6">
+          <div className="flex items-center gap-3">
+            <FileText className="h-6 w-6" />
+            <h1 className="text-xl font-semibold">Documents</h1>
+            <Badge variant="secondary" className="ml-2">
+              {filteredDocuments.length} files
+            </Badge>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <Button onClick={handleUploadDocument} className="gap-2">
+              <Upload className="h-4 w-4" />
+              Upload
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Toolbar */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center gap-4 px-6 py-3">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search documents..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-2">
+            <Select value={filterBy} onValueChange={(value: FilterOption) => setFilterBy(value)}>
+              <SelectTrigger className="w-32">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="pdf">PDF</SelectItem>
+                <SelectItem value="markdown">Markdown</SelectItem>
+                <SelectItem value="sql">SQL</SelectItem>
+                <SelectItem value="word">Word</SelectItem>
+                <SelectItem value="json">JSON</SelectItem>
+                <SelectItem value="excel">Excel</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date">Date</SelectItem>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="size">Size</SelectItem>
+                <SelectItem value="type">Type</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Separator orientation="vertical" className="h-6" />
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center border rounded-md">
+              <Button
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className="rounded-r-none"
+              >
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+                className="rounded-l-none"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Bulk Actions */}
+        {selectedDocuments.length > 0 && (
+          <div className="flex items-center gap-2 px-6 py-2 bg-muted/50 border-t">
+            <span className="text-sm text-muted-foreground">{selectedDocuments.length} selected</span>
+            <Button variant="outline" size="sm" onClick={handleBulkDelete}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Selected
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setSelectedDocuments([])}>
+              <X className="h-4 w-4 mr-2" />
+              Clear Selection
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6">
+        {filteredDocuments.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">
+              {searchQuery || filterBy !== "all" ? "No documents found" : "No documents yet"}
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              {searchQuery || filterBy !== "all"
+                ? "Try adjusting your search or filters"
+                : "Upload your first document to get started"}
+            </p>
+            <Button onClick={handleUploadDocument} className="gap-2">
+              <Upload className="h-4 w-4" />
+              Upload Document
+            </Button>
+          </div>
+        ) : viewMode === "grid" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredDocuments.map((doc) => (
+              <Card
+                key={doc.id}
+                className={`cursor-pointer transition-all hover:shadow-md ${
+                  selectedDocuments.includes(doc.id) ? "ring-2 ring-primary" : ""
+                }`}
+                onClick={() => toggleDocumentSelection(doc.id)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      {getFileIcon(doc.type)}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-medium text-sm truncate">{doc.name}</h3>
+                        <p className="text-xs text-muted-foreground">{doc.type}</p>
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Eye className="h-4 w-4 mr-2" />
+                          Preview
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteDocument(doc.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{doc.description}</p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{doc.size}</span>
+                    <span>{formatDate(doc.uploadDate)}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {doc.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {/* List Header */}
+            <div className="flex items-center gap-4 px-4 py-2 text-xs font-medium text-muted-foreground border-b">
+              <div className="w-8">
+                <input
+                  type="checkbox"
+                  checked={selectedDocuments.length === filteredDocuments.length}
+                  onChange={selectAllDocuments}
+                  className="rounded"
+                />
+              </div>
+              <div className="flex-1">Name</div>
+              <div className="w-20">Type</div>
+              <div className="w-20">Size</div>
+              <div className="w-32">Modified</div>
+              <div className="w-8"></div>
+            </div>
+
+            {/* List Items */}
+            {filteredDocuments.map((doc) => (
+              <div
+                key={doc.id}
+                className={`flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-muted/50 cursor-pointer ${
+                  selectedDocuments.includes(doc.id) ? "bg-muted" : ""
+                }`}
+                onClick={() => toggleDocumentSelection(doc.id)}
+              >
+                <div className="w-8">
+                  <input
+                    type="checkbox"
+                    checked={selectedDocuments.includes(doc.id)}
+                    onChange={() => toggleDocumentSelection(doc.id)}
+                    className="rounded"
+                  />
+                </div>
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  {getSmallFileIcon(doc.type)}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{doc.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{doc.description}</p>
+                  </div>
+                </div>
+                <div className="w-20 text-sm text-muted-foreground">{doc.type}</div>
+                <div className="w-20 text-sm text-muted-foreground">{doc.size}</div>
+                <div className="w-32 text-sm text-muted-foreground">{formatDate(doc.uploadDate)}</div>
+                <div className="w-8">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Preview
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteDocument(doc.id)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
