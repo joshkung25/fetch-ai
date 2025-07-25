@@ -50,21 +50,28 @@ export default function ChatbotInput({
     console.log("User input to send:", userInput);
     try {
       // Get the access token from the session
-      if (!user) {
-        toast.error("Please login to continue");
-        return;
+      // if (!user) {
+      //   toast.error("Please login to continue");
+      //   return;
+      // }
+      let accessToken = null;
+      if (user) {
+        accessToken = await getAccessToken();
       }
-      const accessToken = await getAccessToken();
 
       // http://localhost:8001/chat
       //http://18.225.92.118:8001/chat
       //https://api.fetchfileai.com/chat
       const chatResponse = await fetch(`${apiUrl}/chat`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+        headers: user
+          ? {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            }
+          : {
+              "Content-Type": "application/json",
+            },
         body: JSON.stringify({
           user_input: userInput,
           message_history: messages,
@@ -101,23 +108,24 @@ export default function ChatbotInput({
 
       try {
         // Get the access token from the session
-        if (!user) {
-          toast.error("Please login to upload files");
-          return;
+        let accessToken = null;
+        if (user) {
+          accessToken = await getAccessToken();
         }
-        const accessToken = await getAccessToken();
 
         // http://localhost:8001/add
         // http://18.225.92.118:8001/add
         // https://api.fetchfileai.com/add
         const response = await fetch(`${apiUrl}/add`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: user
+            ? {
+                Authorization: `Bearer ${accessToken}`,
+              }
+            : {},
           method: "POST",
           body: formData,
         });
-
+        console.log("response", response);
         if (!response.ok) {
           if (response.status === 413) {
             toast.error("File size too large");

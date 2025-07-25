@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function NavbarNew() {
   const { user } = useUser();
 
-  console.log(user);
+  // console.log(user);
 
   return (
     <>

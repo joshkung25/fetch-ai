@@ -39,9 +39,7 @@ def start_chat():
         messages.append(
             {
                 "role": "user",
-                "content": model_recall_response(
-                    user_input, "google-oauth2112897530008069583936"
-                ),
+                "content": model_recall_response(user_input, "guest"),
             }
         )
 
