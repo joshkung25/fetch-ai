@@ -36,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import ThemeToggle from "../theme-toggle";
 
 // Mock data for documents
 const mockDocuments = [
@@ -249,7 +250,8 @@ export default function DocumentsPage() {
               {filteredDocuments.length} files
             </Badge>
           </div>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-8 pr-8">
+            <ThemeToggle />
             <Button onClick={handleUploadDocument} className="gap-2">
               <Upload className="h-4 w-4" />
               Upload
