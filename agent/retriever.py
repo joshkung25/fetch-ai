@@ -21,6 +21,7 @@ def add_doc_to_collection(doc_chunks, title, user_id):
             "page": chunk.get("page"),
             "chunk_index": chunk.get("chunk_index"),
             "source_file": chunk.get("source_file"),
+            "title": title,
         }
         for chunk in doc_chunks
     ]
@@ -59,3 +60,4 @@ def get_collection(user_id):
 def remove_collection(user_id):
     chroma_client.delete_collection(f"{user_id}_docs")
     # print(get_collection(user_id).count())
+

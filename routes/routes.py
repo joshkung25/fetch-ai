@@ -8,12 +8,14 @@ from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
 import logging
+import chromadb
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+client = chromadb.HttpClient(host="localhost", port=8000)
 # @router.get("/search")
 # def search(query: str):
 #     return model_recall_response(query)
@@ -63,3 +65,34 @@ async def chat_route(
     user_input = request.user_input
     messages = request.message_history
     return chat(user_input, messages, user_id)
+
+
+@router.get("/list")
+def list_docs():
+    try:
+        collection = client.get_collection("documents")
+        metadata_list = collection.get(include=["metadatas"])
+        titles = [meta["title"] for meta in metadata_list["metadatas"]]
+        return {"documents": titles}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@router.delete("/delete")
+def delete_doc(title: str):
+    try:
+        collection = client.get_collection("documents")
+        # You must have stored title as metadata during upload
+        docs = collection.get(include=["metadatas", "ids"])
+        ids_to_delete = [
+            doc_id
+            for doc_id, meta in zip(docs["ids"], docs["metadatas"])
+            if meta.get("title") == title
+        ]
+        if ids_to_delete:
+            collection.delete(ids=ids_to_delete)
+            return {"status": "ok"}
+        else:
+            return {"status": "not_found"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

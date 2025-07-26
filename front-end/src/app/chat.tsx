@@ -59,7 +59,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
     theme === "dark" ? "/fetchai_logo_dark.png" : "/fetchai_logo.png";
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen w-full">
       <NavbarNew />
       <div className="flex flex-1 flex-col p-4 mt-12 overflow-hidden">
         {/* Messages area - grows with content */}

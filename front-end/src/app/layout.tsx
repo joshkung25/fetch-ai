@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import ChatSidebar from "./chat-sidebar";
 import { Metadata } from "next";
 import { Toaster } from "sonner";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,12 +40,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {/* <Navbar collapsed={collapsed} setCollapsed={setCollapsed} /> */}
-          <div className="flex flex-row h-screen w-full">
-            {/* <Sidebar collapsed={collapsed} /> */}
+          <SidebarProvider>
             <ChatSidebar />
-            {/*  */}
-          </div>
+            {children}
+          </SidebarProvider>
         </ThemeProvider>
         <Toaster />
       </body>

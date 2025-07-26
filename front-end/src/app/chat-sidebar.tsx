@@ -48,6 +48,7 @@ import Chat from "./chat";
 import { useEffect, useRef } from "react";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 // Mock data for existing chats
 const mockChats = [
   {
@@ -123,6 +124,7 @@ export default function ChatSidebar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useUser();
   const clean_id = user?.sub?.replace("|", "") || "guest";
+  const router = useRouter();
 
   // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -160,6 +162,7 @@ export default function ChatSidebar() {
     // Logic to start a new chat
     console.log("Starting new chat...");
     setChatMessages([]);
+    router.push("/");
   };
 
   const handleDeleteChat = (chatId: string) => {
@@ -243,142 +246,146 @@ export default function ChatSidebar() {
   }, [file]);
 
   return (
-    <SidebarProvider>
-      <Sidebar className="border-r">
-        <SidebarHeader className="border-b p-2 pt-15 border-t">
-          <Button
-            variant="ghost"
-            onClick={handleNewChat}
-            className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
-            size="sm"
-          >
-            <MessageSquarePlus className="h-4 w-4" />
-            New Chat
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={handleAttachment}
-            className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
-            size="sm"
-          >
-            <FileUp className="h-4 w-4" />
-            Upload a Document
-          </Button>
-        </SidebarHeader>
+    <Sidebar className="border-r">
+      <SidebarHeader className="border-b p-2 pt-15 border-t">
+        <Button
+          variant="ghost"
+          onClick={handleNewChat}
+          className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
+          size="sm"
+        >
+          <MessageSquarePlus className="h-4 w-4" />
+          New Chat
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={handleAttachment}
+          className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
+          size="sm"
+        >
+          <FileUp className="h-4 w-4" />
+          Upload a Document
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/docs")}
+          className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
+          size="sm"
+        >
+          <FileText className="h-4 w-4" />
+          <span>View Documents</span>
+        </Button>
+      </SidebarHeader>
 
-        <SidebarContent className="p-0">
-          <SidebarGroup>
-            <SidebarGroupContent>
-              {/* Search Input */}
-              <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search chats..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 h-9"
-                />
-              </div>
+      <SidebarContent className="p-0">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            {/* Search Input */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search chats..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9"
+              />
+            </div>
 
-              {/* Sort Dropdown */}
-              <div className="mb-4">
-                <Select
-                  value={sortBy}
-                  onValueChange={(value: SortOption) => setSortBy(value)}
-                >
-                  <SelectTrigger className="h-9">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="recent">Most Recent</SelectItem>
-                    <SelectItem value="oldest">Oldest First</SelectItem>
-                    <SelectItem value="alphabetical">Alphabetical</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
+            {/* Sort Dropdown */}
+            <div className="mb-4">
+              <Select
+                value={sortBy}
+                onValueChange={(value: SortOption) => setSortBy(value)}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most Recent</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                  <SelectItem value="alphabetical">Alphabetical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-2 mb-2">
-              Chats ({sortedChats.length})
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {sortedChats.map((chat) => (
-                  <SidebarMenuItem key={chat.id}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={chat.isActive}
-                      className="h-auto p-3 flex-col items-start gap-1"
-                    >
-                      <div className="w-full cursor-pointer">
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <MessageSquare className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <span className="font-medium text-sm truncate">
-                              {chat.title}
-                            </span>
-                          </div>
-                          {/* <span className="text-xs text-muted-foreground shrink-0">
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-2 mb-2">
+            Chats ({sortedChats.length})
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sortedChats.map((chat) => (
+                <SidebarMenuItem key={chat.id}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={chat.isActive}
+                    className="h-auto p-3 flex-col items-start gap-1"
+                  >
+                    <div className="w-full cursor-pointer">
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <MessageSquare className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <span className="font-medium text-sm truncate">
+                            {chat.title}
+                          </span>
+                        </div>
+                        {/* <span className="text-xs text-muted-foreground shrink-0">
                             {formatTimestamp(chat.timestamp)}
                           </span> */}
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate mt-1 pl-6">
-                          {chat.lastMessage}
-                        </p>
                       </div>
-                    </SidebarMenuButton>
-                    <SidebarMenuAction showOnHover>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <div className="h-6 w-6 inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground cursor-pointer">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </div>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem
-                            onClick={() => handleRenameChat(chat.id)}
-                          >
-                            <Edit3 className="h-4 w-4 mr-2" />
-                            Rename
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteChat(chat.id)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </SidebarMenuAction>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
+                      <p className="text-xs text-muted-foreground truncate mt-1 pl-6">
+                        {chat.lastMessage}
+                      </p>
+                    </div>
+                  </SidebarMenuButton>
+                  <SidebarMenuAction showOnHover>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <div className="h-6 w-6 inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem
+                          onClick={() => handleRenameChat(chat.id)}
+                        >
+                          <Edit3 className="h-4 w-4 mr-2" />
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteChat(chat.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </SidebarMenuAction>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
 
-              {sortedChats.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">
-                    {searchQuery ? "No chats found" : "No chats yet"}
-                  </p>
-                  <p className="text-xs mt-1">
-                    {searchQuery
-                      ? "Try a different search term"
-                      : "Start a new conversation"}
-                  </p>
-                </div>
-              )}
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarRail />
-      </Sidebar>
-      <SidebarInset>
-        <Chat chatMessages={chatMessages} />
-      </SidebarInset>
+            {sortedChats.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">
+                  {searchQuery ? "No chats found" : "No chats yet"}
+                </p>
+                <p className="text-xs mt-1">
+                  {searchQuery
+                    ? "Try a different search term"
+                    : "Start a new conversation"}
+                </p>
+              </div>
+            )}
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarRail />
       {/* Hidden file input - you can add ref and onChange */}
       <input
         ref={fileInputRef}
@@ -393,6 +400,6 @@ export default function ChatSidebar() {
           }
         }}
       />
-    </SidebarProvider>
+    </Sidebar>
   );
 }
