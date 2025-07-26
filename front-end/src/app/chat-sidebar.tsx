@@ -266,21 +266,17 @@ export default function ChatSidebar() {
           <FileUp className="h-4 w-4" />
           Upload a Document
         </Button>
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/docs")}
+          className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
+          size="sm"
+        >
+          <FileText className="h-4 w-4" />
+          <span>View Documents</span>
+        </Button>
       </SidebarHeader>
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/docs" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  <span>Documents</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
+
       <SidebarContent className="p-0">
         <SidebarGroup>
           <SidebarGroupContent>
