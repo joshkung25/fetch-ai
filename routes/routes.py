@@ -66,16 +66,17 @@ async def chat_route(
     messages = request.message_history
     return chat(user_input, messages, user_id)
 
+
 @router.get("/list")
 def list_docs():
     try:
         collection = client.get_collection("documents")
-        metadata_list = collection.get(include=['metadatas'])
-        titles = [meta['title'] for meta in metadata_list['metadatas']]
+        metadata_list = collection.get(include=["metadatas"])
+        titles = [meta["title"] for meta in metadata_list["metadatas"]]
         return {"documents": titles}
     except Exception as e:
         return {"status": "error", "message": str(e)}
-    
+
 
 @router.delete("/delete")
 def delete_doc(title: str):
@@ -84,7 +85,8 @@ def delete_doc(title: str):
         # You must have stored title as metadata during upload
         docs = collection.get(include=["metadatas", "ids"])
         ids_to_delete = [
-            doc_id for doc_id, meta in zip(docs['ids'], docs['metadatas']) 
+            doc_id
+            for doc_id, meta in zip(docs["ids"], docs["metadatas"])
             if meta.get("title") == title
         ]
         if ids_to_delete:
