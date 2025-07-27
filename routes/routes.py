@@ -8,14 +8,13 @@ from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
 import logging
-import chromadb
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-client = chromadb.HttpClient(host="localhost", port=8000)
+
 # @router.get("/search")
 # def search(query: str):
 #     return model_recall_response(query)
@@ -24,6 +23,7 @@ client = chromadb.HttpClient(host="localhost", port=8000)
 class ChatRequest(BaseModel):
     user_input: str
     message_history: List[Dict]
+    guest_random_id: str | None = None
 
 
 @router.get("/")
@@ -36,6 +36,7 @@ async def add_doc_route(
     file: UploadFile = File(...),
     title: str = Form(...),
     user_id: str = Depends(get_current_user),
+    guest_random_id: str | None = Form(None),
 ):
     try:
         # Save file to temporary location
@@ -45,7 +46,10 @@ async def add_doc_route(
             doc_chunks = parse_pdf(tmp_path)
 
         # Add to collection
-        add_doc_to_collection(doc_chunks, title, user_id)
+        if guest_random_id:
+            add_doc_to_collection(doc_chunks, title, guest_random_id)
+        else:
+            add_doc_to_collection(doc_chunks, title, user_id)
         return {"status": "ok"}
     except Exception as e:
         logger.error(f"Error processing document: {str(e)}")
@@ -64,35 +68,38 @@ async def chat_route(
     logger.info(f"user_id: {user_id}")
     user_input = request.user_input
     messages = request.message_history
-    return chat(user_input, messages, user_id)
+    if request.guest_random_id:
+        return chat(user_input, messages, request.guest_random_id)
+    else:
+        return chat(user_input, messages, user_id)
 
 
-@router.get("/list")
-def list_docs():
-    try:
-        collection = client.get_collection("documents")
-        metadata_list = collection.get(include=["metadatas"])
-        titles = [meta["title"] for meta in metadata_list["metadatas"]]
-        return {"documents": titles}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+# @router.get("/list")
+# def list_docs():
+#     try:
+#         collection = client.get_collection("documents")
+#         metadata_list = collection.get(include=["metadatas"])
+#         titles = [meta["title"] for meta in metadata_list["metadatas"]]
+#         return {"documents": titles}
+#     except Exception as e:
+#         return {"status": "error", "message": str(e)}
 
 
-@router.delete("/delete")
-def delete_doc(title: str):
-    try:
-        collection = client.get_collection("documents")
-        # You must have stored title as metadata during upload
-        docs = collection.get(include=["metadatas", "ids"])
-        ids_to_delete = [
-            doc_id
-            for doc_id, meta in zip(docs["ids"], docs["metadatas"])
-            if meta.get("title") == title
-        ]
-        if ids_to_delete:
-            collection.delete(ids=ids_to_delete)
-            return {"status": "ok"}
-        else:
-            return {"status": "not_found"}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+# @router.delete("/delete")
+# def delete_doc(title: str):
+#     try:
+#         collection = client.get_collection("documents")
+#         # You must have stored title as metadata during upload
+#         docs = collection.get(include=["metadatas", "ids"])
+#         ids_to_delete = [
+#             doc_id
+#             for doc_id, meta in zip(docs["ids"], docs["metadatas"])
+#             if meta.get("title") == title
+#         ]
+#         if ids_to_delete:
+#             collection.delete(ids=ids_to_delete)
+#             return {"status": "ok"}
+#         else:
+#             return {"status": "not_found"}
+#     except Exception as e:
+#         return {"status": "error", "message": str(e)}

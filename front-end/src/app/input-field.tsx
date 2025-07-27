@@ -28,8 +28,8 @@ export default function ChatbotInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<Message[]>(chatMessages || []);
   const [loading, setLoading] = useState<boolean>(false);
+  const [randomId, setRandomId] = useState<string>("");
   const { user } = useUser();
-
   // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // console.log("apiUrl", apiUrl);
@@ -38,6 +38,16 @@ export default function ChatbotInput({
     setMessages(chatMessages || []);
   }, [chatMessages]);
 
+  // On mount, if user is not logged in, generate a random id
+  useEffect(() => {
+    if (!user) {
+      const newRandomId = Math.random().toString(36).substring(2, 15);
+      setRandomId(newRandomId);
+    }
+    // Reset input field and files when component mounts
+    setUserInput("");
+    setFiles([]);
+  }, [user]);
   // const clean_id = user?.sub?.replace("|", "") || "guest";
 
   const handleAttachment = () => {
@@ -46,6 +56,8 @@ export default function ChatbotInput({
   };
 
   const handleUserInput = async () => {
+    console.log("randomId: " + randomId);
+
     setIsThinking?.(true);
     console.log("User input to send:", userInput);
     try {
@@ -75,7 +87,7 @@ export default function ChatbotInput({
         body: JSON.stringify({
           user_input: userInput,
           message_history: messages,
-          // user_id: clean_id,
+          guest_random_id: !user ? randomId : undefined,
         }),
       });
       const data = await chatResponse.json();
@@ -104,7 +116,9 @@ export default function ChatbotInput({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", file.name);
-      // formData.append("user_id", clean_id);
+      if (!user) {
+        formData.append("guest_random_id", randomId);
+      }
 
       try {
         // Get the access token from the session
