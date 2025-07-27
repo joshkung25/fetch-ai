@@ -123,12 +123,12 @@ export default function ChatSidebar() {
   const [file, setFile] = React.useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useUser();
-  const clean_id = user?.sub?.replace("|", "") || "guest";
+  // const clean_id = user?.sub?.replace("|", "") || "guest";
   const router = useRouter();
 
   // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  console.log("apiUrl", apiUrl);
+  // console.log("apiUrl", apiUrl);
   // const apiUrl = https://api.fetchfileai.com
   // Filter chats based on search query
   const filteredChats = React.useMemo(() => {

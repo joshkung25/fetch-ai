@@ -9,6 +9,9 @@ chroma_host = os.getenv("CHROMA_SERVER_HOST", "localhost")
 chroma_port = int(os.getenv("CHROMA_SERVER_PORT", "8000"))
 chroma_client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
 
+# Session-based guest client (persists for the application session)
+guest_client = chromadb.Client()
+
 
 def add_doc_to_collection(doc_chunks, title, user_id):
     user_id = user_id.replace("|", "")
@@ -54,7 +57,14 @@ def query_collection(embedded_input, user_id, n_results=1):
 
 
 def get_collection(user_id):
-    return chroma_client.get_or_create_collection(f"{user_id}_docs")
+    """
+    Returns the collection for the user.
+    If the user is a guest, uses the session-based in-memory client.
+    """
+    if user_id == "guest":
+        return guest_client.get_or_create_collection(f"{user_id}_docs")
+    else:
+        return chroma_client.get_or_create_collection(f"{user_id}_docs")
 
 
 def remove_collection(user_id):
