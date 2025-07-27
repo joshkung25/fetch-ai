@@ -37,64 +37,65 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import ThemeToggle from "../theme-toggle";
+import { useUser, getAccessToken } from "@auth0/nextjs-auth0";
 
-// Mock data for documents
-const mockDocuments = [
-  {
-    id: "doc1",
-    name: "project-requirements.pdf",
-    type: "PDF",
-    size: "2.4 MB",
-    uploadDate: new Date("2024-01-15T14:20:00"),
-    tags: ["requirements", "project"],
-    description: "Detailed project requirements and specifications",
-  },
-  {
-    id: "doc2",
-    name: "api-documentation.md",
-    type: "Markdown",
-    size: "156 KB",
-    uploadDate: new Date("2024-01-14T09:15:00"),
-    tags: ["api", "documentation"],
-    description: "Complete API documentation with examples",
-  },
-  {
-    id: "doc3",
-    name: "database-schema.sql",
-    type: "SQL",
-    size: "45 KB",
-    uploadDate: new Date("2024-01-13T16:30:00"),
-    tags: ["database", "schema"],
-    description: "Database schema definition and migrations",
-  },
-  {
-    id: "doc4",
-    name: "user-guide.docx",
-    type: "Word",
-    size: "1.8 MB",
-    uploadDate: new Date("2024-01-12T11:45:00"),
-    tags: ["guide", "user"],
-    description: "Comprehensive user guide and tutorials",
-  },
-  {
-    id: "doc5",
-    name: "config.json",
-    type: "JSON",
-    size: "12 KB",
-    uploadDate: new Date("2024-01-11T08:30:00"),
-    tags: ["config", "settings"],
-    description: "Application configuration file",
-  },
-  {
-    id: "doc6",
-    name: "test-results.xlsx",
-    type: "Excel",
-    size: "890 KB",
-    uploadDate: new Date("2024-01-10T16:45:00"),
-    tags: ["testing", "results"],
-    description: "Test execution results and metrics",
-  },
-];
+// // Mock data for documents
+// const mockDocuments = [
+//   {
+//     id: "doc1",
+//     name: "project-requirements.pdf",
+//     type: "PDF",
+//     size: "2.4 MB",
+//     uploadDate: new Date("2024-01-15T14:20:00"),
+//     tags: ["requirements", "project"],
+//     description: "Detailed project requirements and specifications",
+//   },
+//   {
+//     id: "doc2",
+//     name: "api-documentation.md",
+//     type: "Markdown",
+//     size: "156 KB",
+//     uploadDate: new Date("2024-01-14T09:15:00"),
+//     tags: ["api", "documentation"],
+//     description: "Complete API documentation with examples",
+//   },
+//   {
+//     id: "doc3",
+//     name: "database-schema.sql",
+//     type: "SQL",
+//     size: "45 KB",
+//     uploadDate: new Date("2024-01-13T16:30:00"),
+//     tags: ["database", "schema"],
+//     description: "Database schema definition and migrations",
+//   },
+//   {
+//     id: "doc4",
+//     name: "user-guide.docx",
+//     type: "Word",
+//     size: "1.8 MB",
+//     uploadDate: new Date("2024-01-12T11:45:00"),
+//     tags: ["guide", "user"],
+//     description: "Comprehensive user guide and tutorials",
+//   },
+//   {
+//     id: "doc5",
+//     name: "config.json",
+//     type: "JSON",
+//     size: "12 KB",
+//     uploadDate: new Date("2024-01-11T08:30:00"),
+//     tags: ["config", "settings"],
+//     description: "Application configuration file",
+//   },
+//   {
+//     id: "doc6",
+//     name: "test-results.xlsx",
+//     type: "Excel",
+//     size: "890 KB",
+//     uploadDate: new Date("2024-01-10T16:45:00"),
+//     tags: ["testing", "results"],
+//     description: "Test execution results and metrics",
+//   },
+// ];
 
 type ViewMode = "grid" | "list";
 type SortOption = "name" | "date" | "size" | "type";
@@ -107,8 +108,22 @@ type FilterOption =
   | "json"
   | "excel";
 
+type DocumentMeta = {
+  id: string;
+  name: string;
+  type: "pdf";
+  size: string;
+  uploadDate: Date;
+  tags: string[];
+  description: string;
+};
+
 export default function DocumentsPage() {
-  const [documents, setDocuments] = React.useState(mockDocuments);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  //const apiUrl = "http://localhost:8001";
+  console.log("API URL:", apiUrl);
+  const { user } = useUser();
+  const [documents, setDocuments] = React.useState<any[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid");
   const [sortBy, setSortBy] = React.useState<SortOption>("date");
@@ -117,6 +132,35 @@ export default function DocumentsPage() {
     []
   );
 
+    
+  const fetchDocuments = React.useCallback(async () => {
+    if (!user) return;
+    const accessToken = await getAccessToken();
+    const res = await fetch(`${apiUrl}/list`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const data = await res.json();
+    setDocuments(
+  data.documents
+  // .map((meta: any, idx: number) => ({
+  //   id: (meta.title || "doc") + idx,
+  //   name: meta.title || "Untitled",
+  //   type: meta.type || (meta.title?.split('.').pop()?.toLowerCase() ?? "unknown"),
+  //   size: meta.size || "-",
+  //   uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
+  //   tags: meta.tags || [],
+  //   description: meta.description || "",
+  // }))
+);
+console.log("Fetched documents:", data.documents);
+  }, [user, apiUrl]);
+
+  React.useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
+
+
+  
   // Filter and search documents
   const filteredDocuments = React.useMemo(() => {
     let filtered = documents;
@@ -124,11 +168,11 @@ export default function DocumentsPage() {
     // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter(
-        (doc) =>
+        (doc: DocumentMeta) =>
           doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          doc.tags.some((tag) =>
-            tag.toLowerCase().includes(searchQuery.toLowerCase())
+          doc.tags.some((tag: string) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
           )
       );
     }
@@ -205,19 +249,47 @@ export default function DocumentsPage() {
     });
   };
 
-  const handleDeleteDocument = (docId: string) => {
-    setDocuments((prev) => prev.filter((doc) => doc.id !== docId));
+  const handleDeleteDocument = async (docId: string) => {
+    const doc = documents.find((d) => d.id === docId);
+    if (!doc) return;
+    await fetch(`${apiUrl}/delete?title=${encodeURIComponent(doc.name)}`, {
+      method: "DELETE",
+    });
+    await fetchDocuments();
     setSelectedDocuments((prev) => prev.filter((id) => id !== docId));
   };
 
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const handleUploadDocument = () => {
-    console.log("Opening upload dialog...");
+    fileInputRef.current?.click();
   };
 
-  const handleBulkDelete = () => {
-    setDocuments((prev) =>
-      prev.filter((doc) => !selectedDocuments.includes(doc.id))
-    );
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    const accessToken = await getAccessToken();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", file.name);
+
+    await fetch(`${apiUrl}/add`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: formData,
+    });
+    await fetchDocuments();
+  };
+
+  const handleBulkDelete = async () => {
+    for (const docId of selectedDocuments) {
+      const doc = documents.find((d) => d.id === docId);
+      if (doc) {
+        await fetch(`${apiUrl}/delete?title=${encodeURIComponent(doc.name)}`, {
+          method: "DELETE",
+        });
+      }
+    }
+    await fetchDocuments();
     setSelectedDocuments([]);
   };
 
@@ -239,6 +311,14 @@ export default function DocumentsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background w-full">
+    <input
+      ref={fileInputRef}
+      type="file"
+      className="hidden"
+      onChange={onFileChange}
+      accept="image/*,text/*,.pdf,.doc,.docx"
+    />
+    
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
         <div className="flex h-16 items-center px-4">
@@ -259,7 +339,6 @@ export default function DocumentsPage() {
           </div>
         </div>
       </header>
-
       {/* Toolbar */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center gap-4 px-6 py-3">
@@ -362,9 +441,11 @@ export default function DocumentsPage() {
           <div className="flex flex-col items-center justify-center h-full text-center">
             <FileText className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">
+              
               {searchQuery || filterBy !== "all"
                 ? "No documents found"
                 : "No documents yet"}
+
             </h3>
             <p className="text-muted-foreground mb-4">
               {searchQuery || filterBy !== "all"
@@ -444,9 +525,9 @@ export default function DocumentsPage() {
                     <span>{formatDate(doc.uploadDate)}</span>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {doc.tags.map((tag) => (
+                    {doc.tags.map((tag: string) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
+                      {tag}
                       </Badge>
                     ))}
                   </div>

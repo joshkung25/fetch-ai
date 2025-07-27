@@ -31,7 +31,7 @@ export default function ChatbotInput({
   const [randomId, setRandomId] = useState<string>("");
   const { user } = useUser();
   // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl = "http://localhost:8001";
   // console.log("apiUrl", apiUrl);
 
   useEffect(() => {
