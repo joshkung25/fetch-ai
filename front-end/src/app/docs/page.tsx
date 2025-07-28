@@ -38,6 +38,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import ThemeToggle from "../theme-toggle";
 import { useUser, getAccessToken } from "@auth0/nextjs-auth0";
+import { useEffect } from "react";
 
 // // Mock data for documents
 // const mockDocuments = [
@@ -132,35 +133,34 @@ export default function DocumentsPage() {
     []
   );
 
-    
   const fetchDocuments = React.useCallback(async () => {
+    console.log("Fetching documents");
     if (!user) return;
     const accessToken = await getAccessToken();
     const res = await fetch(`${apiUrl}/list`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const data = await res.json();
+    console.log("data", data);
     setDocuments(
-  data.documents
-  // .map((meta: any, idx: number) => ({
-  //   id: (meta.title || "doc") + idx,
-  //   name: meta.title || "Untitled",
-  //   type: meta.type || (meta.title?.split('.').pop()?.toLowerCase() ?? "unknown"),
-  //   size: meta.size || "-",
-  //   uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
-  //   tags: meta.tags || [],
-  //   description: meta.description || "",
-  // }))
-);
-console.log("Fetched documents:", data.documents);
+      data.documents
+      // .map((meta: any, idx: number) => ({
+      //   id: (meta.title || "doc") + idx,
+      //   name: meta.title || "Untitled",
+      //   type: meta.type || (meta.title?.split('.').pop()?.toLowerCase() ?? "unknown"),
+      //   size: meta.size || "-",
+      //   uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
+      //   tags: meta.tags || [],
+      //   description: meta.description || "",
+      // }))
+    );
+    console.log("Fetched documents:", data.documents);
   }, [user, apiUrl]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
 
-
-  
   // Filter and search documents
   const filteredDocuments = React.useMemo(() => {
     let filtered = documents;
@@ -172,7 +172,7 @@ console.log("Fetched documents:", data.documents);
           doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.tags.some((tag: string) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
+            tag.toLowerCase().includes(searchQuery.toLowerCase())
           )
       );
     }
@@ -260,7 +260,7 @@ console.log("Fetched documents:", data.documents);
   };
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const handleUploadDocument = () => {
+  const handleAttachment = () => {
     fileInputRef.current?.click();
   };
 
@@ -311,14 +311,14 @@ console.log("Fetched documents:", data.documents);
 
   return (
     <div className="flex flex-col h-screen bg-background w-full">
-    <input
-      ref={fileInputRef}
-      type="file"
-      className="hidden"
-      onChange={onFileChange}
-      accept="image/*,text/*,.pdf,.doc,.docx"
-    />
-    
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={onFileChange}
+        accept="image/*,text/*,.pdf,.doc,.docx"
+      />
+
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
         <div className="flex h-16 items-center px-4">
@@ -332,7 +332,7 @@ console.log("Fetched documents:", data.documents);
           </div>
           <div className="ml-auto flex items-center gap-8 pr-8">
             <ThemeToggle />
-            <Button onClick={handleUploadDocument} className="gap-2">
+            <Button onClick={handleAttachment} className="gap-2">
               <Upload className="h-4 w-4" />
               Upload
             </Button>
@@ -441,18 +441,16 @@ console.log("Fetched documents:", data.documents);
           <div className="flex flex-col items-center justify-center h-full text-center">
             <FileText className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">
-              
               {searchQuery || filterBy !== "all"
                 ? "No documents found"
                 : "No documents yet"}
-
             </h3>
             <p className="text-muted-foreground mb-4">
               {searchQuery || filterBy !== "all"
                 ? "Try adjusting your search or filters"
                 : "Upload your first document to get started"}
             </p>
-            <Button onClick={handleUploadDocument} className="gap-2">
+            <Button onClick={handleAttachment} className="gap-2">
               <Upload className="h-4 w-4" />
               Upload Document
             </Button>
@@ -527,7 +525,7 @@ console.log("Fetched documents:", data.documents);
                   <div className="flex flex-wrap gap-1 mt-2">
                     {doc.tags.map((tag: string) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
+                        {tag}
                       </Badge>
                     ))}
                   </div>

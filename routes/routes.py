@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
-from agent.retriever import add_doc_to_collection
+from agent.retriever import add_doc_to_collection, get_collection
 from parser.pdf_parser import parse_pdf
 from agent.chat import chat
 import tempfile
@@ -78,7 +78,7 @@ async def chat_route(
 @router.get("/list")
 def list_docs(user_id: str = Depends(get_current_user)):
     try:
-        collection = chroma_client.get_collection("documents")
+        collection = get_collection(user_id)
         metadata_list = collection.get(include=["metadatas"])
         docs = [
             meta
@@ -88,7 +88,6 @@ def list_docs(user_id: str = Depends(get_current_user)):
         return {"documents": docs}
     except Exception as e:
         return {"status": "error", "message": str(e)}
-
 
 
 @router.delete("/delete")

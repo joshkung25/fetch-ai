@@ -64,10 +64,10 @@ def get_collection(user_id):
     if user_id == "guest":
         return guest_client.get_or_create_collection(f"{user_id}_docs")
     else:
+        user_id = user_id.replace("|", "")
         return chroma_client.get_or_create_collection(f"{user_id}_docs")
 
 
 def remove_collection(user_id):
     chroma_client.delete_collection(f"{user_id}_docs")
     # print(get_collection(user_id).count())
-
