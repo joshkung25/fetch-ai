@@ -79,13 +79,12 @@ async def chat_route(
 def list_docs(user_id: str = Depends(get_current_user)):
     try:
         collection = get_collection(user_id)
-        metadata_list = collection.get(include=["metadatas"])
-        docs = [
-            meta
-            for meta in metadata_list["metadatas"]
-            if meta.get("user_id") == user_id
-        ]
-        return {"documents": docs}
+        result = collection.get(include=["metadatas"])
+        logger.info(f"result: {result}")
+
+        metadata_list = [meta for meta in result["metadatas"]]
+        logger.info(f"metadata_list: {metadata_list[0]}")
+        return {"documents": metadata_list}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

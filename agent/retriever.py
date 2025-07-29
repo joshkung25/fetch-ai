@@ -35,16 +35,6 @@ def add_doc_to_collection(doc_chunks, title, user_id):
     print(collection.count())
 
 
-# def add_doc_to_collection(doc_chunks, title):
-#     embedded_chunks = []
-#     ids = [f"{title}_chunk_{i}" for i in range(len(doc_chunks))]
-
-#     for chunk in doc_chunks:
-#         embedded_chunks.append(embed_text(chunk))
-#         print(doc_chunks)
-#     collection.add(documents=doc_chunks, ids=ids, embeddings=embedded_chunks)
-
-
 def query_collection(embedded_input, user_id, n_results=1):
     """
     Query the collection with a vector and return top-k matching chunks.

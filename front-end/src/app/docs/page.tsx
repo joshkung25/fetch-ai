@@ -138,7 +138,7 @@ export default function DocumentsPage() {
 
   const fetchDocuments = React.useCallback(async () => {
     console.log("Fetching documents");
-    if (!user) return;
+    if (!user) return; // TODO: Handle guest mode
     const accessToken = await getAccessToken();
     const res = await fetch(`${apiUrl}/list`, {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -146,16 +146,17 @@ export default function DocumentsPage() {
     const data = await res.json();
     console.log("data", data);
     setDocuments(
-      data.documents
-      // .map((meta: any, idx: number) => ({
-      //   id: (meta.title || "doc") + idx,
-      //   name: meta.title || "Untitled",
-      //   type: meta.type || (meta.title?.split('.').pop()?.toLowerCase() ?? "unknown"),
-      //   size: meta.size || "-",
-      //   uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
-      //   tags: meta.tags || [],
-      //   description: meta.description || "",
-      // }))
+      data.documents.map((meta: any, idx: number) => ({
+        id: (meta.title || "doc") + idx,
+        name: meta.title || "Untitled",
+        type:
+          meta.type ||
+          (meta.title?.split(".").pop()?.toLowerCase() ?? "unknown"),
+        size: meta.size || "-",
+        uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
+        tags: meta.tags || [],
+        description: meta.description || "",
+      }))
     );
     console.log("Fetched documents:", data.documents);
   }, [user, apiUrl]);

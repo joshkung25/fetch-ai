@@ -1,0 +1,16 @@
+{
+    "ids": ["packing-slip-test.pdf_chunk_0", "packing-slip-test.pdf_chunk_1", "packing-slip-test.pdf_chunk_2", "Josh_Kung_Resume_2025-2026.pdf_chunk_0", "Josh_Kung_Resume_2025-2026.pdf_chunk_1", "Josh_Kung_Resume_2025-2026.pdf_chunk_2"],
+    "embeddings": null,
+    "metadatas": [
+        {"page": 1, "chunk_index": 0, "source_file": "/tmp/tmppkjpzw8x.pdf"},
+        {"page": 2, "chunk_index": 0, "source_file": "/tmp/tmppkjpzw8x.pdf"},
+        {"chunk_index": 0, "source_file": "/tmp/tmppkjpzw8x.pdf", "page": 3},
+        {"title": "Josh_Kung_Resume_2025-2026.pdf", "chunk_index": 0, "source_file": "/tmp/tmp90n0a34c.pdf", "page": 1},
+        {"source_file": "/tmp/tmp90n0a34c.pdf", "title": "Josh_Kung_Resume_2025-2026.pdf", "chunk_index": 1, "page": 1},
+        {"chunk_index": 2, "title": "Josh_Kung_Resume_2025-2026.pdf", "source_file": "/tmp/tmp90n0a34c.pdf", "page": 1}
+    ],
+    "documents": null,
+    "data": null,
+    "uris": null,
+    "included": ["metadatas"]
+}
