@@ -39,7 +39,9 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import ThemeToggle from "../theme-toggle";
 import { useUser, getAccessToken } from "@auth0/nextjs-auth0";
 import { useEffect } from "react";
-
+import { toast } from "sonner";
+import { uploadFiles } from "@/lib/utils";
+import { useRandomId } from "@/context";
 // // Mock data for documents
 // const mockDocuments = [
 //   {
@@ -122,7 +124,7 @@ type DocumentMeta = {
 export default function DocumentsPage() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   //const apiUrl = "http://localhost:8001";
-  console.log("API URL:", apiUrl);
+  // console.log("API URL:", apiUrl);
   const { user } = useUser();
   const [documents, setDocuments] = React.useState<any[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -132,6 +134,7 @@ export default function DocumentsPage() {
   const [selectedDocuments, setSelectedDocuments] = React.useState<string[]>(
     []
   );
+  const { randomId } = useRandomId();
 
   const fetchDocuments = React.useCallback(async () => {
     console.log("Fetching documents");
@@ -264,19 +267,31 @@ export default function DocumentsPage() {
     fileInputRef.current?.click();
   };
 
-  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("handleFileUpload");
     const file = e.target.files?.[0];
-    if (!file || !user) return;
-    const accessToken = await getAccessToken();
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("title", file.name);
+    console.log("file", file);
+    if (!file) return;
+    if (!apiUrl) {
+      toast.error("API URL is not defined");
+      return;
+    }
+    console.log("file", file);
+    console.log("user", user);
+    console.log("randomId", randomId);
+    console.log("apiUrl", apiUrl);
+    await uploadFiles([file], apiUrl, user, randomId);
+    // const accessToken = await getAccessToken();
+    // const formData = new FormData();
+    // formData.append("file", file);
+    // formData.append("title", file.name);
 
-    await fetch(`${apiUrl}/add`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${accessToken}` },
-      body: formData,
-    });
+    // await fetch(`${apiUrl}/add`, {
+    //   method: "POST",
+    //   headers: { Authorization: `Bearer ${accessToken}` },
+    //   body: formData,
+    // });
+
     await fetchDocuments();
   };
 
@@ -315,7 +330,7 @@ export default function DocumentsPage() {
         ref={fileInputRef}
         type="file"
         className="hidden"
-        onChange={onFileChange}
+        onChange={handleFileUpload}
         accept="image/*,text/*,.pdf,.doc,.docx"
       />
 
