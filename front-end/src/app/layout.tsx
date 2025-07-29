@@ -9,7 +9,7 @@ import ChatSidebar from "./chat-sidebar";
 import { Metadata } from "next";
 import { Toaster } from "sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { RandomIdProvider } from "@/context";
+import { ContextProvider } from "@/context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,12 +41,12 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <RandomIdProvider>
+          <ContextProvider>
             <SidebarProvider>
               <ChatSidebar />
               {children}
             </SidebarProvider>
-          </RandomIdProvider>
+          </ContextProvider>
         </ThemeProvider>
         <Toaster />
       </body>

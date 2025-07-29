@@ -86,6 +86,7 @@ def get_sample_text(doc):
 # parse_pdf("public/Jacob_Transcript_Test.pdf")
 # print(parse_pdf("public/alec_hw_test.pdf"))
 # parse_pdf("public/university_health_report.pdf")
+# parse_pdf("public/insurance.pdf")
 
 # 20\n2020-2021\n1\n9\nAB3010\nAlgebra II H\n\xa0\nP\nH\nA\n5.00\n5.00\n\xa0\n
 # 200\n2020-2021\n4\n9\nLC1010\nHealth\n\xa0\n\xa0\n\xa0\nA\n5.00\n5.00\n\xa0\n
