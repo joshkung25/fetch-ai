@@ -49,6 +49,8 @@ import { useEffect, useRef } from "react";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { uploadFiles } from "@/lib/utils";
+import { useRandomId } from "@/context";
 // Mock data for existing chats
 const mockChats = [
   {
@@ -123,13 +125,14 @@ export default function ChatSidebar() {
   const [file, setFile] = React.useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useUser();
-  // const clean_id = user?.sub?.replace("|", "") || "guest";
+  const { randomId } = useRandomId();
+
   const router = useRouter();
 
-  // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // console.log("apiUrl", apiUrl);
-  // const apiUrl = https://api.fetchfileai.com
+  // console.log("randomId", randomId);
+
   // Filter chats based on search query
   const filteredChats = React.useMemo(() => {
     return chats.filter(
@@ -207,35 +210,37 @@ export default function ChatSidebar() {
       console.log("No files selected");
       return;
     }
-    if (!user) {
-      toast.error("Please login to upload files");
+    if (!apiUrl) {
+      toast.error("API URL is not defined");
       return;
     }
-    const accessToken = await getAccessToken();
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("title", file.name);
-    // formData.append("user_id", clean_id);
-    try {
-      const response = await fetch(`${apiUrl}/add`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        if (response.status === 413) {
-          toast.error("File size too large");
-        } else {
-          toast.error("Failed to upload file");
-        }
-        return;
-      }
-      toast.success("File uploaded successfully");
-    } catch (error) {
-      toast.error("Failed to upload file");
-    }
+    await uploadFiles([file], apiUrl, user, randomId);
+
+    // const accessToken = await getAccessToken();
+    // const formData = new FormData();
+    // formData.append("file", file);
+    // formData.append("title", file.name);
+    // // formData.append("user_id", clean_id);
+    // try {
+    //   const response = await fetch(`${apiUrl}/add`, {
+    //     headers: {
+    //       Authorization: `Bearer ${accessToken}`,
+    //     },
+    //     method: "POST",
+    //     body: formData,
+    //   });
+    //   if (!response.ok) {
+    //     if (response.status === 413) {
+    //       toast.error("File size too large");
+    //     } else {
+    //       toast.error("Failed to upload file");
+    //     }
+    //     return;
+    //   }
+    //   toast.success("File uploaded successfully");
+    // } catch (error) {
+    //   toast.error("Failed to upload file");
+    // }
     setFile(undefined);
   };
 

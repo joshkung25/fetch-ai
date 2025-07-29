@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from "react";
 import { Message } from "./chat-sidebar";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
+import { uploadFiles } from "@/lib/utils";
+import { useRandomId } from "@/context";
 
 interface ChatbotInputProps {
   placeholder?: string;
@@ -28,11 +30,11 @@ export default function ChatbotInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<Message[]>(chatMessages || []);
   const [loading, setLoading] = useState<boolean>(false);
-  const [randomId, setRandomId] = useState<string>("");
+  const { randomId } = useRandomId();
   const { user } = useUser();
-  // const apiUrl = process.env.NEXT_PUBLIC_API_URL_PROD;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  // console.log("apiUrl", apiUrl);
+
+  // console.log("randomId", randomId);
 
   useEffect(() => {
     setMessages(chatMessages || []);
@@ -40,15 +42,12 @@ export default function ChatbotInput({
 
   // On mount, if user is not logged in, generate a random id
   useEffect(() => {
-    if (!user) {
-      const newRandomId = Math.random().toString(36).substring(2, 15);
-      setRandomId(newRandomId);
-    }
+    // const newRandomId = Math.random().toString(36).substring(2, 15);
+    // setRandomId(newRandomId);
     // Reset input field and files when component mounts
     setUserInput("");
     setFiles([]);
   }, [user]);
-  // const clean_id = user?.sub?.replace("|", "") || "guest";
 
   const handleAttachment = () => {
     // Trigger the file input click to open file picker
@@ -56,24 +55,14 @@ export default function ChatbotInput({
   };
 
   const handleUserInput = async () => {
-    console.log("randomId: " + randomId);
-
     setIsThinking?.(true);
     console.log("User input to send:", userInput);
     try {
-      // Get the access token from the session
-      // if (!user) {
-      //   toast.error("Please login to continue");
-      //   return;
-      // }
       let accessToken = null;
       if (user) {
         accessToken = await getAccessToken();
       }
 
-      // http://localhost:8001/chat
-      //http://18.225.92.118:8001/chat
-      //https://api.fetchfileai.com/chat
       const chatResponse = await fetch(`${apiUrl}/chat`, {
         method: "POST",
         headers: user
@@ -111,53 +100,12 @@ export default function ChatbotInput({
       return;
     }
     console.log("Selected file:", files[0].name);
-
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", file.name);
-      if (!user) {
-        formData.append("guest_random_id", randomId);
-      }
-
-      try {
-        // Get the access token from the session
-        let accessToken = null;
-        if (user) {
-          accessToken = await getAccessToken();
-        }
-
-        // http://localhost:8001/add
-        // http://18.225.92.118:8001/add
-        // https://api.fetchfileai.com/add
-        const response = await fetch(`${apiUrl}/add`, {
-          headers: user
-            ? {
-                Authorization: `Bearer ${accessToken}`,
-              }
-            : {},
-          method: "POST",
-          body: formData,
-        });
-        console.log("response", response);
-        if (!response.ok) {
-          if (response.status === 413) {
-            toast.error("File size too large");
-          } else {
-            toast.error("Failed to upload file"); // 500 Internal server error
-          }
-          return;
-        }
-        toast.success("File uploaded successfully");
-      } catch (error) {
-        console.log("error", error);
-        if (error instanceof Error && error.message.includes("413")) {
-          toast.error("File size too large");
-        } else {
-          toast.error("Failed to upload file");
-        }
-      }
+    if (!apiUrl) {
+      toast.error("API URL is not defined");
+      return;
     }
+
+    await uploadFiles(files, apiUrl, user, randomId);
     setFiles([]);
   };
   const handleAllInput = async () => {
@@ -169,7 +117,6 @@ export default function ChatbotInput({
       console.log("Files uploaded successfully");
       await handleUserInput();
       setLoading(false);
-      // setFiles([]);
     }
   };
   return (

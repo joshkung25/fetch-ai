@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
-from agent.retriever import add_doc_to_collection
+from agent.retriever import add_doc_to_collection, get_collection
 from parser.pdf_parser import parse_pdf
 from agent.chat import chat
 import tempfile
@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
 import logging
+from agent.retriever import chroma_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -74,32 +75,35 @@ async def chat_route(
         return chat(user_input, messages, user_id)
 
 
-# @router.get("/list")
-# def list_docs():
-#     try:
-#         collection = client.get_collection("documents")
-#         metadata_list = collection.get(include=["metadatas"])
-#         titles = [meta["title"] for meta in metadata_list["metadatas"]]
-#         return {"documents": titles}
-#     except Exception as e:
-#         return {"status": "error", "message": str(e)}
+@router.get("/list")
+def list_docs(user_id: str = Depends(get_current_user)):
+    try:
+        collection = get_collection(user_id)
+        result = collection.get(include=["metadatas"])
+        logger.info(f"result: {result}")
+
+        metadata_list = [meta for meta in result["metadatas"]]
+        logger.info(f"metadata_list: {metadata_list[0]}")
+        return {"documents": metadata_list}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
-# @router.delete("/delete")
-# def delete_doc(title: str):
-#     try:
-#         collection = client.get_collection("documents")
-#         # You must have stored title as metadata during upload
-#         docs = collection.get(include=["metadatas", "ids"])
-#         ids_to_delete = [
-#             doc_id
-#             for doc_id, meta in zip(docs["ids"], docs["metadatas"])
-#             if meta.get("title") == title
-#         ]
-#         if ids_to_delete:
-#             collection.delete(ids=ids_to_delete)
-#             return {"status": "ok"}
-#         else:
-#             return {"status": "not_found"}
-#     except Exception as e:
-#         return {"status": "error", "message": str(e)}
+@router.delete("/delete")
+def delete_doc(title: str):
+    try:
+        collection = chroma_client.get_collection("documents")
+        # must have stored title as metadata during upload
+        docs = collection.get(include=["metadatas", "ids"])
+        ids_to_delete = [
+            doc_id
+            for doc_id, meta in zip(docs["ids"], docs["metadatas"])
+            if meta.get("title") == title
+        ]
+        if ids_to_delete:
+            collection.delete(ids=ids_to_delete)
+            return {"status": "ok"}
+        else:
+            return {"status": "not_found"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
