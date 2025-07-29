@@ -137,7 +137,6 @@ export default function DocumentsPage() {
   const { randomId } = useRandomId();
 
   const fetchDocuments = React.useCallback(async () => {
-    console.log("Fetching documents");
     if (!user) return; // TODO: Handle guest mode
     const accessToken = await getAccessToken();
     const res = await fetch(`${apiUrl}/list`, {
@@ -145,19 +144,21 @@ export default function DocumentsPage() {
     });
     const data = await res.json();
     console.log("data", data);
+
     setDocuments(
       data.documents.map((meta: any, idx: number) => ({
         id: (meta.title || "doc") + idx,
         name: meta.title || "Untitled",
-        type:
-          meta.type ||
-          (meta.title?.split(".").pop()?.toLowerCase() ?? "unknown"),
-        size: meta.size || "-",
+        type: "pdf", // TODO: add type
+        // meta.type ||
+        // (meta.title?.split(".").pop()?.toLowerCase() ?? "unknown"),
+        size: meta.size || "-", // TODO: add size
         uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
-        tags: meta.tags || [],
-        description: meta.description || "",
+        tags: meta.tags || [], // TODO: add tags
+        description: meta.description || "", // TODO: add description
       }))
     );
+
     console.log("Fetched documents:", data.documents);
   }, [user, apiUrl]);
 
@@ -168,8 +169,9 @@ export default function DocumentsPage() {
   // Filter and search documents
   const filteredDocuments = React.useMemo(() => {
     let filtered = documents;
+    console.log("filtered", filtered);
 
-    // Apply search filter
+    // Apply search filter, add back in later
     if (searchQuery) {
       filtered = filtered.filter(
         (doc: DocumentMeta) =>
@@ -489,7 +491,9 @@ export default function DocumentsPage() {
                       {getFileIcon(doc.type)}
                       <div className="min-w-0 flex-1">
                         <h3 className="font-medium text-sm truncate">
-                          {doc.name}
+                          {doc.name.length > 20
+                            ? doc.name.slice(0, 20) + "..."
+                            : doc.name}
                         </h3>
                         <p className="text-xs text-muted-foreground">
                           {doc.type}
