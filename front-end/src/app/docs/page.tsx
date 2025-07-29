@@ -491,7 +491,9 @@ export default function DocumentsPage() {
                       {getFileIcon(doc.type)}
                       <div className="min-w-0 flex-1">
                         <h3 className="font-medium text-sm truncate">
-                          {doc.name}
+                          {doc.name.length > 20
+                            ? doc.name.slice(0, 20) + "..."
+                            : doc.name}
                         </h3>
                         <p className="text-xs text-muted-foreground">
                           {doc.type}
