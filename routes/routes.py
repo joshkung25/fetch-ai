@@ -1,6 +1,9 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
-from agent.retriever import add_doc_to_collection, get_collection
+from agent.retriever import (
+    add_doc_to_collection,
+    get_all_user_docs_metadata,
+)
 from parser.pdf_parser import parse_pdf
 from agent.chat import chat
 import tempfile
@@ -78,14 +81,11 @@ async def chat_route(
 @router.get("/list")
 def list_docs(user_id: str = Depends(get_current_user)):
     try:
-        collection = get_collection(user_id)
-        result = collection.get(include=["metadatas"])
-        logger.info(f"result: {result}")
-
-        metadata_list = [meta for meta in result["metadatas"]]
+        metadata_list = get_all_user_docs_metadata(user_id)
         logger.info(f"metadata_list: {metadata_list[0]}")
         return {"documents": metadata_list}
     except Exception as e:
+        logger.info(f"error: {e}")
         return {"status": "error", "message": str(e)}
 
 

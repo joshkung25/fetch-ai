@@ -61,3 +61,17 @@ def get_collection(user_id):
 def remove_collection(user_id):
     chroma_client.delete_collection(f"{user_id}_docs")
     # print(get_collection(user_id).count())
+
+
+def get_all_user_docs_metadata(user_id):
+    seen_titles = []  # set to avoid duplicates
+    return_list = []  # list to return
+    result = get_collection(user_id).get(include=["metadatas"])
+    for meta in result["metadatas"]:
+        title = meta.get("title")
+        if title is None:
+            continue
+        if title not in seen_titles:
+            seen_titles.append(title)
+            return_list.append(meta)
+    return return_list
