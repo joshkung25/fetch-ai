@@ -45,6 +45,7 @@ async def add_doc_route(
     title: str = Form(...),
     user_id: str = Depends(get_current_user),
     guest_random_id: str | None = Form(None),
+    tags: List[str] | None = Form(None),
 ):
     try:
         # Save file to temporary location
@@ -55,9 +56,11 @@ async def add_doc_route(
 
         # Add to collection
         if guest_random_id:
-            add_doc_to_collection(doc_chunks, title, guest_random_id)
+            add_doc_to_collection(
+                doc_chunks, title, guest_random_id, tags, is_guest=True
+            )
         else:
-            add_doc_to_collection(doc_chunks, title, user_id)
+            add_doc_to_collection(doc_chunks, title, user_id, tags)
         return {"status": "ok"}
     except Exception as e:
         logger.error(f"Error processing document: {str(e)}")
