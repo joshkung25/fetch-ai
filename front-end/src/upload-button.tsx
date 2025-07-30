@@ -6,18 +6,21 @@ import { toast } from "sonner";
 import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
 import { useUser } from "@auth0/nextjs-auth0";
+import UploadMetadataModal from "./app/upload-metadata-modal";
+import { DocumentInfoInput } from "./app/upload-metadata-modal";
 
 export default function UploadButton() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const { randomId } = useRandomId();
   const { user } = useUser();
-  const [open, setOpen] = useState(false);
+  const [isMetadataModalOpen, setIsMetadataModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (user) {
-      setOpen(false);
+      setIsMetadataModalOpen(false);
     }
   }, [user]);
 
@@ -25,16 +28,15 @@ export default function UploadButton() {
     fileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = async (metadata?: DocumentInfoInput) => {
+    console.log("file", file);
     if (!file) return;
     if (!apiUrl) {
       toast.error("API URL is not defined");
       return;
     }
 
-    await uploadFiles([file], apiUrl, user, randomId);
-    toast.success("File uploaded successfully");
+    await uploadFiles([file], apiUrl, user, randomId, metadata?.tags);
   };
 
   return (
@@ -43,8 +45,23 @@ export default function UploadButton() {
         ref={fileInputRef}
         type="file"
         className="hidden"
-        onChange={handleFileUpload}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            setFile(file);
+          }
+          setIsMetadataModalOpen(true);
+        }}
         accept="image/*,text/*,.pdf,.doc,.docx"
+      />
+      <UploadMetadataModal
+        isOpen={isMetadataModalOpen}
+        onClose={() => {
+          setIsMetadataModalOpen(false);
+          setFile(null);
+        }}
+        fileName={file?.name || ""}
+        onSave={handleFileUpload}
       />
       <Button onClick={handleAttachment} className="gap-2" variant="outline">
         <Upload className="h-4 w-4" />

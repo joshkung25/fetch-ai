@@ -9,12 +9,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 
-export async function uploadFiles(files: File[], apiUrl: string, user: User | null | undefined, randomId: string) {
+export async function uploadFiles(files: File[], apiUrl: string, user: User | null | undefined, randomId: string, tags?: string[]) {
 
   for (const file of files) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("title", file.name);
+    if (tags) {
+      formData.append("tags", tags.join(","));
+    }
     if (!user) {
       formData.append("guest_random_id", randomId);
     }

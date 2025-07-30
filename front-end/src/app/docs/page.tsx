@@ -116,7 +116,7 @@ type FilterOption =
   | "json"
   | "excel";
 
-type DocumentMeta = {
+export type DocumentMeta = {
   id: string;
   name: string;
   type: "pdf";
@@ -148,7 +148,7 @@ export default function DocumentsPage() {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const data = await res.json();
-
+    console.log("documents", data.documents[2]);
     setDocuments(
       data.documents.map((meta: any, idx: number) => ({
         id: (meta.title || "doc") + idx,
@@ -158,7 +158,7 @@ export default function DocumentsPage() {
         // (meta.title?.split(".").pop()?.toLowerCase() ?? "unknown"),
         size: meta.size || "-", // TODO: add size
         uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
-        tags: meta.tags || [], // TODO: add tags
+        tags: meta.tags ? meta.tags.split(",") : [], // TODO: add tags
         description: meta.description || "", // TODO: add description
       }))
     );

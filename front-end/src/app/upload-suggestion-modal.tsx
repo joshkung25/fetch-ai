@@ -36,42 +36,49 @@ const suggestedDocuments = [
     name: "Driver's License",
     icon: CreditCard,
     description: "Valid driver's license",
+    tags: ["Driver's License", "ID"],
   },
   {
     id: "car-registration",
     name: "Car Registration",
     icon: Car,
     description: "Vehicle registration documents",
+    tags: ["Car Registration", "Vehicle"],
   },
   {
     id: "car-insurance",
     name: "Car Insurance",
     icon: Shield,
     description: "Auto insurance policy",
+    tags: ["Car Insurance", "Insurance", "Vehicle"],
   },
   {
     id: "health-insurance",
     name: "Health Insurance",
     icon: Heart,
     description: "Health insurance card",
+    tags: ["Health Insurance", "Insurance", "Health"],
   },
   {
     id: "home-insurance",
     name: "Home Insurance",
     icon: Home,
     description: "Homeowner's/renter's insurance",
+    tags: ["Home Insurance", "Insurance", "Home"],
   },
   {
     id: "passport",
     name: "Passport",
     icon: FileText,
     description: "Valid passport",
+    tags: ["Passport", "ID", "Travel"],
   },
   {
     id: "employment-docs",
     name: "Employment Documents",
     icon: Briefcase,
     description: "Pay stubs, employment letter",
+    tags: ["Employment"],
   },
 ];
 
@@ -86,7 +93,7 @@ export default function UploadSuggestionsModal({
   const { user } = useUser();
   const { randomId } = useRandomId();
   const { apiUrl } = useApiUrl();
-  const handleFileUpload = async (documentId: string) => {
+  const handleFileUpload = async (documentId: string, tags: string[]) => {
     // Create a file input element
     const input = document.createElement("input");
     input.type = "file";
@@ -101,8 +108,8 @@ export default function UploadSuggestionsModal({
         setUploadedFiles((prev) => new Set(prev).add(documentId));
 
         if (!file) return;
-        console.log("apiUrl", apiUrl);
-        await uploadFiles([file], apiUrl, user, randomId); // TODO: add the document label to the file
+        console.log("tags", tags);
+        await uploadFiles([file], apiUrl, user, randomId, tags); // TODO: add the document label to the file
       }
     };
 
@@ -145,7 +152,7 @@ export default function UploadSuggestionsModal({
                     </div>
                   </div>
                   <Button
-                    onClick={() => handleFileUpload(doc.id)}
+                    onClick={() => handleFileUpload(doc.id, doc.tags)}
                     variant={isUploaded ? "secondary" : "default"}
                     size="sm"
                     className="min-w-[100px]"

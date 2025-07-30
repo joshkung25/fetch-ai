@@ -19,26 +19,37 @@ chroma_client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
 guest_client = chromadb.Client()
 
 
-def add_doc_to_collection(doc_chunks, title, user_id):
+def add_doc_to_collection(doc_chunks, title, user_id, tags=None, is_guest=False):
     user_id = user_id.replace("|", "")
-    collection = get_collection(user_id)
+    collection = get_collection(user_id, is_guest)
     ids = [f"{title}_chunk_{i}" for i in range(len(doc_chunks))]
     texts = [chunk["text"] for chunk in doc_chunks]
-
-    metadatas = [
-        {
-            "page": chunk.get("page"),
-            "chunk_index": chunk.get("chunk_index"),
-            "source_file": chunk.get("source_file"),
-            "title": title,
-        }
-        for chunk in doc_chunks
-    ]
+    if tags:
+        metadatas = [
+            {
+                "page": chunk.get("page"),
+                "chunk_index": chunk.get("chunk_index"),
+                "source_file": chunk.get("source_file"),
+                "title": title,
+                "tags": ",".join(tags),
+            }
+            for chunk in doc_chunks
+        ]
+    else:
+        metadatas = [
+            {
+                "page": chunk.get("page"),
+                "chunk_index": chunk.get("chunk_index"),
+                "source_file": chunk.get("source_file"),
+                "title": title,
+            }
+            for chunk in doc_chunks
+        ]
 
     embeddings = embed_text_batch(texts)
 
     collection.add(documents=texts, ids=ids, embeddings=embeddings, metadatas=metadatas)
-    print(collection.count())
+    logger.info(f"Client collection count: {get_client_collection_count(is_guest)}")
 
 
 def query_collection(embedded_input, user_id, n_results=1):
@@ -52,12 +63,12 @@ def query_collection(embedded_input, user_id, n_results=1):
     )
 
 
-def get_collection(user_id):  # TODO: DOUBLE CHECK THIS FOR GUEST MODE
+def get_collection(user_id, is_guest=False):  # TODO: DOUBLE CHECK THIS FOR GUEST MODE
     """
     Returns the collection for the user.
     If the user is a guest, uses the session-based in-memory client.
     """
-    if user_id == "guest":  # TODO: DOUBLE CHECK THIS FOR GUEST MODE
+    if is_guest:
         return guest_client.get_or_create_collection(f"{user_id}_docs")
     else:
         user_id = user_id.replace("|", "")
@@ -111,3 +122,10 @@ def delete_doc_from_collection(title, user_id):  # TODO: HANDLE GUEST MODE
         logger.info(f"new collection count: {collection.count()}")
     else:
         logger.info("No documents found to delete")
+
+
+def get_client_collection_count(is_guest=False):
+    if is_guest:
+        return guest_client.count_collections()
+    else:
+        return chroma_client.count_collections()
