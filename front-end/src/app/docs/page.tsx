@@ -14,6 +14,9 @@ import {
   Trash2,
   Eye,
   X,
+  Settings,
+  User,
+  LogOut,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -38,10 +41,12 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import ThemeToggle from "../theme-toggle";
 import { useUser, getAccessToken } from "@auth0/nextjs-auth0";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
+import UploadSuggestionsModal from "../upload-suggestion-modal";
+import NavbarNew from "../navbar-new";
 // // Mock data for documents
 // const mockDocuments = [
 //   {
@@ -135,7 +140,7 @@ export default function DocumentsPage() {
     []
   );
   const { randomId } = useRandomId();
-
+  const [open, setOpen] = useState(false);
   const fetchDocuments = React.useCallback(async () => {
     if (!user) return; // TODO: Handle guest mode
     const accessToken = await getAccessToken();
@@ -143,7 +148,6 @@ export default function DocumentsPage() {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const data = await res.json();
-    console.log("data", data);
 
     setDocuments(
       data.documents.map((meta: any, idx: number) => ({
@@ -158,8 +162,6 @@ export default function DocumentsPage() {
         description: meta.description || "", // TODO: add description
       }))
     );
-
-    console.log("Fetched documents:", data.documents);
   }, [user, apiUrl]);
 
   useEffect(() => {
@@ -258,9 +260,18 @@ export default function DocumentsPage() {
   const handleDeleteDocument = async (docId: string) => {
     const doc = documents.find((d) => d.id === docId);
     if (!doc) return;
-    await fetch(`${apiUrl}/delete?title=${encodeURIComponent(doc.name)}`, {
-      method: "DELETE",
-    });
+    const accessToken = await getAccessToken();
+
+    console.log("doc name", doc.name);
+    const response = await fetch(
+      `${apiUrl}/delete?title=${encodeURIComponent(doc.name)}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    console.log("response", response);
+
     await fetchDocuments();
     setSelectedDocuments((prev) => prev.filter((id) => id !== docId));
   };
@@ -279,21 +290,8 @@ export default function DocumentsPage() {
       toast.error("API URL is not defined");
       return;
     }
-    console.log("file", file);
-    console.log("user", user);
-    console.log("randomId", randomId);
-    console.log("apiUrl", apiUrl);
-    await uploadFiles([file], apiUrl, user, randomId);
-    // const accessToken = await getAccessToken();
-    // const formData = new FormData();
-    // formData.append("file", file);
-    // formData.append("title", file.name);
 
-    // await fetch(`${apiUrl}/add`, {
-    //   method: "POST",
-    //   headers: { Authorization: `Bearer ${accessToken}` },
-    //   body: formData,
-    // });
+    await uploadFiles([file], apiUrl, user, randomId);
 
     await fetchDocuments();
   };
@@ -337,7 +335,7 @@ export default function DocumentsPage() {
         accept="image/*,text/*,.pdf,.doc,.docx"
       />
 
-      {/* Header */}
+      {/* Header
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
         <div className="flex h-16 items-center px-4">
           <div className="flex items-center gap-3">
@@ -348,15 +346,42 @@ export default function DocumentsPage() {
               {filteredDocuments.length} files
             </Badge>
           </div>
-          <div className="ml-auto flex items-center gap-8 pr-8">
-            <ThemeToggle />
+          <div className="ml-auto flex items-center gap-4 pr-8">
+            <UploadSuggestionsModal open={open} setOpen={setOpen} />
             <Button onClick={handleAttachment} className="gap-2">
               <Upload className="h-4 w-4" />
               Upload
             </Button>
+            <ThemeToggle />
+
+            {user && (
+              <Button
+                variant="ghost"
+                className="hover:cursor-pointer"
+                onClick={() => {
+                  setOpen(true);
+                }}
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
+            )}
+            {user ? (
+              <a href="/auth/logout">
+                <Button variant="ghost" className="hover:cursor-pointer">
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </a>
+            ) : (
+              <a href="/auth/login">
+                <Button variant="ghost" className="hover:cursor-pointer">
+                  <User className="h-5 w-5" />
+                </Button>
+              </a>
+            )}
           </div>
         </div>
-      </header>
+      </header> */}
+      <NavbarNew nav_header="Documents" />
       {/* Toolbar */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center gap-4 px-6 py-3">

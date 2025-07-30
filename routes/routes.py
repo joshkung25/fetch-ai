@@ -3,6 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from agent.retriever import (
     add_doc_to_collection,
     get_all_user_docs_metadata,
+    delete_doc_from_collection,
 )
 from parser.pdf_parser import parse_pdf
 from agent.chat import chat
@@ -11,7 +12,6 @@ from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
 import logging
-from agent.retriever import chroma_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +28,10 @@ class ChatRequest(BaseModel):
     user_input: str
     message_history: List[Dict]
     guest_random_id: str | None = None
+
+
+class DeleteRequest(BaseModel):
+    title: str
 
 
 @router.get("/")
@@ -90,20 +94,14 @@ def list_docs(user_id: str = Depends(get_current_user)):
 
 
 @router.delete("/delete")
-def delete_doc(title: str):
+def delete_doc(
+    title: str,
+    user_id: str = Depends(get_current_user),
+):
+    logger.info(f"Deleting document: {title}")
+
     try:
-        collection = chroma_client.get_collection("documents")
-        # must have stored title as metadata during upload
-        docs = collection.get(include=["metadatas", "ids"])
-        ids_to_delete = [
-            doc_id
-            for doc_id, meta in zip(docs["ids"], docs["metadatas"])
-            if meta.get("title") == title
-        ]
-        if ids_to_delete:
-            collection.delete(ids=ids_to_delete)
-            return {"status": "ok"}
-        else:
-            return {"status": "not_found"}
+        delete_doc_from_collection(title, user_id)
+        return {"status": "ok"}
     except Exception as e:
         return {"status": "error", "message": str(e)}

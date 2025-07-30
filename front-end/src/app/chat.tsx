@@ -60,7 +60,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      <NavbarNew />
+      <NavbarNew nav_header="Fetch AI" />
       <div className="flex flex-1 flex-col p-4 mt-12 overflow-hidden">
         {/* Messages area - grows with content */}
         <div className="flex-1 overflow-y-auto pb-20 sm:p-4 md:p-10 lg:p-24">
