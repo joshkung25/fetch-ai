@@ -102,7 +102,7 @@ export default function UploadSuggestionsModal({
 
         if (!file) return;
         console.log("apiUrl", apiUrl);
-        await uploadFiles([file], apiUrl, user, randomId);
+        await uploadFiles([file], apiUrl, user, randomId); // TODO: add the document label to the file
       }
     };
 
