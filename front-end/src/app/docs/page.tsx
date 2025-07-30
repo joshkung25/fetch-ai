@@ -384,9 +384,9 @@ export default function DocumentsPage() {
       <NavbarNew nav_header="Documents" />
       {/* Toolbar */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center gap-4 px-6 py-3">
+        <div className="flex items-center justify-center gap-4 px-6 py-3">
           {/* Search */}
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1 max-w-2xl">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search documents..."
@@ -499,7 +499,7 @@ export default function DocumentsPage() {
             </Button>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 sm:px-4 md:px-6 lg:px-8">
             {filteredDocuments.map((doc) => (
               <Card
                 key={doc.id}

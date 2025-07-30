@@ -46,9 +46,9 @@ export default function UploadButton() {
         onChange={handleFileUpload}
         accept="image/*,text/*,.pdf,.doc,.docx"
       />
-      <Button onClick={handleAttachment} className="gap-2">
+      <Button onClick={handleAttachment} className="gap-2" variant="outline">
         <Upload className="h-4 w-4" />
-        Upload
+        <span className="hidden sm:inline">Upload</span>
       </Button>
     </>
   );
