@@ -3,6 +3,12 @@ from chromadb.config import Settings
 from agent.embedder import embed_text_batch
 from agent.embedder import embed_text
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 # Persistent vector DB store - use environment variables for Docker compatibility
 chroma_host = os.getenv("CHROMA_SERVER_HOST", "localhost")
@@ -46,12 +52,12 @@ def query_collection(embedded_input, user_id, n_results=1):
     )
 
 
-def get_collection(user_id):
+def get_collection(user_id):  # TODO: DOUBLE CHECK THIS FOR GUEST MODE
     """
     Returns the collection for the user.
     If the user is a guest, uses the session-based in-memory client.
     """
-    if user_id == "guest":
+    if user_id == "guest":  # TODO: DOUBLE CHECK THIS FOR GUEST MODE
         return guest_client.get_or_create_collection(f"{user_id}_docs")
     else:
         user_id = user_id.replace("|", "")
@@ -75,3 +81,33 @@ def get_all_user_docs_metadata(user_id):
             seen_titles.append(title)
             return_list.append(meta)
     return return_list
+
+
+def delete_doc_from_collection(title, user_id):  # TODO: HANDLE GUEST MODE
+    """
+    Delete a document from the collection.
+    """
+    collection = get_collection(user_id)
+    logger.info(f"collection count: {collection.count()}")
+    # must have stored title as metadata during upload
+    docs = collection.get(include=["metadatas"])
+
+    ids_to_delete = []
+    for doc_id, meta in zip(docs["ids"], docs["metadatas"]):
+        meta_title = meta.get("title")
+        if meta_title is None:
+            continue
+        if meta_title == title:
+            ids_to_delete.append(doc_id)
+
+    # ids_to_delete = [
+    #     doc_id
+    #     for doc_id, meta in zip(docs["ids"], docs["metadatas"])
+    #     if meta.get("title") == title
+    # ]
+    logger.info(f"ids_to_delete: {ids_to_delete}")
+    if ids_to_delete:
+        collection.delete(ids=ids_to_delete)
+        logger.info(f"new collection count: {collection.count()}")
+    else:
+        logger.info("No documents found to delete")
