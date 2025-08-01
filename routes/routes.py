@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
 import logging
+from agent.supabase_retriever import upload_document_to_storage, insert_document_record
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -61,6 +62,8 @@ async def add_doc_route(
             )
         else:
             add_doc_to_collection(doc_chunks, title, user_id, tags)
+            upload_document_to_storage(file.file, title, user_id)
+            insert_document_record(title, user_id, file.file)
         return {"status": "ok"}
     except Exception as e:
         logger.error(f"Error processing document: {str(e)}")
