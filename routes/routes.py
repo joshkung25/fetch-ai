@@ -12,7 +12,12 @@ from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
 import logging
-from agent.supabase_retriever import upload_document_to_storage, insert_document_record
+from agent.supabase_retriever import (
+    upload_pdf_to_storage,
+    insert_pdf_record,
+    insert_user_record,
+    get_user_record,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -35,6 +40,12 @@ class DeleteRequest(BaseModel):
     title: str
 
 
+class AddUserRequest(BaseModel):
+    user_id: str
+    email: str
+    name: str
+
+
 @router.get("/")
 def root():
     return {"message": "Hello from FastAPI!"}
@@ -48,6 +59,10 @@ async def add_doc_route(
     guest_random_id: str | None = Form(None),
     tags: List[str] | None = Form(None),
 ):
+    """
+    Adds a document to the database
+    """
+    user_id = user_id.replace("|", "")
     try:
         # Save file to temporary location
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
@@ -62,8 +77,14 @@ async def add_doc_route(
             )
         else:
             add_doc_to_collection(doc_chunks, title, user_id, tags)
-            upload_document_to_storage(file.file, title, user_id)
-            insert_document_record(title, user_id, file.file)
+            # Read file bytes for upload
+            file_bytes = await file.read()
+            # Reset file pointer for potential future reads
+            await file.seek(0)
+            # Upload to Supabase storage
+            file_path = upload_pdf_to_storage(file_bytes, title, user_id)
+            if file_path:
+                insert_pdf_record(title, user_id, file_path)
         return {"status": "ok"}
     except Exception as e:
         logger.error(f"Error processing document: {str(e)}")
@@ -79,7 +100,11 @@ async def chat_route(
     request: ChatRequest,
     user_id: str = Depends(get_current_user),
 ):
-    logger.info(f"user_id: {user_id}")
+    """
+    Chat with the assistant
+    """
+    user_id = user_id.replace("|", "")
+
     user_input = request.user_input
     messages = request.message_history
     if request.guest_random_id:
@@ -90,6 +115,10 @@ async def chat_route(
 
 @router.get("/list")
 def list_docs(user_id: str = Depends(get_current_user)):
+    """
+    Lists all documents for a user
+    """
+    user_id = user_id.replace("|", "")
     try:
         metadata_list = get_all_user_docs_metadata(user_id)
         logger.info(f"metadata_list: {metadata_list[0]}")
@@ -104,10 +133,24 @@ def delete_doc(
     title: str,
     user_id: str = Depends(get_current_user),
 ):
+    """
+    Deletes a document from the database
+    """
     logger.info(f"Deleting document: {title}")
-
+    user_id = user_id.replace("|", "")
     try:
         delete_doc_from_collection(title, user_id)
         return {"status": "ok"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@router.post("/add-user")
+def add_user(request: AddUserRequest):
+    """
+    Adds a user to the database if they don't exist
+    """
+    user_id = request.user_id.replace("|", "")
+    if not get_user_record(user_id):
+        insert_user_record(user_id, request.email, request.name)
+    return {"status": "ok"}

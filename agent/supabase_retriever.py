@@ -35,16 +35,13 @@ def insert_pdf_record(title: str, user_id: str, file_path: str) -> bool:
             .insert(
                 {
                     "title": title,
-                    "user_id": user_id,
+                    "auth0_id": user_id,
                     "file_path": file_path,
                     "created_at": datetime.utcnow().isoformat(),
                 }
             )
             .execute()
         )
-        if result.get("error"):
-            print("Insert error:", result["error"])
-            return False
         return True
     except Exception as e:
         print("Exception inserting into pdfs table:", e)
@@ -55,9 +52,6 @@ def delete_pdf_from_storage(file_path: str) -> bool:
     """Deletes a file from Supabase Storage."""
     try:
         result = supabase.storage.from_("pdfs").remove([file_path])
-        if result.get("error"):
-            print("Delete error:", result["error"])
-            return False
         return True
     except Exception as e:
         print("Exception deleting file:", e)
@@ -68,10 +62,41 @@ def delete_pdf_record(pdf_id: str) -> bool:
     """Deletes a row from the pdfs table by id."""
     try:
         result = supabase.table("pdfs").delete().eq("id", pdf_id).execute()
-        if result.get("error"):
-            print("Delete row error:", result["error"])
-            return False
         return True
     except Exception as e:
         print("Exception deleting pdf record:", e)
+        return False
+
+
+def get_user_record(user_id: str) -> Optional[dict]:
+    """Gets a record from the users table by id."""
+    try:
+        result = supabase.table("users").select("*").eq("auth0_id", user_id).execute()
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print("Exception getting user record:", e)
+        return None
+
+
+def insert_user_record(user_id: str, email: str, name: str) -> bool:
+    """Inserts a record into the users table."""
+    try:
+        result = (
+            supabase.table("users")
+            .insert({"auth0_id": user_id, "email": email, "name": name})
+            .execute()
+        )
+        return True
+    except Exception as e:
+        print("Exception inserting into users table:", e)
+        return False
+
+
+def delete_user_record(user_id: str) -> bool:
+    """Deletes a row from the users table by id."""
+    try:
+        result = supabase.table("users").delete().eq("auth0_id", user_id).execute()
+        return True
+    except Exception as e:
+        print("Exception deleting user record:", e)
         return False
