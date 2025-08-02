@@ -325,6 +325,10 @@ export default function DocumentsPage() {
     }
   };
 
+  const handlePreview = (docId: string) => {
+    console.log("handlePreview", docId);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background w-full">
       <input
@@ -334,53 +338,6 @@ export default function DocumentsPage() {
         onChange={handleFileUpload}
         accept="image/*,text/*,.pdf,.doc,.docx"
       />
-
-      {/* Header
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
-        <div className="flex h-16 items-center px-4">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="-ml-1" />
-            <FileText className="h-5 w-5" />
-            <h1 className="font-semibold">Documents</h1>
-            <Badge variant="secondary" className="ml-2">
-              {filteredDocuments.length} files
-            </Badge>
-          </div>
-          <div className="ml-auto flex items-center gap-4 pr-8">
-            <UploadSuggestionsModal open={open} setOpen={setOpen} />
-            <Button onClick={handleAttachment} className="gap-2">
-              <Upload className="h-4 w-4" />
-              Upload
-            </Button>
-            <ThemeToggle />
-
-            {user && (
-              <Button
-                variant="ghost"
-                className="hover:cursor-pointer"
-                onClick={() => {
-                  setOpen(true);
-                }}
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
-            )}
-            {user ? (
-              <a href="/auth/logout">
-                <Button variant="ghost" className="hover:cursor-pointer">
-                  <LogOut className="h-5 w-5" />
-                </Button>
-              </a>
-            ) : (
-              <a href="/auth/login">
-                <Button variant="ghost" className="hover:cursor-pointer">
-                  <User className="h-5 w-5" />
-                </Button>
-              </a>
-            )}
-          </div>
-        </div>
-      </header> */}
       <NavbarNew nav_header="Documents" />
       {/* Toolbar */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -539,7 +496,7 @@ export default function DocumentsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handlePreview(doc.id)}>
                           <Eye className="h-4 w-4 mr-2" />
                           Preview
                         </DropdownMenuItem>

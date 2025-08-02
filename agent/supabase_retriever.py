@@ -30,6 +30,8 @@ def upload_pdf_to_storage(
 def insert_pdf_record(title: str, user_id: str, file_path: str) -> bool:
     """Inserts a record into the pdfs table."""
     try:
+        if get_pdf_record_by_title(title, user_id):
+            return True
         result = (
             supabase.table("pdfs")
             .insert(
@@ -48,9 +50,10 @@ def insert_pdf_record(title: str, user_id: str, file_path: str) -> bool:
         return False
 
 
-def delete_pdf_from_storage(file_path: str) -> bool:
+def delete_pdf_from_storage(title: str, user_id: str) -> bool:
     """Deletes a file from Supabase Storage."""
     try:
+        file_path = f"user_uploads/{user_id}/{title}"
         result = supabase.storage.from_("pdfs").remove([file_path])
         return True
     except Exception as e:
@@ -58,10 +61,16 @@ def delete_pdf_from_storage(file_path: str) -> bool:
         return False
 
 
-def delete_pdf_record(pdf_id: str) -> bool:
-    """Deletes a row from the pdfs table by id."""
+def delete_pdf_record(title: str, user_id: str) -> bool:
+    """Deletes a row from the pdfs table by title and user_id."""
     try:
-        result = supabase.table("pdfs").delete().eq("id", pdf_id).execute()
+        result = (
+            supabase.table("pdfs")
+            .delete()
+            .eq("title", title)
+            .eq("auth0_id", user_id)
+            .execute()
+        )
         return True
     except Exception as e:
         print("Exception deleting pdf record:", e)
@@ -100,3 +109,19 @@ def delete_user_record(user_id: str) -> bool:
     except Exception as e:
         print("Exception deleting user record:", e)
         return False
+
+
+def get_pdf_record_by_title(title: str, user_id: str) -> Optional[dict]:
+    """Gets a record from the pdfs table by title and user_id."""
+    try:
+        result = (
+            supabase.table("pdfs")
+            .select("*")
+            .eq("title", title)
+            .eq("auth0_id", user_id)
+            .execute()
+        )
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print("Exception getting pdf record:", e)
+        return None

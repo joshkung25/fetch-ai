@@ -17,6 +17,8 @@ from agent.supabase_retriever import (
     insert_pdf_record,
     insert_user_record,
     get_user_record,
+    delete_pdf_from_storage,
+    delete_pdf_record,
 )
 
 # Configure logging
@@ -40,7 +42,7 @@ class DeleteRequest(BaseModel):
     title: str
 
 
-class AddUserRequest(BaseModel):
+class AddUserRequest(BaseModel):  # TODO: make more secure, any user can add any user
     user_id: str
     email: str
     name: str
@@ -64,9 +66,10 @@ async def add_doc_route(
     """
     user_id = user_id.replace("|", "")
     try:
+        file_bytes = await file.read()
         # Save file to temporary location
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            tmp.write(await file.read())
+            tmp.write(file_bytes)
             tmp_path = tmp.name
             doc_chunks = parse_pdf(tmp_path)
 
@@ -77,10 +80,6 @@ async def add_doc_route(
             )
         else:
             add_doc_to_collection(doc_chunks, title, user_id, tags)
-            # Read file bytes for upload
-            file_bytes = await file.read()
-            # Reset file pointer for potential future reads
-            await file.seek(0)
             # Upload to Supabase storage
             file_path = upload_pdf_to_storage(file_bytes, title, user_id)
             if file_path:
@@ -140,6 +139,9 @@ def delete_doc(
     user_id = user_id.replace("|", "")
     try:
         delete_doc_from_collection(title, user_id)
+        delete_pdf_from_storage(title, user_id)
+        delete_pdf_record(title, user_id)
+
         return {"status": "ok"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
