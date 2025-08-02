@@ -54,7 +54,7 @@ def start_chat():
         messages.append({"role": "assistant", "content": assistant_reply})
 
 
-def chat(user_input, messages, user_id):
+def chat(user_input, messages, user_id):  # TODO: also return source files
     """
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """

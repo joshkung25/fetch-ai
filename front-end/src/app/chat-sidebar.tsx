@@ -250,6 +250,21 @@ export default function ChatSidebar() {
     }
   }, [file]);
 
+  useEffect(() => {
+    if (user) {
+      fetch(`${apiUrl}/add-user`, {
+        method: "POST",
+        body: JSON.stringify({
+          user_id: user.sub,
+          email: user.email,
+          name: user.name,
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    console.log("success");
+  }, [user]);
+
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="border-b p-2 pt-15 border-t">
