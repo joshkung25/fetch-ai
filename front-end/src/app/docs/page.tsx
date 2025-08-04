@@ -360,6 +360,14 @@ export default function DocumentsPage() {
     a.click();
   };
 
+  const handleDeleteCollection = async () => {
+    const accessToken = await getAccessToken();
+    await fetch(`${apiUrl}/delete-collection`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background w-full">
       <input
@@ -373,6 +381,13 @@ export default function DocumentsPage() {
       {/* Toolbar */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center justify-center gap-4 px-6 py-3">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleDeleteCollection}
+          >
+            Delete Collection
+          </Button>
           {/* Search */}
           <div className="relative flex-1 max-w-2xl">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -639,7 +654,7 @@ export default function DocumentsPage() {
                         <Eye className="h-4 w-4 mr-2" />
                         Preview
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownload(doc.id)}>
                         <Download className="h-4 w-4 mr-2" />
                         Download
                       </DropdownMenuItem>

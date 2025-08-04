@@ -129,3 +129,7 @@ def get_client_collection_count(is_guest=False):
         return guest_client.count_collections()
     else:
         return chroma_client.count_collections()
+
+
+def delete_collection(user_id):
+    chroma_client.delete_collection(f"{user_id}_docs")

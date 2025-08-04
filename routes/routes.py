@@ -4,6 +4,7 @@ from agent.retriever import (
     add_doc_to_collection,
     get_all_user_docs_metadata,
     delete_doc_from_collection,
+    delete_collection,
 )
 from parser.pdf_parser import parse_pdf
 from agent.chat import chat
@@ -171,3 +172,13 @@ def preview_doc(title: str, user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="PDF not found")
 
     return Response(content=pdf_bytes, media_type="application/pdf")
+
+
+@router.delete("/delete-collection")
+def delete_chroma_collection(user_id: str = Depends(get_current_user)):
+    """
+    Deletes a collection from the database
+    """
+    user_id = user_id.replace("|", "")
+    delete_collection(user_id)
+    return {"status": "ok"}
