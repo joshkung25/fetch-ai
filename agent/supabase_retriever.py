@@ -125,3 +125,14 @@ def get_pdf_record_by_title(title: str, user_id: str) -> Optional[dict]:
     except Exception as e:
         print("Exception getting pdf record:", e)
         return None
+
+
+def get_pdf_from_storage(title: str, user_id: str) -> Optional[bytes]:
+    """Gets a file from Supabase Storage."""
+    try:
+        file_path = f"user_uploads/{user_id}/{title}"
+        result = supabase.storage.from_("pdfs").download(file_path)
+        return result
+    except Exception as e:
+        print("Exception getting file:", e)
+        return None

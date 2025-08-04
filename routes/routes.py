@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, Response
 from fastapi.security import HTTPAuthorizationCredentials
 from agent.retriever import (
     add_doc_to_collection,
@@ -19,6 +19,7 @@ from agent.supabase_retriever import (
     get_user_record,
     delete_pdf_from_storage,
     delete_pdf_record,
+    get_pdf_from_storage,
 )
 
 # Configure logging
@@ -156,3 +157,17 @@ def add_user(request: AddUserRequest):
     if not get_user_record(user_id):
         insert_user_record(user_id, request.email, request.name)
     return {"status": "ok"}
+
+
+@router.get("/preview")
+def preview_doc(title: str, user_id: str = Depends(get_current_user)):
+    """
+    Previews a document
+    """
+    user_id = user_id.replace("|", "")
+    pdf_bytes = get_pdf_from_storage(title, user_id)
+
+    if pdf_bytes is None:
+        raise HTTPException(status_code=404, detail="PDF not found")
+
+    return Response(content=pdf_bytes, media_type="application/pdf")

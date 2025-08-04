@@ -336,8 +336,28 @@ export default function DocumentsPage() {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
     );
-    const data = await response.json();
-    console.log("data", data);
+    const pdfBlob = await response.blob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl, "_blank");
+    window.focus();
+  };
+
+  const handleDownload = async (docId: string) => {
+    const doc = documents.find((d) => d.id === docId);
+    if (!doc) return;
+    const accessToken = await getAccessToken();
+    const response = await fetch(
+      `${apiUrl}/download?title=${encodeURIComponent(doc.name)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    const pdfBlob = await response.blob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    const a = document.createElement("a");
+    a.href = pdfUrl;
+    a.download = doc.name;
+    a.click();
   };
 
   return (
@@ -511,7 +531,9 @@ export default function DocumentsPage() {
                           <Eye className="h-4 w-4 mr-2" />
                           Preview
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDownload(doc.id)}
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Download
                         </DropdownMenuItem>
@@ -613,7 +635,7 @@ export default function DocumentsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handlePreview(doc.id)}>
                         <Eye className="h-4 w-4 mr-2" />
                         Preview
                       </DropdownMenuItem>

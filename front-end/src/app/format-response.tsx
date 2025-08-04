@@ -15,11 +15,7 @@ export default function formatAgentResponse(text: string) {
         </div>
       );
     }
-    return (
-      <p key={idx} className="mb-2">
-        {line}
-      </p>
-    );
+    return <p key={idx}>{line}</p>;
   });
 }
 
