@@ -8,8 +8,10 @@ export default function formatAgentResponse(text: string) {
       const rest = line.replace(/\*\*(.*?)\*\*/, "").trim();
       return (
         <div key={idx} className="mb-4">
-          <div className="font-semibold">{boldText}</div>
-          <div className="ml-4 text-sm text-gray-700">{rest}</div>
+          <div className="font-semibold pb-2">{boldText}</div>
+          <div className="ml-4 text-sm text-gray-700 dark:text-gray-300">
+            {rest}
+          </div>
         </div>
       );
     }

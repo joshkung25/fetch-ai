@@ -325,8 +325,19 @@ export default function DocumentsPage() {
     }
   };
 
-  const handlePreview = (docId: string) => {
+  const handlePreview = async (docId: string) => {
     console.log("handlePreview", docId);
+    const doc = documents.find((d) => d.id === docId);
+    if (!doc) return;
+    const accessToken = await getAccessToken();
+    const response = await fetch(
+      `${apiUrl}/preview?title=${encodeURIComponent(doc.name)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    const data = await response.json();
+    console.log("data", data);
   };
 
   return (

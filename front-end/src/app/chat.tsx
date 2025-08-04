@@ -61,7 +61,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   return (
     <div className="flex flex-col h-screen w-full">
       <NavbarNew nav_header="Fetch AI" />
-      <div className="flex flex-1 flex-col p-4 mt-12 overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Messages area - grows with content */}
         <div className="flex-1 overflow-y-auto pb-20 sm:p-4 md:p-10 lg:p-24">
           {messages.length === 0 ? (
@@ -91,13 +91,13 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                   className={`p-3 rounded-lg ${
                     message.role === "user"
                       ? "bg-blue-200/50 dark:bg-blue-900/50 ml-auto w-fit max-w-xs md:max-w-lg"
-                      : "bg-gray-200/50 dark:bg-gray-900/50 mr-auto w-fit max-w-xs md:max-w-lg"
+                      : "bg-gray-200/50 dark:bg-gray-900/50 mr-auto w-fit max-w-xs md:max-w-xl"
                   }`}
                   ref={messageEndRef}
                 >
                   {/* {message.content} */}
-                  <ReactMarkdown>{message.content}</ReactMarkdown>
-                  {/* {formatAgentResponse(message.content)} */}
+                  {/* <ReactMarkdown>{message.content}</ReactMarkdown> */}
+                  {formatAgentResponse(message.content)}
                 </li>
               ))}
               {isThinking && (
