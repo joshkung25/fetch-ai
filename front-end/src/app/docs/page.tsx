@@ -500,6 +500,10 @@ export default function DocumentsPage() {
               <Upload className="h-4 w-4" />
               Upload Document
             </Button>
+            <p className="text-xs text-muted-foreground fixed bottom-0 pb-12">
+              Stored in private, encrypted storage and protected by strict
+              backend authentication — only you can access them.
+            </p>
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 sm:px-4 md:px-6 lg:px-8">
