@@ -59,6 +59,7 @@ export default function UploadButton() {
         onClose={() => {
           setIsMetadataModalOpen(false);
           setFile(null);
+          fileInputRef.current!.value = "";
         }}
         fileName={file?.name || ""}
         onSave={handleFileUpload}
