@@ -35,21 +35,21 @@ export interface DocumentInfoInput {
 }
 
 const suggestedTags = [
-  "Important",
-  "Personal",
-  "Financial",
-  "Insurance",
-  "Medical",
-  "Legal",
-  "Tax",
-  "Work",
-  "Travel",
-  "Property",
-  "Vehicle",
-  "Education",
-  "Emergency",
-  "Renewal Required",
-  "Expires Soon",
+  "important",
+  "personal",
+  "financial",
+  "insurance",
+  "medical",
+  "legal",
+  "tax",
+  "work",
+  "travel",
+  "property",
+  "vehicle",
+  "education",
+  "emergency",
+  "renewal required",
+  "expires soon",
 ];
 
 const categories = [

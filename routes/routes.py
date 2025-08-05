@@ -85,7 +85,7 @@ async def add_doc_route(
             # Upload to Supabase storage
             file_path = upload_pdf_to_storage(file_bytes, title, user_id)
             if file_path:
-                insert_pdf_record(title, user_id, file_path)
+                insert_pdf_record(title, user_id, file_path, tags)
         return {"status": "ok"}
     except Exception as e:
         logger.error(f"Error processing document: {str(e)}")
