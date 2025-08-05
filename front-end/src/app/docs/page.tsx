@@ -492,9 +492,11 @@ export default function DocumentsPage() {
                 : "No documents yet"}
             </h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery || filterBy !== "all"
-                ? "Try adjusting your search or filters"
-                : "Upload your first document to get started"}
+              {user
+                ? searchQuery || filterBy !== "all"
+                  ? "Try adjusting your search or filters"
+                  : "Upload your first document to get started"
+                : "Login to get started and view your documents"}
             </p>
             <Button onClick={handleAttachment} className="gap-2">
               <Upload className="h-4 w-4" />

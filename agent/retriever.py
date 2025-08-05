@@ -52,15 +52,15 @@ def add_doc_to_collection(doc_chunks, title, user_id, tags=None, is_guest=False)
     logger.info(f"Client collection count: {get_client_collection_count(is_guest)}")
 
 
-def query_collection(embedded_input, user_id, n_results=1):
-    """
-    Query the collection with a vector and return top-k matching chunks.
-    """
-    return get_collection(user_id).query(
-        query_embeddings=[embedded_input],
-        n_results=n_results,
-        include=["documents", "distances", "metadatas"],
-    )
+# def query_collection(embedded_input, user_id, n_results=1):
+#     """
+#     Query the collection with a vector and return top-k matching chunks.
+#     """
+#     return get_collection(user_id).query(
+#         query_embeddings=[embedded_input],
+#         n_results=n_results,
+#         include=["documents", "distances", "metadatas"],
+#     )
 
 
 def get_collection(user_id, is_guest=False):  # TODO: DOUBLE CHECK THIS FOR GUEST MODE

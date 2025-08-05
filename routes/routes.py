@@ -109,9 +109,9 @@ async def chat_route(
     user_input = request.user_input
     messages = request.message_history
     if request.guest_random_id:
-        return chat(user_input, messages, request.guest_random_id)
+        return chat(user_input, messages, request.guest_random_id, is_guest=True)
     else:
-        return chat(user_input, messages, user_id)
+        return chat(user_input, messages, user_id, is_guest=False)
 
 
 @router.get("/list")

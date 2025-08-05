@@ -8,7 +8,7 @@ however you can also be a general purpose assistant. """
 APP_INFO_PROMPT = ""
 
 
-def model_recall_response(user_input: str, user_id: str):
+def model_recall_response(user_input: str, user_id: str, is_guest: bool):
     """Fetches relevant information from the vector database, and then uses that information in the prompt for the model.
     Returns the prompt for the model to use."""
 
@@ -17,7 +17,7 @@ def model_recall_response(user_input: str, user_id: str):
 
     # find and extract info
     # can change so it checks for multiple results, and then includes all of the relevant ones in the response
-    results = get_collection(user_id).query(
+    results = get_collection(user_id, is_guest).query(
         query_embeddings=[embedded_input],
         n_results=3,
         include=["documents", "distances"],

@@ -39,7 +39,7 @@ def start_chat():
         messages.append(
             {
                 "role": "user",
-                "content": model_recall_response(user_input, "guest"),
+                "content": model_recall_response(user_input, "guest", is_guest=True),
             }
         )
 
@@ -54,12 +54,14 @@ def start_chat():
         messages.append({"role": "assistant", "content": assistant_reply})
 
 
-def chat(user_input, messages, user_id):  # TODO: also return source files
+def chat(
+    user_input, messages, user_id, is_guest=False
+):  # TODO: also return source files
     """
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
     user_id = user_id.replace("|", "")
-    input_to_model = model_recall_response(user_input, user_id)
+    input_to_model = model_recall_response(user_input, user_id, is_guest)
     if len(messages) == 0:
         input_to_model = DOCS_ASSISTANT_PROMPT + input_to_model
 
