@@ -27,7 +27,7 @@ def upload_pdf_to_storage(
         return None
 
 
-def insert_pdf_record(
+def insert_pdf_record(  # TODO: possibly create pdf class?
     title: str, user_id: str, file_path: str, tags: Optional[list] = None
 ) -> bool:
     """Inserts a record into the pdfs table."""
