@@ -27,23 +27,25 @@ def upload_pdf_to_storage(
         return None
 
 
-def insert_pdf_record(title: str, user_id: str, file_path: str) -> bool:
+def insert_pdf_record(
+    title: str, user_id: str, file_path: str, tags: Optional[list] = None
+) -> bool:
     """Inserts a record into the pdfs table."""
     try:
         if get_pdf_record_by_title(title, user_id):
             return True
-        result = (
-            supabase.table("pdfs")
-            .insert(
-                {
-                    "title": title,
-                    "auth0_id": user_id,
-                    "file_path": file_path,
-                    "created_at": datetime.utcnow().isoformat(),
-                }
-            )
-            .execute()
-        )
+
+        insert_data = {
+            "title": title,
+            "auth0_id": user_id,
+            "file_path": file_path,
+            "created_at": datetime.utcnow().isoformat(),
+        }
+
+        if tags is not None:
+            insert_data["tags"] = tags
+
+        result = supabase.table("pdfs").insert(insert_data).execute()
         return True
     except Exception as e:
         print("Exception inserting into pdfs table:", e)
