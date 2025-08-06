@@ -503,8 +503,9 @@ export default function DocumentsPage() {
               Upload Document
             </Button>
             <p className="text-xs text-muted-foreground fixed bottom-0 pb-12">
-              Stored in private, encrypted storage and protected by strict
-              backend authentication — only you can access them.
+              Your documents are stored in private, encrypted storage and
+              protected by strict backend authentication — only you can access
+              them.
             </p>
           </div>
         ) : viewMode === "grid" ? (
