@@ -325,6 +325,49 @@ export default function DocumentsPage() {
     }
   };
 
+  const handlePreview = async (docId: string) => {
+    console.log("handlePreview", docId);
+    const doc = documents.find((d) => d.id === docId);
+    if (!doc) return;
+    const accessToken = await getAccessToken();
+    const response = await fetch(
+      `${apiUrl}/preview?title=${encodeURIComponent(doc.name)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    const pdfBlob = await response.blob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl, "_blank");
+    window.focus();
+  };
+
+  const handleDownload = async (docId: string) => {
+    const doc = documents.find((d) => d.id === docId);
+    if (!doc) return;
+    const accessToken = await getAccessToken();
+    const response = await fetch(
+      `${apiUrl}/download?title=${encodeURIComponent(doc.name)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+    const pdfBlob = await response.blob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    const a = document.createElement("a");
+    a.href = pdfUrl;
+    a.download = doc.name;
+    a.click();
+  };
+
+  const handleDeleteCollection = async () => {
+    const accessToken = await getAccessToken();
+    await fetch(`${apiUrl}/delete-collection`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background w-full">
       <input
@@ -334,57 +377,17 @@ export default function DocumentsPage() {
         onChange={handleFileUpload}
         accept="image/*,text/*,.pdf,.doc,.docx"
       />
-
-      {/* Header
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
-        <div className="flex h-16 items-center px-4">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="-ml-1" />
-            <FileText className="h-5 w-5" />
-            <h1 className="font-semibold">Documents</h1>
-            <Badge variant="secondary" className="ml-2">
-              {filteredDocuments.length} files
-            </Badge>
-          </div>
-          <div className="ml-auto flex items-center gap-4 pr-8">
-            <UploadSuggestionsModal open={open} setOpen={setOpen} />
-            <Button onClick={handleAttachment} className="gap-2">
-              <Upload className="h-4 w-4" />
-              Upload
-            </Button>
-            <ThemeToggle />
-
-            {user && (
-              <Button
-                variant="ghost"
-                className="hover:cursor-pointer"
-                onClick={() => {
-                  setOpen(true);
-                }}
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
-            )}
-            {user ? (
-              <a href="/auth/logout">
-                <Button variant="ghost" className="hover:cursor-pointer">
-                  <LogOut className="h-5 w-5" />
-                </Button>
-              </a>
-            ) : (
-              <a href="/auth/login">
-                <Button variant="ghost" className="hover:cursor-pointer">
-                  <User className="h-5 w-5" />
-                </Button>
-              </a>
-            )}
-          </div>
-        </div>
-      </header> */}
       <NavbarNew nav_header="Documents" />
       {/* Toolbar */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center justify-center gap-4 px-6 py-3">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleDeleteCollection}
+          >
+            Delete Collection
+          </Button>
           {/* Search */}
           <div className="relative flex-1 max-w-2xl">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -489,14 +492,20 @@ export default function DocumentsPage() {
                 : "No documents yet"}
             </h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery || filterBy !== "all"
-                ? "Try adjusting your search or filters"
-                : "Upload your first document to get started"}
+              {user
+                ? searchQuery || filterBy !== "all"
+                  ? "Try adjusting your search or filters"
+                  : "Upload your first document to get started"
+                : "Login to get started and view your documents"}
             </p>
             <Button onClick={handleAttachment} className="gap-2">
               <Upload className="h-4 w-4" />
               Upload Document
             </Button>
+            <p className="text-xs text-muted-foreground fixed bottom-0 pb-12">
+              Stored in private, encrypted storage and protected by strict
+              backend authentication — only you can access them.
+            </p>
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 sm:px-4 md:px-6 lg:px-8">
@@ -539,11 +548,13 @@ export default function DocumentsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handlePreview(doc.id)}>
                           <Eye className="h-4 w-4 mr-2" />
                           Preview
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDownload(doc.id)}
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Download
                         </DropdownMenuItem>
@@ -645,11 +656,11 @@ export default function DocumentsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handlePreview(doc.id)}>
                         <Eye className="h-4 w-4 mr-2" />
                         Preview
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownload(doc.id)}>
                         <Download className="h-4 w-4 mr-2" />
                         Download
                       </DropdownMenuItem>

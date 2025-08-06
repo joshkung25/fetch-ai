@@ -61,16 +61,23 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   return (
     <div className="flex flex-col h-screen w-full">
       <NavbarNew nav_header="Fetch AI" />
-      <div className="flex flex-1 flex-col p-4 mt-12 overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Messages area - grows with content */}
         <div className="flex-1 overflow-y-auto pb-20 sm:p-4 md:p-10 lg:p-24">
           {messages.length === 0 ? (
-            <div className="text-center py-8">
-              <Image
+            <div className="text-center py-32">
+              {/* <Image
                 src={logoSrc}
                 alt="Fetch Logo"
                 width={200}
                 height={200}
+                className="mx-auto mb-4"
+              /> */}
+              <Image
+                src="/docs_ai_logo2.png"
+                alt="Fetch AI"
+                width={100}
+                height={100}
                 className="mx-auto mb-4"
               />
               {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
@@ -91,13 +98,13 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                   className={`p-3 rounded-lg ${
                     message.role === "user"
                       ? "bg-blue-200/50 dark:bg-blue-900/50 ml-auto w-fit max-w-xs md:max-w-lg"
-                      : "bg-gray-200/50 dark:bg-gray-900/50 mr-auto w-fit max-w-xs md:max-w-lg"
+                      : "bg-gray-200/50 dark:bg-gray-900/50 mr-auto w-fit max-w-xs md:max-w-xl"
                   }`}
                   ref={messageEndRef}
                 >
                   {/* {message.content} */}
-                  <ReactMarkdown>{message.content}</ReactMarkdown>
-                  {/* {formatAgentResponse(message.content)} */}
+                  {/* <ReactMarkdown>{message.content}</ReactMarkdown> */}
+                  {formatAgentResponse(message.content)}
                 </li>
               ))}
               {isThinking && (

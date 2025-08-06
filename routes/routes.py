@@ -1,9 +1,10 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, Response
 from fastapi.security import HTTPAuthorizationCredentials
 from agent.retriever import (
     add_doc_to_collection,
     get_all_user_docs_metadata,
     delete_doc_from_collection,
+    delete_collection,
 )
 from parser.pdf_parser import parse_pdf
 from agent.chat import chat, suggested_tags
@@ -12,6 +13,15 @@ from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
 import logging
+from agent.supabase_retriever import (
+    upload_pdf_to_storage,
+    insert_pdf_record,
+    insert_user_record,
+    get_user_record,
+    delete_pdf_from_storage,
+    delete_pdf_record,
+    get_pdf_from_storage,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +44,12 @@ class DeleteRequest(BaseModel):
     title: str
 
 
+class AddUserRequest(BaseModel):  # TODO: make more secure, any user can add any user
+    user_id: str
+    email: str
+    name: str
+
+
 @router.get("/")
 def root():
     return {"message": "Hello from FastAPI!"}
@@ -47,10 +63,15 @@ async def add_doc_route(
     guest_random_id: str | None = Form(None),
     tags: List[str] | None = Form(None),
 ):
+    """
+    Adds a document to the database
+    """
+    user_id = user_id.replace("|", "")
     try:
+        file_bytes = await file.read()
         # Save file to temporary location
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            tmp.write(await file.read())
+            tmp.write(file_bytes)
             tmp_path = tmp.name
             doc_chunks = parse_pdf(tmp_path)
 
@@ -61,6 +82,10 @@ async def add_doc_route(
             )
         else:
             add_doc_to_collection(doc_chunks, title, user_id, tags)
+            # Upload to Supabase storage
+            file_path = upload_pdf_to_storage(file_bytes, title, user_id)
+            if file_path:
+                insert_pdf_record(title, user_id, file_path, tags)
         return {"status": "ok"}
     except Exception as e:
         logger.error(f"Error processing document: {str(e)}")
@@ -76,17 +101,25 @@ async def chat_route(
     request: ChatRequest,
     user_id: str = Depends(get_current_user),
 ):
-    logger.info(f"user_id: {user_id}")
+    """
+    Chat with the assistant
+    """
+    user_id = user_id.replace("|", "")
+
     user_input = request.user_input
     messages = request.message_history
     if request.guest_random_id:
-        return chat(user_input, messages, request.guest_random_id)
+        return chat(user_input, messages, request.guest_random_id, is_guest=True)
     else:
-        return chat(user_input, messages, user_id)
+        return chat(user_input, messages, user_id, is_guest=False)
 
 
 @router.get("/list")
 def list_docs(user_id: str = Depends(get_current_user)):
+    """
+    Lists all documents for a user
+    """
+    user_id = user_id.replace("|", "")
     try:
         metadata_list = get_all_user_docs_metadata(user_id)
         logger.info(f"metadata_list: {metadata_list[0]}")
@@ -101,13 +134,54 @@ def delete_doc(
     title: str,
     user_id: str = Depends(get_current_user),
 ):
+    """
+    Deletes a document from the database
+    """
     logger.info(f"Deleting document: {title}")
-
+    user_id = user_id.replace("|", "")
     try:
         delete_doc_from_collection(title, user_id)
+        delete_pdf_from_storage(title, user_id)
+        delete_pdf_record(title, user_id)
+
         return {"status": "ok"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@router.post("/add-user")
+def add_user(request: AddUserRequest):
+    """
+    Adds a user to the database if they don't exist
+    """
+    user_id = request.user_id.replace("|", "")
+    if not get_user_record(user_id):
+        insert_user_record(user_id, request.email, request.name)
+    return {"status": "ok"}
+
+
+@router.get("/preview")
+def preview_doc(title: str, user_id: str = Depends(get_current_user)):
+    """
+    Previews a document
+    """
+    user_id = user_id.replace("|", "")
+    pdf_bytes = get_pdf_from_storage(title, user_id)
+
+    if pdf_bytes is None:
+        raise HTTPException(status_code=404, detail="PDF not found")
+
+    return Response(content=pdf_bytes, media_type="application/pdf")
+
+
+@router.delete("/delete-collection")
+def delete_chroma_collection(user_id: str = Depends(get_current_user)):
+    """
+    Deletes a collection from the database
+    """
+    user_id = user_id.replace("|", "")
+    delete_collection(user_id)
+    return {"status": "ok"}
 
 
 @router.get("/suggested_tags")

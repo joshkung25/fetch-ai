@@ -51,6 +51,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
+import Image from "next/image";
 // Mock data for existing chats
 const mockChats = [
   {
@@ -250,9 +251,28 @@ export default function ChatSidebar() {
     }
   }, [file]);
 
+  useEffect(() => {
+    if (user) {
+      fetch(`${apiUrl}/add-user`, {
+        method: "POST",
+        body: JSON.stringify({
+          user_id: user.sub,
+          email: user.email,
+          name: user.name,
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    console.log("success");
+  }, [user]);
+
   return (
     <Sidebar className="border-r">
-      <SidebarHeader className="border-b p-2 pt-15 border-t">
+      {/* <div className="flex pt-4 pl-4">
+        <Image src="/docs_ai_logo2.png" alt="Fetch AI" width={30} height={30} />
+      </div> */}
+
+      <SidebarHeader className="border-b p-2 pt-6">
         <Button
           variant="ghost"
           onClick={handleNewChat}
