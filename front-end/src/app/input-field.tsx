@@ -173,8 +173,11 @@ export default function ChatbotInput({
           <Button
             disabled={disabled}
             size="sm"
-            className="h-8 w-8 p-0 hover:cursor-pointer"
-            // onClick={handleFileUpload}
+            className={`h-8 w-8 p-0 hover:cursor-pointer ${
+              loading
+                ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
+                : "hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 hover:text-white"
+            }`}
             onClick={handleAllInput}
           >
             {loading ? (

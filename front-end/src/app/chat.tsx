@@ -65,12 +65,19 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
         {/* Messages area - grows with content */}
         <div className="flex-1 overflow-y-auto pb-20 sm:p-4 md:p-10 lg:p-24">
           {messages.length === 0 ? (
-            <div className="text-center py-8">
-              <Image
+            <div className="text-center py-32">
+              {/* <Image
                 src={logoSrc}
                 alt="Fetch Logo"
                 width={200}
                 height={200}
+                className="mx-auto mb-4"
+              /> */}
+              <Image
+                src="/docs_ai_logo2.png"
+                alt="Fetch AI"
+                width={100}
+                height={100}
                 className="mx-auto mb-4"
               />
               {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
