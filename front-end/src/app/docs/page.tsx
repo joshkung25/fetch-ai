@@ -123,7 +123,7 @@ export type DocumentMeta = {
   size: string;
   uploadDate: Date;
   tags: string[];
-  description: string;
+  //description: string;
 };
 
 export default function DocumentsPage() {
@@ -136,33 +136,36 @@ export default function DocumentsPage() {
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid");
   const [sortBy, setSortBy] = React.useState<SortOption>("date");
   const [filterBy, setFilterBy] = React.useState<FilterOption>("all");
+  const [loading, setLoading] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = React.useState<string[]>(
     []
   );
   const { randomId } = useRandomId();
   const [open, setOpen] = useState(false);
   const fetchDocuments = React.useCallback(async () => {
-    if (!user) return; // TODO: Handle guest mode
-    const accessToken = await getAccessToken();
-    const res = await fetch(`${apiUrl}/list`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const data = await res.json();
-    console.log("documents", data.documents[2]);
-    setDocuments(
-      data.documents.map((meta: any, idx: number) => ({
-        id: (meta.title || "doc") + idx,
-        name: meta.title || "Untitled",
-        type: "pdf", // TODO: add type
-        // meta.type ||
-        // (meta.title?.split(".").pop()?.toLowerCase() ?? "unknown"),
-        size: meta.size || "-", // TODO: add size
-        uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
-        tags: meta.tags ? meta.tags.split(",") : [], // TODO: add tags
-        description: meta.description || "", // TODO: add description
-      }))
-    );
-  }, [user, apiUrl]);
+  setLoading(true);
+  if (!user) {
+    setLoading(false);
+    return;
+  }
+  const accessToken = await getAccessToken();
+  const res = await fetch(`${apiUrl}/list`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const data = await res.json();
+  setDocuments(
+    (data.documents ?? []).map((meta: any, idx: number) => ({
+      id: (meta.title || "doc") + idx,
+      name: meta.title || "Untitled",
+      type: "pdf", // TODO: add type
+      size: meta.size || "-", // TODO: add size
+      uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
+      tags: meta.tags ? meta.tags.split(",") : [],
+      //description: meta.description || "", // TODO: add description
+    }))
+  );
+  setLoading(false);
+}, [user, apiUrl]);
 
   useEffect(() => {
     fetchDocuments();
@@ -178,7 +181,7 @@ export default function DocumentsPage() {
       filtered = filtered.filter(
         (doc: DocumentMeta) =>
           doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          //doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
           doc.tags.some((tag: string) =>
             tag.toLowerCase().includes(searchQuery.toLowerCase())
           )
@@ -281,20 +284,29 @@ export default function DocumentsPage() {
     fileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handleFileUpload");
-    const file = e.target.files?.[0];
-    console.log("file", file);
-    if (!file) return;
-    if (!apiUrl) {
-      toast.error("API URL is not defined");
-      return;
-    }
+const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  setLoading(true);
+  const file = e.target.files?.[0];
+  if (!file) {
+    setLoading(false);
+    return;
+  }
+  if (!apiUrl) {
+    toast.error("API URL is not defined");
+    setLoading(false);
+    return;
+  }
 
-    await uploadFiles([file], apiUrl, user, randomId);
+  await uploadFiles([file], apiUrl, user, randomId);
 
-    await fetchDocuments();
-  };
+  // Clearing the nonsense input value so the same file can be uploaded again
+if (fileInputRef.current) {
+    fileInputRef.current.value = "";
+  }
+
+  await handleUploadComplete();
+  setLoading(false);
+};
 
   const handleBulkDelete = async () => {
     for (const docId of selectedDocuments) {
@@ -323,6 +335,10 @@ export default function DocumentsPage() {
     } else {
       setSelectedDocuments(filteredDocuments.map((doc) => doc.id));
     }
+  };
+
+   const handleUploadComplete = async () => {
+    await fetchDocuments();
   };
 
   return (
@@ -560,9 +576,7 @@ export default function DocumentsPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-                    {doc.description}
-                  </p>
+              
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{doc.size}</span>
                     <span>{formatDate(doc.uploadDate)}</span>
@@ -620,9 +634,7 @@ export default function DocumentsPage() {
                   {getSmallFileIcon(doc.type)}
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm truncate">{doc.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {doc.description}
-                    </p>
+                  
                   </div>
                 </div>
                 <div className="w-20 text-sm text-muted-foreground">
