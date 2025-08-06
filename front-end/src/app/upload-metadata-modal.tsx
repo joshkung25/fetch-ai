@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { X, Plus, Tag, FileText } from "lucide-react";
+import { X, Plus, Tag, FileText, Loader2 } from "lucide-react";
 
 interface DocumentMetadataModalProps {
   isOpen: boolean;
@@ -57,6 +57,7 @@ export default function DocumentMetadataModal({
   const [customTag, setCustomTag] = useState("");
   const [category, setCategory] = useState("Documents");
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
@@ -67,11 +68,13 @@ export default function DocumentMetadataModal({
   }, [fileName]);
 
   const fetchSuggestedTags = async () => {
+    setIsLoading(true);
     const response = await fetch(
       `${apiUrl}/suggested_tags?document_title=${fileName}`
     );
     const data = await response.json();
     setSuggestedTags(data.tags);
+    setIsLoading(false);
   };
 
   const addTag = (tag: string) => {
@@ -218,18 +221,22 @@ export default function DocumentMetadataModal({
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Suggested tags:</p>
                 <div className="flex flex-wrap gap-2">
-                  {suggestedTags
-                    .filter((tag) => !selectedTags.includes(tag))
-                    .map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="outline"
-                        className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                        onClick={() => addTag(tag)}
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    suggestedTags
+                      .filter((tag) => !selectedTags.includes(tag))
+                      .map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="outline"
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                          onClick={() => addTag(tag)}
+                        >
+                          {tag}
+                        </Badge>
+                      ))
+                  )}
                 </div>
               </div>
             </div>
