@@ -6,7 +6,7 @@ from agent.retriever import (
     delete_doc_from_collection,
 )
 from parser.pdf_parser import parse_pdf
-from agent.chat import chat
+from agent.chat import chat, suggested_tags
 import tempfile
 from pydantic import BaseModel
 from typing import List, Dict
@@ -108,3 +108,8 @@ def delete_doc(
         return {"status": "ok"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@router.get("/suggested_tags")
+def suggested_tags_route(document_title: str):
+    return {"tags": suggested_tags(document_title)}

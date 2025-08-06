@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,24 +34,6 @@ export interface DocumentInfoInput {
   category?: string;
 }
 
-const suggestedTags = [
-  "Important",
-  "Personal",
-  "Financial",
-  "Insurance",
-  "Medical",
-  "Legal",
-  "Tax",
-  "Work",
-  "Travel",
-  "Property",
-  "Vehicle",
-  "Education",
-  "Emergency",
-  "Renewal Required",
-  "Expires Soon",
-];
-
 const categories = [
   "Documents",
   "Insurance",
@@ -74,6 +56,23 @@ export default function DocumentMetadataModal({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [category, setCategory] = useState("Documents");
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchSuggestedTags();
+      console.log("suggestedTags", suggestedTags);
+    }
+  }, [fileName]);
+
+  const fetchSuggestedTags = async () => {
+    const response = await fetch(
+      `${apiUrl}/suggested_tags?document_title=${fileName}`
+    );
+    const data = await response.json();
+    setSuggestedTags(data.tags);
+  };
 
   const addTag = (tag: string) => {
     if (tag && !selectedTags.includes(tag)) {
@@ -131,7 +130,7 @@ export default function DocumentMetadataModal({
             {/* File Name Display */}
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-sm text-muted-foreground">Uploaded file:</p>
-              <p className="font-medium truncate">{fileName}</p>
+              <p className="font-medium truncate max-w-[350px]">{fileName}</p>
             </div>
 
             {/* Document Title */}
