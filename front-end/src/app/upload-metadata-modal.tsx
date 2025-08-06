@@ -29,7 +29,7 @@ interface DocumentMetadataModalProps {
 
 export interface DocumentInfoInput {
   title?: string;
-  description?: string;
+  //description?: string;
   tags?: string[];
   category?: string;
 }
@@ -95,7 +95,7 @@ export default function DocumentMetadataModal({
   const handleSave = () => {
     const metadata: DocumentInfoInput = {
       //   title,
-      description,
+      //description,
       tags: selectedTags,
       //   category,
     };
@@ -160,18 +160,6 @@ export default function DocumentMetadataModal({
                   </option>
                 ))}
               </select>
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Description (Optional)</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add any additional notes or description"
-                rows={3}
-              />
             </div>
 
             {/* Tags Section */}
