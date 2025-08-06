@@ -61,7 +61,9 @@ def chat(
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
     user_id = user_id.replace("|", "")
-    input_to_model = model_recall_response(user_input, user_id, is_guest)
+    input_to_model, source_document_title = model_recall_response(
+        user_input, user_id, is_guest
+    )
     if len(messages) == 0:
         input_to_model = DOCS_ASSISTANT_PROMPT + input_to_model
 
@@ -75,7 +77,11 @@ def chat(
     assistant_reply = response.choices[0].message.content
 
     messages.append({"role": "assistant", "content": assistant_reply})
-    return assistant_reply, messages
+    return (
+        assistant_reply,
+        messages,
+        source_document_title,
+    )
 
 
 if __name__ == "__main__":

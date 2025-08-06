@@ -7,7 +7,7 @@ from agent.retriever import (
     delete_collection,
 )
 from parser.pdf_parser import parse_pdf
-from agent.chat import chat
+from agent.chat import chat, suggested_tags
 import tempfile
 from pydantic import BaseModel
 from typing import List, Dict
@@ -182,3 +182,8 @@ def delete_chroma_collection(user_id: str = Depends(get_current_user)):
     user_id = user_id.replace("|", "")
     delete_collection(user_id)
     return {"status": "ok"}
+
+
+@router.get("/suggested_tags")
+def suggested_tags_route(document_title: str):
+    return {"tags": suggested_tags(document_title)}
