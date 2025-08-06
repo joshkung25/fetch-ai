@@ -35,21 +35,21 @@ export interface DocumentInfoInput {
 }
 
 const suggestedTags = [
-  "Important",
-  "Personal",
-  "Financial",
-  "Insurance",
-  "Medical",
-  "Legal",
-  "Tax",
-  "Work",
-  "Travel",
-  "Property",
-  "Vehicle",
-  "Education",
-  "Emergency",
-  "Renewal Required",
-  "Expires Soon",
+  "important",
+  "personal",
+  "financial",
+  "insurance",
+  "medical",
+  "legal",
+  "tax",
+  "work",
+  "travel",
+  "property",
+  "vehicle",
+  "education",
+  "emergency",
+  "renewal required",
+  "expires soon",
 ];
 
 const categories = [
@@ -178,7 +178,7 @@ export default function DocumentMetadataModal({
             <div className="space-y-3">
               <Label className="flex items-center gap-2">
                 <Tag className="h-4 w-4" />
-                Tags
+                Tags (Optional)
               </Label>
 
               {/* Selected Tags */}
@@ -240,13 +240,13 @@ export default function DocumentMetadataModal({
               <Button onClick={handleSave} className="flex-1">
                 Save Document
               </Button>
-              <Button
+              {/* <Button
                 onClick={handleSkip}
                 variant="outline"
                 className="flex-1 bg-transparent"
               >
                 Skip & Save
-              </Button>
+              </Button> */}
             </div>
           </CardContent>
         </Card>
