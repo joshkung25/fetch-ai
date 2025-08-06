@@ -1,10 +1,12 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 import os
+import base64
 
 from parser.pdf_parser import parse_pdf
 from agent.retriever import add_doc_to_collection
 from agent.agent import model_recall_response, suggested_tags_prompt
+from agent.supabase_retriever import get_pdf_from_storage
 
 # Load environment variables
 load_dotenv(override=True)
@@ -76,12 +78,20 @@ def chat(
     )
     assistant_reply = response.choices[0].message.content
 
-    messages.append({"role": "assistant", "content": assistant_reply})
-    return (
-        assistant_reply,
-        messages,
-        source_document_title,
+    # pdf_bytes = get_pdf_from_storage(source_document_title, user_id)
+    # if pdf_bytes:
+    #     pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
+    # else:
+    #     pdf_base64 = None
+
+    messages.append(
+        {
+            "role": "assistant",
+            "content": assistant_reply,
+            "source_document": source_document_title,
+        }
     )
+    return assistant_reply, messages
 
 
 def suggested_tags(document_title: str):

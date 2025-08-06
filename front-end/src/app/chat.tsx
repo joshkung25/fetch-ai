@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { Message } from "./chat-sidebar";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useUser } from "@auth0/nextjs-auth0";
+import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { Leapfrog } from "ldrs/react";
 import "ldrs/react/Leapfrog.css";
 import ReactMarkdown from "react-markdown";
@@ -22,7 +22,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   const [mounted, setMounted] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const messageEndRef = useRef<HTMLLIElement>(null);
-
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // Update internal state when prop changes
   useEffect(() => {
     setMessages(chatMessages);
@@ -57,6 +57,19 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
 
   const logoSrc =
     theme === "dark" ? "/fetchai_logo_dark.png" : "/fetchai_logo.png";
+
+  const handlePreview = async (source_document_title: string) => {
+    const accessToken = await getAccessToken();
+    const pdfBlob = await fetch(
+      `${apiUrl}/preview?title=${encodeURIComponent(source_document_title)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    ).then((res) => res.blob());
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl, "_blank");
+    window.focus();
+  };
 
   return (
     <div className="flex flex-col h-screen w-full">
@@ -105,6 +118,20 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                   {/* {message.content} */}
                   {/* <ReactMarkdown>{message.content}</ReactMarkdown> */}
                   {formatAgentResponse(message.content)}
+                  {message.source_document && (
+                    <div className="mt-2">
+                      <p
+                        className="text-sm text-muted-foreground cursor-pointer"
+                        onClick={() => {
+                          if (message.source_document) {
+                            handlePreview(message.source_document);
+                          }
+                        }}
+                      >
+                        Source Document: {message.source_document}
+                      </p>
+                    </div>
+                  )}
                 </li>
               ))}
               {isThinking && (
