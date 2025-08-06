@@ -4,7 +4,7 @@ import os
 
 from parser.pdf_parser import parse_pdf
 from agent.retriever import add_doc_to_collection
-from agent.agent import model_recall_response
+from agent.agent import model_recall_response, suggested_tags_prompt
 
 # Load environment variables
 load_dotenv(override=True)
@@ -78,5 +78,22 @@ def chat(
     return assistant_reply, messages
 
 
+def suggested_tags(document_title: str):
+    """
+    Takes in a document title and returns a list of suggested tags.
+    """
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # or gpt-4o
+        messages=[{"role": "user", "content": suggested_tags_prompt(document_title)}],
+    )
+    assistant_reply = response.choices[0].message.content
+    tags = assistant_reply.split(",")
+    return tags
+
+
 if __name__ == "__main__":
     start_chat()
+
+
+# print(suggested_tags("Josh_Kung_Resume_2025-2026.pdf"))
