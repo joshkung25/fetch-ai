@@ -7,6 +7,11 @@ however you can also be a general purpose assistant. """
 
 APP_INFO_PROMPT = ""
 
+SUGGESTED_TAGS_PROMPT = """I will give you a document title. Return a list of maximum 5 suggested tags to best categorize the document into a general category.
+Your response should be a list of tags, separated by commas, nothing else. No uppercase letters, each tag should be a single word.
+Document title:
+"""
+
 
 def model_recall_response(user_input: str, user_id: str, is_guest: bool):
     """Fetches relevant information from the vector database, and then uses that information in the prompt for the model.
@@ -49,3 +54,10 @@ def model_recall_response(user_input: str, user_id: str, is_guest: bool):
         source_document_title = ""
 
     return RAG_ASSISTANT_PROMPT, source_document_title
+
+
+def suggested_tags_prompt(document_title: str):
+    """
+    Takes in a document title and returns a list of suggested tags.
+    """
+    return SUGGESTED_TAGS_PROMPT + document_title
