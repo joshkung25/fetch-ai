@@ -131,7 +131,7 @@ export default function DocumentsPage() {
   //const apiUrl = "http://localhost:8001";
   // console.log("API URL:", apiUrl);
   const { user } = useUser();
-  const [documents, setDocuments] = React.useState<any[]>([]);
+  const [documents, setDocuments] = React.useState<DocumentMeta[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid");
   const [sortBy, setSortBy] = React.useState<SortOption>("date");
@@ -148,7 +148,7 @@ export default function DocumentsPage() {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const data = await res.json();
-    console.log("documents", data.documents[2]);
+    // console.log("documents", data.documents[2]);
     setDocuments(
       data.documents.map((meta: any, idx: number) => ({
         id: (meta.title || "doc") + idx,
@@ -503,8 +503,9 @@ export default function DocumentsPage() {
               Upload Document
             </Button>
             <p className="text-xs text-muted-foreground fixed bottom-0 pb-12">
-              Stored in private, encrypted storage and protected by strict
-              backend authentication — only you can access them.
+              Your documents are stored in private, encrypted storage and
+              protected by strict backend authentication — only you can access
+              them.
             </p>
           </div>
         ) : viewMode === "grid" ? (
