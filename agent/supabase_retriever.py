@@ -138,3 +138,66 @@ def get_pdf_from_storage(title: str, user_id: str) -> Optional[bytes]:
     except Exception as e:
         print("Exception getting file:", e)
         return None
+
+
+# TODO: finish chat functions
+def insert_chat_record(user_id: str, chat_history: list, chat_name: str) -> bool:
+    """Inserts a record into the chat_records table."""
+    try:
+        if get_chat_record_by_name(user_id, chat_name):
+            result = (
+                supabase.table("chats")
+                .update({"chat_history": chat_history})
+                .eq("auth0_id", user_id)
+                .eq("chat_name", chat_name)
+                .execute()
+            )
+            return True
+
+        result = (
+            supabase.table("chats")
+            .insert(
+                {
+                    "auth0_id": user_id,
+                    "chat_name": chat_name,
+                    "chat_history": chat_history,
+                }
+            )
+            .execute()
+        )
+        return True
+    except Exception as e:
+        print("Exception inserting into chat_records table:", e)
+        return False
+
+
+def get_chat_record_by_name(user_id: str, chat_name: str) -> Optional[dict]:
+    """Gets a record from the chats table by name and user_id."""
+    try:
+        result = (
+            supabase.table("chats")
+            .select("*")
+            .eq("auth0_id", user_id)
+            .eq("chat_name", chat_name)
+            .execute()
+        )
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print("Exception getting chat record:", e)
+        return None
+
+
+def delete_chat_record(user_id: str, chat_name: str) -> bool:
+    """Removes a record from the chat_records table."""
+    try:
+        result = (
+            supabase.table("chats")
+            .delete()
+            .eq("auth0_id", user_id)
+            .eq("chat_name", chat_name)
+            .execute()
+        )
+        return True
+    except Exception as e:
+        print("Exception removing chat record:", e)
+        return False
