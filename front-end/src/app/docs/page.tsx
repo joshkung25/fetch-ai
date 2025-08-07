@@ -131,7 +131,7 @@ export default function DocumentsPage() {
   //const apiUrl = "http://localhost:8001";
   // console.log("API URL:", apiUrl);
   const { user } = useUser();
-  const [documents, setDocuments] = React.useState<any[]>([]);
+  const [documents, setDocuments] = React.useState<DocumentMeta[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid");
   const [sortBy, setSortBy] = React.useState<SortOption>("date");
@@ -148,7 +148,7 @@ export default function DocumentsPage() {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const data = await res.json();
-    console.log("documents", data.documents[2]);
+    // console.log("documents", data.documents[2]);
     setDocuments(
       data.documents.map((meta: any, idx: number) => ({
         id: (meta.title || "doc") + idx,

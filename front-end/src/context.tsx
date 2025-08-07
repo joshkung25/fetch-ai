@@ -16,7 +16,6 @@ const SettingsContext = createContext<{
   includeSource: boolean;
   setIncludeSource: (include: boolean) => void;
 } | null>(null);
-
 export const ContextProvider = ({
   children,
 }: {
@@ -25,6 +24,7 @@ export const ContextProvider = ({
   const [randomId, setRandomId] = useState<string>("");
   const [apiUrl, setApiUrl] = useState<string>("");
   const [includeSource, setIncludeSource] = useState<boolean>(false);
+
   useEffect(() => {
     const newRandomId = Math.random().toString(36).substring(2, 15);
     setRandomId(newRandomId);
