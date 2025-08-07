@@ -87,7 +87,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                 className="mx-auto mb-4"
               /> */}
               <Image
-                src="/docs_ai_logo2.png"
+                src="/docs_ai_logo3.png"
                 alt="Fetch AI"
                 width={100}
                 height={100}
@@ -119,7 +119,8 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                   {/* <ReactMarkdown>{message.content}</ReactMarkdown> */}
                   {formatAgentResponse(message.content)}
                   {message.source_document && (
-                    <div className="mt-2">
+                    <div className="mt-2 flex items-center">
+                      <FileText className="inline h-4 w-4 mr-1 text-muted-foreground" />
                       <p
                         className="text-sm text-muted-foreground cursor-pointer"
                         onClick={() => {
@@ -128,7 +129,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                           }
                         }}
                       >
-                        Source Document: {message.source_document}
+                        {message.source_document}
                       </p>
                     </div>
                   )}
