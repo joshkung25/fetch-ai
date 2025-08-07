@@ -141,33 +141,30 @@ def get_pdf_from_storage(title: str, user_id: str) -> Optional[bytes]:
 
 
 # TODO: finish chat functions
-def insert_chat_record(user_id: str, chat_history: list, chat_name: str) -> bool:
-    """Inserts a record into the chat_records table."""
+def insert_chat_record(
+    user_id: str,
+    chat_history: list,
+    chat_name: str,
+    # id: Optional[str] = None,
+) -> bool:
+    """Inserts a record into the chats table."""
     try:
-        if get_chat_record_by_name(user_id, chat_name):
-            result = (
-                supabase.table("chats")
-                .update({"chat_history": chat_history})
-                .eq("auth0_id", user_id)
-                .eq("chat_name", chat_name)
-                .execute()
-            )
-            return True
-
         result = (
             supabase.table("chats")
-            .insert(
+            .upsert(
                 {
                     "auth0_id": user_id,
+                    "chat_user_id": chat_name + "_" + user_id,
                     "chat_name": chat_name,
                     "chat_history": chat_history,
-                }
+                },
+                on_conflict="chat_user_id",
             )
             .execute()
         )
         return True
     except Exception as e:
-        print("Exception inserting into chat_records table:", e)
+        print("Exception inserting into chats table:", e)
         return False
 
 
@@ -188,7 +185,7 @@ def get_chat_record_by_name(user_id: str, chat_name: str) -> Optional[dict]:
 
 
 def delete_chat_record(user_id: str, chat_name: str) -> bool:
-    """Removes a record from the chat_records table."""
+    """Removes a record from the chats table."""
     try:
         result = (
             supabase.table("chats")

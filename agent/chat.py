@@ -78,7 +78,7 @@ def chat(
     messages.append({"role": "assistant", "content": assistant_reply})
 
     if not is_guest:
-        insert_chat_record(user_id, messages, "name placeholder")
+        insert_chat_record(user_id, messages, "placeholder")
     return assistant_reply, messages
 
 
