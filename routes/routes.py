@@ -38,7 +38,7 @@ class ChatRequest(BaseModel):
     user_input: str
     message_history: List[Dict]
     guest_random_id: str | None = None
-    # include_source_document: bool | None = (Form(default=False),)
+    include_source: bool | None = (Form(default=False),)
 
 
 class DeleteRequest(BaseModel):
@@ -115,9 +115,16 @@ async def chat_route(
             messages,
             request.guest_random_id,
             is_guest=True,
+            include_source=request.include_source,
         )
     else:
-        return chat(user_input, messages, user_id, is_guest=False)
+        return chat(
+            user_input,
+            messages,
+            user_id,
+            is_guest=False,
+            include_source=request.include_source,
+        )
 
 
 @router.get("/list")

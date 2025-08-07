@@ -57,7 +57,7 @@ def start_chat():
 
 
 def chat(
-    user_input, messages, user_id, is_guest=False
+    user_input, messages, user_id, is_guest=False, include_source=False
 ):  # TODO: also return source files
     """
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
@@ -88,7 +88,7 @@ def chat(
         {
             "role": "assistant",
             "content": assistant_reply,
-            "source_document": source_document_title,
+            "source_document": source_document_title if include_source else None,
         }
     )
     return assistant_reply, messages
