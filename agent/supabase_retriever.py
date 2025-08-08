@@ -154,11 +154,11 @@ def insert_chat_record(
             .upsert(
                 {
                     "auth0_id": user_id,
-                    "chat_user_id": chat_name + "_" + user_id,
+                    "chat_id": chat_name + "_" + user_id,
                     "chat_name": chat_name,
                     "chat_history": chat_history,
                 },
-                on_conflict="chat_user_id",
+                on_conflict="chat_id",
             )
             .execute()
         )
