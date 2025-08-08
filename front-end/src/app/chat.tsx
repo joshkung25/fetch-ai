@@ -128,6 +128,7 @@ export default function Chat({ chat }: { chat: Chat }) {
             setMessagesHandler={setMessages}
             chatMessages={chat.chat_history}
             setIsThinking={setIsThinking}
+            chatId={chat.id}
           />
         </div>
       </div>

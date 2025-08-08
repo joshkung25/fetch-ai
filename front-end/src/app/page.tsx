@@ -1,10 +1,10 @@
 "use client";
 import Chat from "./chat";
-import { Chat as ChatType } from "./types/chat";
+import { Chat as ChatType, generateRandomChatId } from "./types/chat";
 
 export default function Home() {
   const chat: ChatType = {
-    id: "1",
+    id: generateRandomChatId(),
     name: "Test Chat",
     chat_history: [],
   };

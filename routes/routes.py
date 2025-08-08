@@ -6,13 +6,7 @@ from agent.retriever import (
     delete_doc_from_collection,
     delete_collection,
 )
-from parser.pdf_parser import parse_pdf
 from agent.chat import chat, suggested_tags
-import tempfile
-from pydantic import BaseModel
-from typing import List, Dict
-from auth.auth import get_current_user
-import logging
 from agent.supabase_retriever import (
     upload_pdf_to_storage,
     insert_pdf_record,
@@ -23,6 +17,12 @@ from agent.supabase_retriever import (
     get_pdf_from_storage,
     get_chat_record_by_id,
 )
+from parser.pdf_parser import parse_pdf
+import tempfile
+from pydantic import BaseModel
+from typing import List, Dict
+from auth.auth import get_current_user
+import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -38,6 +38,7 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     user_input: str
     message_history: List[Dict]
+    chat_id: str
     guest_random_id: str | None = None
 
 
@@ -109,10 +110,13 @@ async def chat_route(
 
     user_input = request.user_input
     messages = request.message_history
+    chat_id = request.chat_id
     if request.guest_random_id:
-        return chat(user_input, messages, request.guest_random_id, is_guest=True)
+        return chat(
+            user_input, messages, request.guest_random_id, chat_id, is_guest=True
+        )
     else:
-        return chat(user_input, messages, user_id, is_guest=False)
+        return chat(user_input, messages, user_id, chat_id, is_guest=False)
 
 
 @router.get("/list")

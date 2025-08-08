@@ -55,9 +55,7 @@ def start_chat():
         messages.append({"role": "assistant", "content": assistant_reply})
 
 
-def chat(
-    user_input, messages, user_id, is_guest=False
-):  # TODO: also return source files
+def chat(user_input, messages, user_id, chat_id, is_guest=False):
     """
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
@@ -78,7 +76,7 @@ def chat(
     messages.append({"role": "assistant", "content": assistant_reply})
 
     if not is_guest:
-        insert_chat_record(user_id, messages, "placeholder")
+        insert_chat_record(user_id, messages, chat_id)
     return assistant_reply, messages
 
 
