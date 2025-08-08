@@ -21,6 +21,7 @@ from agent.supabase_retriever import (
     delete_pdf_from_storage,
     delete_pdf_record,
     get_pdf_from_storage,
+    get_chat_record_by_id,
 )
 
 # Configure logging
@@ -187,3 +188,9 @@ def delete_chroma_collection(user_id: str = Depends(get_current_user)):
 @router.get("/suggested_tags")
 def suggested_tags_route(document_title: str):
     return {"tags": suggested_tags(document_title)}
+
+
+@router.get("/chat/{chat_id}")
+def get_chat(chat_id: str, user_id: str = Depends(get_current_user)):
+    user_id = user_id.replace("|", "")
+    return get_chat_record_by_id(chat_id, user_id)

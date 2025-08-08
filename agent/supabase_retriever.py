@@ -198,3 +198,19 @@ def delete_chat_record(user_id: str, chat_name: str) -> bool:
     except Exception as e:
         print("Exception removing chat record:", e)
         return False
+
+
+def get_chat_record_by_id(chat_id: str, user_id: str) -> Optional[dict]:
+    """Gets a record from the chats table by id."""
+    try:
+        result = (
+            supabase.table("chats")
+            .select("*")
+            .eq("chat_id", chat_id)
+            .eq("auth0_id", user_id)
+            .execute()
+        )
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print("Exception getting chat record:", e)
+        return None

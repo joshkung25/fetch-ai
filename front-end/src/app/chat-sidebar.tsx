@@ -55,7 +55,7 @@ import Image from "next/image";
 // Mock data for existing chats
 const mockChats = [
   {
-    id: "1",
+    id: "placeholder_google-oauth2112897530008069583936",
     title: "React Best Practices",
     lastMessage: "How to optimize React components?",
     timestamp: new Date("2024-01-15T10:30:00"),
@@ -114,6 +114,7 @@ const mockChats = [
 
 type SortOption = "recent" | "oldest" | "alphabetical";
 
+// TODO delete later
 export interface Message {
   role: string;
   content: string;
@@ -266,6 +267,11 @@ export default function ChatSidebar() {
     console.log("success");
   }, [user]);
 
+  const handleChatClick = (chatId: string) => {
+    console.log("handleChatClick", chatId);
+    router.push(`/chat/${chatId}`);
+  };
+
   return (
     <Sidebar className="border-r">
       {/* <div className="flex pt-4 pl-4">
@@ -347,6 +353,7 @@ export default function ChatSidebar() {
                     asChild
                     isActive={chat.isActive}
                     className="h-auto p-3 flex-col items-start gap-1"
+                    onClick={() => handleChatClick(chat.id)}
                   >
                     <div className="w-full cursor-pointer">
                       <div className="flex items-center justify-between w-full">
