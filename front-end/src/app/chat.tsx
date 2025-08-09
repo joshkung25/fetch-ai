@@ -1,3 +1,4 @@
+"use client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { FileText, Loader2 } from "lucide-react";
 import ThemeToggle from "./theme-toggle";
@@ -14,10 +15,12 @@ import "ldrs/react/Leapfrog.css";
 import ReactMarkdown from "react-markdown";
 import formatAgentResponse from "./format-response";
 import { useRef } from "react";
+import type { Chat } from "./types/chat";
 
-export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
+export default function Chat({ chat }: { chat: Chat }) {
+  // console.log("chat component received chat:", chat);
   const { user } = useUser();
-  const [messages, setMessages] = useState<Message[]>(chatMessages);
+  const [messages, setMessages] = useState<Message[]>(chat.chat_history);
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -25,8 +28,8 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
 
   // Update internal state when prop changes
   useEffect(() => {
-    setMessages(chatMessages);
-  }, [chatMessages]);
+    setMessages(chat.chat_history);
+  }, [chat]);
 
   useEffect(() => {
     setMounted(true);
@@ -124,8 +127,9 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
         <div className="flex-shrink-0 p-4 bg-background border-t">
           <InputField
             setMessagesHandler={setMessages}
-            chatMessages={chatMessages}
+            chatMessages={chat.chat_history}
             setIsThinking={setIsThinking}
+            chatId={chat.chat_id}
           />
         </div>
       </div>

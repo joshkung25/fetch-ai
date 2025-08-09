@@ -55,7 +55,7 @@ import Image from "next/image";
 // Mock data for existing chats
 const mockChats = [
   {
-    id: "1",
+    id: "ezfliif7mrw_google-oauth2112897530008069583936",
     title: "React Best Practices",
     lastMessage: "How to optimize React components?",
     timestamp: new Date("2024-01-15T10:30:00"),
@@ -114,6 +114,7 @@ const mockChats = [
 
 type SortOption = "recent" | "oldest" | "alphabetical";
 
+// TODO delete later
 export interface Message {
   role: string;
   content: string;
@@ -131,8 +132,6 @@ export default function ChatSidebar() {
   const router = useRouter();
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  // console.log("apiUrl", apiUrl);
-  // console.log("randomId", randomId);
 
   // Filter chats based on search query
   const filteredChats = React.useMemo(() => {
@@ -216,32 +215,6 @@ export default function ChatSidebar() {
       return;
     }
     await uploadFiles([file], apiUrl, user, randomId);
-
-    // const accessToken = await getAccessToken();
-    // const formData = new FormData();
-    // formData.append("file", file);
-    // formData.append("title", file.name);
-    // // formData.append("user_id", clean_id);
-    // try {
-    //   const response = await fetch(`${apiUrl}/add`, {
-    //     headers: {
-    //       Authorization: `Bearer ${accessToken}`,
-    //     },
-    //     method: "POST",
-    //     body: formData,
-    //   });
-    //   if (!response.ok) {
-    //     if (response.status === 413) {
-    //       toast.error("File size too large");
-    //     } else {
-    //       toast.error("Failed to upload file");
-    //     }
-    //     return;
-    //   }
-    //   toast.success("File uploaded successfully");
-    // } catch (error) {
-    //   toast.error("Failed to upload file");
-    // }
     setFile(undefined);
   };
 
@@ -265,6 +238,11 @@ export default function ChatSidebar() {
     }
     console.log("success");
   }, [user]);
+
+  const handleChatClick = (chatId: string) => {
+    console.log("handleChatClick", chatId);
+    router.push(`/chat/${chatId}`);
+  };
 
   return (
     <Sidebar className="border-r">
@@ -347,6 +325,7 @@ export default function ChatSidebar() {
                     asChild
                     isActive={chat.isActive}
                     className="h-auto p-3 flex-col items-start gap-1"
+                    onClick={() => handleChatClick(chat.id)}
                   >
                     <div className="w-full cursor-pointer">
                       <div className="flex items-center justify-between w-full">

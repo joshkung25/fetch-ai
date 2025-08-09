@@ -1,13 +1,13 @@
 import { Upload } from "lucide-react";
-import { Button } from "./components/ui/button";
-import UploadSuggestionsModal from "./app/upload-suggestion-modal";
+import { Button } from "../components/ui/button";
+import UploadSuggestionsModal from "./upload-suggestion-modal";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
 import { useUser } from "@auth0/nextjs-auth0";
-import UploadMetadataModal from "./app/upload-metadata-modal";
-import { DocumentInfoInput } from "./app/upload-metadata-modal";
+import UploadMetadataModal from "./upload-metadata-modal";
+import { DocumentInfoInput } from "./upload-metadata-modal";
 
 export default function UploadButton() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;

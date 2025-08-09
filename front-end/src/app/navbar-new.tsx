@@ -5,7 +5,7 @@ import { useUser } from "@auth0/nextjs-auth0";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import UploadSuggestionsModal from "./upload-suggestion-modal";
-import UploadButton from "@/upload-button";
+import UploadButton from "@/app/upload-button";
 import Image from "next/image";
 
 export default function NavbarNew({ nav_header }: { nav_header: string }) {

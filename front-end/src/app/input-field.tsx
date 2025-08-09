@@ -16,6 +16,7 @@ interface ChatbotInputProps {
   setMessagesHandler?: (messages: Message[]) => void;
   chatMessages?: Message[];
   setIsThinking?: (isThinking: boolean) => void;
+  chatId: string;
 }
 
 export default function ChatbotInput({
@@ -24,6 +25,7 @@ export default function ChatbotInput({
   setMessagesHandler,
   chatMessages,
   setIsThinking,
+  chatId,
 }: ChatbotInputProps) {
   const [userInput, setUserInput] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
@@ -33,8 +35,6 @@ export default function ChatbotInput({
   const { randomId } = useRandomId();
   const { user } = useUser();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  // console.log("randomId", randomId);
 
   useEffect(() => {
     setMessages(chatMessages || []);
@@ -77,6 +77,7 @@ export default function ChatbotInput({
           user_input: userInput,
           message_history: messages,
           guest_random_id: !user ? randomId : undefined,
+          chat_id: chatId,
         }),
       });
       const data = await chatResponse.json();
