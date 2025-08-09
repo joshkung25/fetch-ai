@@ -36,8 +36,6 @@ export default function ChatbotInput({
   const { user } = useUser();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  // console.log("randomId", randomId);
-
   useEffect(() => {
     setMessages(chatMessages || []);
   }, [chatMessages]);

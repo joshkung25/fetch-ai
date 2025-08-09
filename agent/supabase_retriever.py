@@ -144,7 +144,7 @@ def get_pdf_from_storage(title: str, user_id: str) -> Optional[bytes]:
 def insert_chat_record(
     user_id: str,
     chat_history: list,
-    chat_name: str,
+    chat_id: str,
     # id: Optional[str] = None,
 ) -> bool:
     """Inserts a record into the chats table."""
@@ -154,8 +154,8 @@ def insert_chat_record(
             .upsert(
                 {
                     "auth0_id": user_id,
-                    "chat_id": chat_name + "_" + user_id,
-                    "chat_name": chat_name,
+                    "chat_id": chat_id,
+                    "chat_name": chat_id,
                     "chat_history": chat_history,
                 },
                 on_conflict="chat_id",

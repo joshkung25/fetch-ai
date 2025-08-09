@@ -49,7 +49,6 @@ export default function ChatPage({ params }: ChatPageProps) {
         }
 
         const chatData: ChatType = await response.json();
-        console.log("chatData", chatData);
         setChat(chatData);
       } catch (error) {
         console.error("Error fetching chat:", error);
@@ -59,7 +58,7 @@ export default function ChatPage({ params }: ChatPageProps) {
 
         // Fallback to empty chat if fetch fails
         const fallbackChat: ChatType = {
-          id: chatId,
+          chat_id: chatId,
           name: `Chat ${chatId}`,
           chat_history: [],
         };

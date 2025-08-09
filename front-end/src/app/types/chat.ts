@@ -1,5 +1,5 @@
 export interface Chat {
-  id: string;
+  chat_id: string;
   name: string;
   chat_history: Message[];
 }

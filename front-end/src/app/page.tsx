@@ -4,7 +4,7 @@ import { Chat as ChatType, generateRandomChatId } from "./types/chat";
 
 export default function Home() {
   const chat: ChatType = {
-    id: generateRandomChatId(),
+    chat_id: generateRandomChatId(),
     name: "Test Chat",
     chat_history: [],
   };

@@ -18,13 +18,14 @@ import { useRef } from "react";
 import type { Chat } from "./types/chat";
 
 export default function Chat({ chat }: { chat: Chat }) {
-  console.log("chat component received chat:", chat);
+  // console.log("chat component received chat:", chat);
   const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>(chat.chat_history);
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const messageEndRef = useRef<HTMLLIElement>(null);
+
   // Update internal state when prop changes
   useEffect(() => {
     setMessages(chat.chat_history);
@@ -128,7 +129,7 @@ export default function Chat({ chat }: { chat: Chat }) {
             setMessagesHandler={setMessages}
             chatMessages={chat.chat_history}
             setIsThinking={setIsThinking}
-            chatId={chat.id}
+            chatId={chat.chat_id}
           />
         </div>
       </div>
