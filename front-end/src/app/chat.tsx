@@ -24,7 +24,7 @@ export default function Chat({ chat }: { chat: Chat }) {
   const [mounted, setMounted] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const messageEndRef = useRef<HTMLLIElement>(null);
-  console.log("messages", messages);
+
   // Update internal state when prop changes
   useEffect(() => {
     setMessages(chat.chatHistory);

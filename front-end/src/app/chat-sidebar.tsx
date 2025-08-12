@@ -236,7 +236,6 @@ export default function ChatSidebar() {
         headers: { "Content-Type": "application/json" },
       });
     }
-    console.log("success");
   }, [user]);
 
   const handleChatClick = (chatId: string) => {
@@ -256,7 +255,6 @@ export default function ChatSidebar() {
           },
         });
         const data = await response.json();
-        console.log("data", data);
         setChats(
           data.map((chat: any) => ({
             chatId: chat.chat_id,

@@ -68,7 +68,7 @@ def chat(user_input, messages, user_id, chat_id, is_guest=False):
 
     # model response
     response = client.chat.completions.create(
-        model="gpt-4o-mini",  # or gpt-4o
+        model="gpt-4.1-nano",  # or gpt-4o-mini
         messages=messages,
     )
     assistant_reply = response.choices[0].message.content
