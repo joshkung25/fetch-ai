@@ -63,7 +63,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
       <NavbarNew nav_header="Fetch AI" />
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Messages area - grows with content */}
-        <div className="flex-1 overflow-y-auto pb-20 sm:p-4 md:p-10 lg:p-24">
+        <div className="flex-1 overflow-y-auto pb-20 pt-16 px-4 md:px-10 lg:px-24 xl:px-48">
           {messages.length === 0 ? (
             <div className="text-center py-32">
               {/* <Image
@@ -74,11 +74,11 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                 className="mx-auto mb-4"
               /> */}
               <Image
-                src="/docs_ai_logo2.png"
+                src="/docs_ai_logo_3.png"
                 alt="Fetch AI"
                 width={100}
                 height={100}
-                className="mx-auto mb-4"
+                className="mx-auto mb-4 opacity-25"
               />
               {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
               <h2 className="text-xl font-semibold mb-2">
@@ -91,14 +91,14 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
               </p>
             </div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-6">
               {cleanMessages(messages).map((message, index) => (
                 <li
                   key={index}
                   className={`p-3 rounded-lg ${
                     message.role === "user"
                       ? "bg-blue-200/50 dark:bg-blue-900/50 ml-auto w-fit max-w-xs md:max-w-lg"
-                      : "bg-gray-200/50 dark:bg-gray-900/50 mr-auto w-fit max-w-xs md:max-w-xl"
+                      : "mr-auto w-fit max-w-xs md:max-w-screen-lg"
                   }`}
                   ref={messageEndRef}
                 >
