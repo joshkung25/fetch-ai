@@ -8,7 +8,7 @@ import type { Message } from "./types/chat";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
 import { uploadFiles } from "@/lib/utils";
-import { useRandomId } from "@/context";
+import { useRandomId, useSettings } from "@/context";
 
 interface ChatbotInputProps {
   placeholder?: string;
@@ -34,6 +34,7 @@ export default function ChatbotInput({
   const [loading, setLoading] = useState<boolean>(false);
   const { randomId } = useRandomId();
   const { user } = useUser();
+  const { includeSource } = useSettings();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function ChatbotInput({
           message_history: messages,
           guest_random_id: !user ? randomId : undefined,
           chat_id: chatId,
+          include_source: includeSource,
         }),
       });
       const data = await chatResponse.json();

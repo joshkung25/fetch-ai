@@ -1,10 +1,12 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 import os
+import base64
 
 from parser.pdf_parser import parse_pdf
 from agent.retriever import add_doc_to_collection
 from agent.agent import model_recall_response, suggested_tags_prompt
+from agent.supabase_retriever import get_pdf_from_storage
 from agent.supabase_retriever import insert_chat_record
 
 # Load environment variables
@@ -55,12 +57,14 @@ def start_chat():
         messages.append({"role": "assistant", "content": assistant_reply})
 
 
-def chat(user_input, messages, user_id, chat_id, is_guest=False):
+def chat(user_input, messages, user_id, chat_id, is_guest=False, include_source=False):
     """
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
     user_id = user_id.replace("|", "")
-    input_to_model = model_recall_response(user_input, user_id, is_guest)
+    input_to_model, source_document_title = model_recall_response(
+        user_input, user_id, is_guest
+    )
     if len(messages) == 0:
         input_to_model = DOCS_ASSISTANT_PROMPT + input_to_model
 
@@ -73,7 +77,19 @@ def chat(user_input, messages, user_id, chat_id, is_guest=False):
     )
     assistant_reply = response.choices[0].message.content
 
-    messages.append({"role": "assistant", "content": assistant_reply})
+    # pdf_bytes = get_pdf_from_storage(source_document_title, user_id)
+    # if pdf_bytes:
+    #     pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
+    # else:
+    #     pdf_base64 = None
+
+    messages.append(
+        {
+            "role": "assistant",
+            "content": assistant_reply,
+            "source_document": source_document_title if include_source else None,
+        }
+    )
 
     if not is_guest:
         insert_chat_record(user_id, messages, chat_id)

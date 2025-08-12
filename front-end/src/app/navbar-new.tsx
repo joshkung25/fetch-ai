@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import UploadSuggestionsModal from "./upload-suggestion-modal";
 import UploadButton from "@/app/upload-button";
 import Image from "next/image";
+import SettingsDropdown from "./settings-dropdown";
 
 export default function NavbarNew({ nav_header }: { nav_header: string }) {
   const { user } = useUser();
@@ -29,17 +30,20 @@ export default function NavbarNew({ nav_header }: { nav_header: string }) {
         <div className="flex items-center gap-4 pr-8">
           <UploadSuggestionsModal open={open} setOpen={setOpen} />
           <UploadButton />
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
           {user && (
-            <Button
-              variant="ghost"
-              className="hover:cursor-pointer"
-              onClick={() => {
-                setOpen(true);
-              }}
-            >
-              <Settings className="h-5 w-5" />
-            </Button>
+            <>
+              <SettingsDropdown />
+              {/* <Button
+                variant="ghost"
+                className="hover:cursor-pointer"
+                onClick={() => {
+                  setOpen(true);
+                }}
+              >
+                <Settings className="h-5 w-5" />
+              </Button> */}
+            </>
           )}
           {user ? (
             <a href="/auth/logout">

@@ -119,7 +119,9 @@ type SortOption = "recent" | "oldest" | "alphabetical";
 export interface Message {
   role: string;
   content: string;
+  source_document?: string;
 }
+
 export default function ChatSidebar() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<SortOption>("recent");
@@ -272,11 +274,24 @@ export default function ChatSidebar() {
 
   return (
     <Sidebar className="border-r">
-      {/* <div className="flex pt-4 pl-4">
-        <Image src="/docs_ai_logo2.png" alt="Fetch AI" width={30} height={30} />
+      <div className="flex pt-5 pl-4 items-center gap-2">
+        <div className="flex items-center gap-2">
+          <Image
+            src="/docs_ai_logo_3.png"
+            alt="Fetch AI"
+            width={35}
+            height={35}
+          />
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Powered by <span className="font-bold">Fetch</span>
+        </p>
+      </div>
+      {/* <div className="flex pt-5 pl-4">
+        <Image src="/klerk_icon.png" alt="Fetch AI" width={30} height={30} />
       </div> */}
 
-      <SidebarHeader className="border-b p-2 pt-6">
+      <SidebarHeader className="border-b p-2 pt-4">
         <Button
           variant="ghost"
           onClick={handleNewChat}
