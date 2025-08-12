@@ -25,9 +25,9 @@ def model_recall_response(user_input: str, user_id: str, is_guest: bool):
     results = get_collection(user_id, is_guest).query(
         query_embeddings=[embedded_input],
         n_results=3,
-        include=["documents", "distances"],
+        include=["documents", "distances", "metadatas"],
     )
-    print(results)
+    print(results["distances"][0])
     # check if relevant information found, change to check for multiple results
 
     results_input = ""
@@ -48,8 +48,12 @@ def model_recall_response(user_input: str, user_id: str, is_guest: bool):
             + "This was the user's input: "
             + user_input
         )
+    if results["distances"][0][0] < 1.15:
+        source_document_title = results["metadatas"][0][0]["title"]
+    else:
+        source_document_title = None
 
-    return RAG_ASSISTANT_PROMPT
+    return RAG_ASSISTANT_PROMPT, source_document_title
 
 
 def suggested_tags_prompt(document_title: str):

@@ -8,12 +8,13 @@ import { useState, useEffect } from "react";
 import { Message } from "./chat-sidebar";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useUser } from "@auth0/nextjs-auth0";
+import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { Leapfrog } from "ldrs/react";
 import "ldrs/react/Leapfrog.css";
 import ReactMarkdown from "react-markdown";
 import formatAgentResponse from "./format-response";
 import { useRef } from "react";
+import UploadSuggestionsModal from "./upload-suggestion-modal";
 
 export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   const { user } = useUser();
@@ -22,6 +23,8 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   const [mounted, setMounted] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const messageEndRef = useRef<HTMLLIElement>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const [openModal, setOpenModal] = useState(false);
 
   // Update internal state when prop changes
   useEffect(() => {
@@ -29,8 +32,19 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   }, [chatMessages]);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    const fetchDocCount = async () => {
+      setMounted(true);
+      const accessToken = await getAccessToken();
+      const response = await fetch(`${apiUrl}/list`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data = await response.json();
+      if (user && data.status === "error") {
+        setOpenModal(true);
+      }
+    };
+    fetchDocCount();
+  }, [user]);
 
   useEffect(() => {
     if (messageEndRef.current) {
@@ -58,9 +72,24 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
   const logoSrc =
     theme === "dark" ? "/fetchai_logo_dark.png" : "/fetchai_logo.png";
 
+  const handlePreview = async (source_document_title: string) => {
+    const accessToken = await getAccessToken();
+    const pdfBlob = await fetch(
+      `${apiUrl}/preview?title=${encodeURIComponent(source_document_title)}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    ).then((res) => res.blob());
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl, "_blank");
+    window.focus();
+  };
+
   return (
     <div className="flex flex-col h-screen w-full">
       <NavbarNew nav_header="Fetch AI" />
+      <UploadSuggestionsModal open={openModal} setOpen={setOpenModal} />
+
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Messages area - grows with content */}
         <div className="flex-1 overflow-y-auto pb-20 pt-16 px-4 md:px-10 lg:px-24 xl:px-48">
@@ -74,7 +103,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                 className="mx-auto mb-4"
               /> */}
               <Image
-                src="/docs_ai_logo_3.png"
+                src="/docs_ai_logo3.png"
                 alt="Fetch AI"
                 width={100}
                 height={100}
@@ -104,7 +133,25 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                 >
                   {/* {message.content} */}
                   {/* <ReactMarkdown>{message.content}</ReactMarkdown> */}
-                  {formatAgentResponse(message.content)}
+                  {message.role === "assistant"
+                    ? formatAgentResponse(message.content)
+                    : message.content}
+
+                  {message.source_document && (
+                    <div className="mt-2 flex items-center">
+                      <FileText className="inline h-4 w-4 mr-1 text-muted-foreground" />
+                      <p
+                        className="text-sm text-muted-foreground cursor-pointer"
+                        onClick={() => {
+                          if (message.source_document) {
+                            handlePreview(message.source_document);
+                          }
+                        }}
+                      >
+                        {message.source_document}
+                      </p>
+                    </div>
+                  )}
                 </li>
               ))}
               {isThinking && (

@@ -117,7 +117,9 @@ type SortOption = "recent" | "oldest" | "alphabetical";
 export interface Message {
   role: string;
   content: string;
+  source_document?: string;
 }
+
 export default function ChatSidebar() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<SortOption>("recent");
