@@ -214,3 +214,20 @@ def get_chat_record_by_id(chat_id: str, user_id: str) -> Optional[dict]:
     except Exception as e:
         print("Exception getting chat record:", e)
         return None
+
+
+def get_chat_list_by_user_id(user_id: str) -> Optional[list]:
+    """Gets a list of chat records from the chats table by user_id."""
+    print("user_id", user_id)
+    try:
+        result = (
+            supabase.table("chats")
+            .select("chat_id, chat_name, chat_history, created_at")
+            .eq("auth0_id", user_id)
+            .execute()
+        )
+        print("result", result)
+        return result.data if result.data else None
+    except Exception as e:
+        print("Exception getting chat list:", e)
+        return None

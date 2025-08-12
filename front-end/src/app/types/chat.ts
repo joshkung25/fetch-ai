@@ -1,7 +1,15 @@
 export interface Chat {
-  chat_id: string;
-  name: string;
-  chat_history: Message[];
+  chatId: string;
+  title: string;
+  chatHistory: Message[];
+}
+
+export interface ChatSidebar {
+  chatId: string;
+  title: string;
+  lastMessage: string;
+  timestamp: Date;
+  isActive: boolean;
 }
 
 export interface Message {

@@ -16,6 +16,7 @@ from agent.supabase_retriever import (
     delete_pdf_record,
     get_pdf_from_storage,
     get_chat_record_by_id,
+    get_chat_list_by_user_id,
 )
 from parser.pdf_parser import parse_pdf
 import tempfile
@@ -198,3 +199,9 @@ def suggested_tags_route(document_title: str):
 def get_chat(chat_id: str, user_id: str = Depends(get_current_user)):
     user_id = user_id.replace("|", "")
     return get_chat_record_by_id(chat_id, user_id)
+
+
+@router.get("/chat-list")
+def get_chat_list(user_id: str = Depends(get_current_user)):
+    user_id = user_id.replace("|", "")
+    return get_chat_list_by_user_id(user_id)

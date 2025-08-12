@@ -59,7 +59,7 @@ export default function ChatPage({ params }: ChatPageProps) {
         // Fallback to empty chat if fetch fails
         const fallbackChat: ChatType = {
           chat_id: chatId,
-          name: `Chat ${chatId}`,
+          title: `Chat ${chatId}`,
           chat_history: [],
         };
         setChat(fallbackChat);
