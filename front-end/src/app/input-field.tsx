@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Paperclip, X, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Message } from "./chat-sidebar";
+import type { Message } from "./types/chat";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
 import { uploadFiles } from "@/lib/utils";
@@ -16,6 +16,7 @@ interface ChatbotInputProps {
   setMessagesHandler?: (messages: Message[]) => void;
   chatMessages?: Message[];
   setIsThinking?: (isThinking: boolean) => void;
+  chatId: string;
 }
 
 export default function ChatbotInput({
@@ -24,6 +25,7 @@ export default function ChatbotInput({
   setMessagesHandler,
   chatMessages,
   setIsThinking,
+  chatId,
 }: ChatbotInputProps) {
   const [userInput, setUserInput] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
@@ -34,8 +36,6 @@ export default function ChatbotInput({
   const { user } = useUser();
   const { includeSource } = useSettings();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  // console.log("randomId", randomId);
 
   useEffect(() => {
     setMessages(chatMessages || []);
@@ -57,7 +57,7 @@ export default function ChatbotInput({
 
   const handleUserInput = async () => {
     setIsThinking?.(true);
-    console.log("User input to send:", userInput);
+    // console.log("User input to send:", userInput);
     try {
       let accessToken = null;
       if (user) {
@@ -78,14 +78,15 @@ export default function ChatbotInput({
           user_input: userInput,
           message_history: messages,
           guest_random_id: !user ? randomId : undefined,
+          chat_id: chatId,
           include_source: includeSource,
         }),
       });
       const data = await chatResponse.json();
 
       // Console
-      console.log(data[0]);
-      console.log(data[1]);
+      // console.log(data[0]);
+      // console.log(data[1]);
       setMessages(data[1]);
       // Update UI
       setMessagesHandler?.(data[1]);

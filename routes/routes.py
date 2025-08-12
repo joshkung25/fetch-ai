@@ -6,13 +6,7 @@ from agent.retriever import (
     delete_doc_from_collection,
     delete_collection,
 )
-from parser.pdf_parser import parse_pdf
 from agent.chat import chat, suggested_tags
-import tempfile
-from pydantic import BaseModel
-from typing import List, Dict
-from auth.auth import get_current_user
-import logging
 from agent.supabase_retriever import (
     upload_pdf_to_storage,
     insert_pdf_record,
@@ -21,7 +15,15 @@ from agent.supabase_retriever import (
     delete_pdf_from_storage,
     delete_pdf_record,
     get_pdf_from_storage,
+    get_chat_record_by_id,
+    get_chat_list_by_user_id,
 )
+from parser.pdf_parser import parse_pdf
+import tempfile
+from pydantic import BaseModel
+from typing import List, Dict
+from auth.auth import get_current_user
+import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -37,6 +39,7 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     user_input: str
     message_history: List[Dict]
+    chat_id: str
     guest_random_id: str | None = None
     include_source: bool | None = (Form(default=False),)
 
@@ -109,11 +112,13 @@ async def chat_route(
 
     user_input = request.user_input
     messages = request.message_history
+    chat_id = request.chat_id
     if request.guest_random_id:
         return chat(
             user_input,
             messages,
             request.guest_random_id,
+            chat_id,
             is_guest=True,
             include_source=request.include_source,
         )
@@ -122,6 +127,7 @@ async def chat_route(
             user_input,
             messages,
             user_id,
+            chat_id,
             is_guest=False,
             include_source=request.include_source,
         )
@@ -200,3 +206,15 @@ def delete_chroma_collection(user_id: str = Depends(get_current_user)):
 @router.get("/suggested_tags")
 def suggested_tags_route(document_title: str):
     return {"tags": suggested_tags(document_title)}
+
+
+@router.get("/chat/{chat_id}")
+def get_chat(chat_id: str, user_id: str = Depends(get_current_user)):
+    user_id = user_id.replace("|", "")
+    return get_chat_record_by_id(chat_id, user_id)
+
+
+@router.get("/chat-list")
+def get_chat_list(user_id: str = Depends(get_current_user)):
+    user_id = user_id.replace("|", "")
+    return get_chat_list_by_user_id(user_id)

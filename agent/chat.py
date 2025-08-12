@@ -7,6 +7,7 @@ from parser.pdf_parser import parse_pdf
 from agent.retriever import add_doc_to_collection
 from agent.agent import model_recall_response, suggested_tags_prompt
 from agent.supabase_retriever import get_pdf_from_storage
+from agent.supabase_retriever import insert_chat_record
 
 # Load environment variables
 load_dotenv(override=True)
@@ -56,9 +57,7 @@ def start_chat():
         messages.append({"role": "assistant", "content": assistant_reply})
 
 
-def chat(
-    user_input, messages, user_id, is_guest=False, include_source=False
-):  # TODO: also return source files
+def chat(user_input, messages, user_id, chat_id, is_guest=False, include_source=False):
     """
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
@@ -73,7 +72,7 @@ def chat(
 
     # model response
     response = client.chat.completions.create(
-        model="gpt-4o-mini",  # or gpt-4o
+        model="gpt-4.1-nano",  # or gpt-4o-mini
         messages=messages,
     )
     assistant_reply = response.choices[0].message.content
@@ -91,6 +90,9 @@ def chat(
             "source_document": source_document_title if include_source else None,
         }
     )
+
+    if not is_guest:
+        insert_chat_record(user_id, messages, chat_id)
     return assistant_reply, messages
 
 

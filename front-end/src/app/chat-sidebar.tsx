@@ -44,7 +44,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Chat from "./chat";
 import { useEffect, useRef } from "react";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
@@ -52,10 +51,12 @@ import { useRouter } from "next/navigation";
 import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
 import Image from "next/image";
+import type { ChatSidebar } from "./types/chat";
+
 // Mock data for existing chats
 const mockChats = [
   {
-    id: "1",
+    id: "ezfliif7mrw_google-oauth2112897530008069583936",
     title: "React Best Practices",
     lastMessage: "How to optimize React components?",
     timestamp: new Date("2024-01-15T10:30:00"),
@@ -114,6 +115,7 @@ const mockChats = [
 
 type SortOption = "recent" | "oldest" | "alphabetical";
 
+// TODO delete later
 export interface Message {
   role: string;
   content: string;
@@ -123,7 +125,7 @@ export interface Message {
 export default function ChatSidebar() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<SortOption>("recent");
-  const [chats, setChats] = React.useState(mockChats);
+  const [chats, setChats] = React.useState<ChatSidebar[]>([]);
   const [chatMessages, setChatMessages] = React.useState<Message[]>([]);
   const [file, setFile] = React.useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -133,15 +135,12 @@ export default function ChatSidebar() {
   const router = useRouter();
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  // console.log("apiUrl", apiUrl);
-  // console.log("randomId", randomId);
 
   // Filter chats based on search query
   const filteredChats = React.useMemo(() => {
     return chats.filter(
-      (chat) =>
-        chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+      (chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase())
+      // || chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [chats, searchQuery]);
 
@@ -172,7 +171,7 @@ export default function ChatSidebar() {
   };
 
   const handleDeleteChat = (chatId: string) => {
-    setChats((prev) => prev.filter((chat) => chat.id !== chatId));
+    setChats((prev) => prev.filter((chat) => chat.chatId !== chatId));
   };
 
   const handleRenameChat = (chatId: string) => {
@@ -218,32 +217,6 @@ export default function ChatSidebar() {
       return;
     }
     await uploadFiles([file], apiUrl, user, randomId);
-
-    // const accessToken = await getAccessToken();
-    // const formData = new FormData();
-    // formData.append("file", file);
-    // formData.append("title", file.name);
-    // // formData.append("user_id", clean_id);
-    // try {
-    //   const response = await fetch(`${apiUrl}/add`, {
-    //     headers: {
-    //       Authorization: `Bearer ${accessToken}`,
-    //     },
-    //     method: "POST",
-    //     body: formData,
-    //   });
-    //   if (!response.ok) {
-    //     if (response.status === 413) {
-    //       toast.error("File size too large");
-    //     } else {
-    //       toast.error("Failed to upload file");
-    //     }
-    //     return;
-    //   }
-    //   toast.success("File uploaded successfully");
-    // } catch (error) {
-    //   toast.error("Failed to upload file");
-    // }
     setFile(undefined);
   };
 
@@ -265,7 +238,38 @@ export default function ChatSidebar() {
         headers: { "Content-Type": "application/json" },
       });
     }
-    console.log("success");
+  }, [user]);
+
+  const handleChatClick = (chatId: string) => {
+    console.log("handleChatClick", chatId);
+    router.push(`/chat/${chatId}`);
+  };
+
+  useEffect(() => {
+    const fetchChatList = async () => {
+      if (user) {
+        const accessToken = await getAccessToken();
+        const response = await fetch(`${apiUrl}/chat-list`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const data = await response.json();
+        setChats(
+          data.map((chat: any) => ({
+            chatId: chat.chat_id,
+            title: chat.chat_name,
+            lastMessage:
+              chat.chat_history[chat.chat_history.length - 1].content,
+            timestamp: new Date(chat.created_at),
+            isActive: false,
+          }))
+        );
+      }
+    };
+    fetchChatList();
   }, [user]);
 
   return (
@@ -277,6 +281,7 @@ export default function ChatSidebar() {
             alt="Fetch AI"
             width={35}
             height={35}
+            priority={true}
           />
         </div>
         <p className="text-sm text-muted-foreground">
@@ -357,11 +362,12 @@ export default function ChatSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {sortedChats.map((chat) => (
-                <SidebarMenuItem key={chat.id}>
+                <SidebarMenuItem key={chat.chatId}>
                   <SidebarMenuButton
                     asChild
-                    isActive={chat.isActive}
+                    // isActive={chat.isActive}
                     className="h-auto p-3 flex-col items-start gap-1"
+                    onClick={() => handleChatClick(chat.chatId)}
                   >
                     <div className="w-full cursor-pointer">
                       <div className="flex items-center justify-between w-full">
@@ -389,14 +395,14 @@ export default function ChatSidebar() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem
-                          onClick={() => handleRenameChat(chat.id)}
+                          onClick={() => handleRenameChat(chat.chatId)}
                         >
                           <Edit3 className="h-4 w-4 mr-2" />
                           Rename
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          onClick={() => handleDeleteChat(chat.id)}
+                          onClick={() => handleDeleteChat(chat.chatId)}
                           className="text-destructive focus:text-destructive"
                         >
                           <Trash2 className="h-4 w-4 mr-2" />

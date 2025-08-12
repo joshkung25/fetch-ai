@@ -138,3 +138,96 @@ def get_pdf_from_storage(title: str, user_id: str) -> Optional[bytes]:
     except Exception as e:
         print("Exception getting file:", e)
         return None
+
+
+# TODO: finish chat functions
+def insert_chat_record(
+    user_id: str,
+    chat_history: list,
+    chat_id: str,
+    # id: Optional[str] = None,
+) -> bool:
+    """Inserts a record into the chats table."""
+    try:
+        result = (
+            supabase.table("chats")
+            .upsert(
+                {
+                    "auth0_id": user_id,
+                    "chat_id": chat_id,
+                    "chat_name": chat_id,
+                    "chat_history": chat_history,
+                },
+                on_conflict="chat_id",
+            )
+            .execute()
+        )
+        return True
+    except Exception as e:
+        print("Exception inserting into chats table:", e)
+        return False
+
+
+def get_chat_record_by_name(user_id: str, chat_name: str) -> Optional[dict]:
+    """Gets a record from the chats table by name and user_id."""
+    try:
+        result = (
+            supabase.table("chats")
+            .select("*")
+            .eq("auth0_id", user_id)
+            .eq("chat_name", chat_name)
+            .execute()
+        )
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print("Exception getting chat record:", e)
+        return None
+
+
+def delete_chat_record(user_id: str, chat_name: str) -> bool:
+    """Removes a record from the chats table."""
+    try:
+        result = (
+            supabase.table("chats")
+            .delete()
+            .eq("auth0_id", user_id)
+            .eq("chat_name", chat_name)
+            .execute()
+        )
+        return True
+    except Exception as e:
+        print("Exception removing chat record:", e)
+        return False
+
+
+def get_chat_record_by_id(chat_id: str, user_id: str) -> Optional[dict]:
+    """Gets a record from the chats table by id."""
+    try:
+        result = (
+            supabase.table("chats")
+            .select("*")
+            .eq("chat_id", chat_id)
+            .eq("auth0_id", user_id)
+            .execute()
+        )
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print("Exception getting chat record:", e)
+        return None
+
+
+def get_chat_list_by_user_id(user_id: str) -> Optional[list]:
+    """Gets a list of chat records from the chats table by user_id."""
+    print("user_id", user_id)
+    try:
+        result = (
+            supabase.table("chats")
+            .select("chat_id, chat_name, chat_history, created_at")
+            .eq("auth0_id", user_id)
+            .execute()
+        )
+        print("result", result)
+        return result.data if result.data else None
+    except Exception as e:
+        print("Exception getting chat list:", e)
+        return None

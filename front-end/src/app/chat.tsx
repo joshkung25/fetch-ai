@@ -1,3 +1,4 @@
+"use client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { FileText, Loader2 } from "lucide-react";
 import ThemeToggle from "./theme-toggle";
@@ -5,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import NavbarNew from "./navbar-new";
 import InputField from "./input-field";
 import { useState, useEffect } from "react";
-import { Message } from "./chat-sidebar";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
@@ -15,10 +15,12 @@ import ReactMarkdown from "react-markdown";
 import formatAgentResponse from "./format-response";
 import { useRef } from "react";
 import UploadSuggestionsModal from "./upload-suggestion-modal";
+import type { Chat, Message } from "./types/chat";
 
-export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
+export default function Chat({ chat }: { chat: Chat }) {
+  // console.log("chat component received chat:", chat);
   const { user } = useUser();
-  const [messages, setMessages] = useState<Message[]>(chatMessages);
+  const [messages, setMessages] = useState<Message[]>(chat.chatHistory);
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -28,8 +30,8 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
 
   // Update internal state when prop changes
   useEffect(() => {
-    setMessages(chatMessages);
-  }, [chatMessages]);
+    setMessages(chat.chatHistory);
+  }, [chat]);
 
   useEffect(() => {
     const fetchDocCount = async () => {
@@ -108,6 +110,7 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
                 width={100}
                 height={100}
                 className="mx-auto mb-4 opacity-25"
+                priority={true}
               />
               {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
               <h2 className="text-xl font-semibold mb-2">
@@ -171,8 +174,9 @@ export default function Chat({ chatMessages }: { chatMessages: Message[] }) {
         <div className="flex-shrink-0 p-4 bg-background border-t">
           <InputField
             setMessagesHandler={setMessages}
-            chatMessages={chatMessages}
+            chatMessages={chat.chatHistory}
             setIsThinking={setIsThinking}
+            chatId={chat.chatId}
           />
         </div>
       </div>
