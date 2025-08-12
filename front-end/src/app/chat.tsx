@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import NavbarNew from "./navbar-new";
 import InputField from "./input-field";
 import { useState, useEffect } from "react";
-import { Message } from "./chat-sidebar";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useUser } from "@auth0/nextjs-auth0";
@@ -15,20 +14,20 @@ import "ldrs/react/Leapfrog.css";
 import ReactMarkdown from "react-markdown";
 import formatAgentResponse from "./format-response";
 import { useRef } from "react";
-import type { Chat } from "./types/chat";
+import type { Chat, Message } from "./types/chat";
 
 export default function Chat({ chat }: { chat: Chat }) {
   // console.log("chat component received chat:", chat);
   const { user } = useUser();
-  const [messages, setMessages] = useState<Message[]>(chat.chat_history);
+  const [messages, setMessages] = useState<Message[]>(chat.chatHistory);
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const messageEndRef = useRef<HTMLLIElement>(null);
-
+  console.log("messages", messages);
   // Update internal state when prop changes
   useEffect(() => {
-    setMessages(chat.chat_history);
+    setMessages(chat.chatHistory);
   }, [chat]);
 
   useEffect(() => {
@@ -127,9 +126,9 @@ export default function Chat({ chat }: { chat: Chat }) {
         <div className="flex-shrink-0 p-4 bg-background border-t">
           <InputField
             setMessagesHandler={setMessages}
-            chatMessages={chat.chat_history}
+            chatMessages={chat.chatHistory}
             setIsThinking={setIsThinking}
-            chatId={chat.chat_id}
+            chatId={chat.chatId}
           />
         </div>
       </div>

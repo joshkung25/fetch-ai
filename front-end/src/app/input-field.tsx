@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Paperclip, X, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Message } from "./chat-sidebar";
+import type { Message } from "./types/chat";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
 import { toast } from "sonner";
 import { uploadFiles } from "@/lib/utils";

@@ -48,8 +48,12 @@ export default function ChatPage({ params }: ChatPageProps) {
           throw new Error(`Failed to fetch chat: ${response.status}`);
         }
 
-        const chatData: ChatType = await response.json();
-        setChat(chatData);
+        const data = await response.json();
+        setChat({
+          chatId: data.chat_id,
+          title: data.chat_name,
+          chatHistory: data.chat_history,
+        });
       } catch (error) {
         console.error("Error fetching chat:", error);
         setError(
@@ -58,9 +62,9 @@ export default function ChatPage({ params }: ChatPageProps) {
 
         // Fallback to empty chat if fetch fails
         const fallbackChat: ChatType = {
-          chat_id: chatId,
+          chatId: chatId,
           title: `Chat ${chatId}`,
-          chat_history: [],
+          chatHistory: [],
         };
         setChat(fallbackChat);
       } finally {
