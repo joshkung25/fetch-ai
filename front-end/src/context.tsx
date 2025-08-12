@@ -38,7 +38,6 @@ export const ContextProvider = ({
 
   useEffect(() => {
     localStorage.setItem("includeSource", String(includeSource));
-    console.log(includeSource);
   }, [includeSource]);
 
   return (

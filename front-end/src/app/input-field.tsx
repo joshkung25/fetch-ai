@@ -57,7 +57,7 @@ export default function ChatbotInput({
 
   const handleUserInput = async () => {
     setIsThinking?.(true);
-    console.log("User input to send:", userInput);
+    // console.log("User input to send:", userInput);
     try {
       let accessToken = null;
       if (user) {
@@ -85,8 +85,8 @@ export default function ChatbotInput({
       const data = await chatResponse.json();
 
       // Console
-      console.log(data[0]);
-      console.log(data[1]);
+      // console.log(data[0]);
+      // console.log(data[1]);
       setMessages(data[1]);
       // Update UI
       setMessagesHandler?.(data[1]);

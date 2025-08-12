@@ -110,6 +110,7 @@ export default function Chat({ chat }: { chat: Chat }) {
                 width={100}
                 height={100}
                 className="mx-auto mb-4 opacity-25"
+                priority={true}
               />
               {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
               <h2 className="text-xl font-semibold mb-2">

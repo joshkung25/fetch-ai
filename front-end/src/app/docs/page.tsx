@@ -171,7 +171,6 @@ export default function DocumentsPage() {
   // Filter and search documents
   const filteredDocuments = React.useMemo(() => {
     let filtered = documents;
-    console.log("filtered", filtered);
 
     // Apply search filter, add back in later
     if (searchQuery) {

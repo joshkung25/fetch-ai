@@ -281,6 +281,7 @@ export default function ChatSidebar() {
             alt="Fetch AI"
             width={35}
             height={35}
+            priority={true}
           />
         </div>
         <p className="text-sm text-muted-foreground">
