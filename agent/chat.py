@@ -5,9 +5,16 @@ import base64
 
 from parser.pdf_parser import parse_pdf
 from agent.retriever import add_doc_to_collection
-from agent.agent import model_recall_response, suggested_tags_prompt
-from agent.supabase_retriever import get_pdf_from_storage
-from agent.supabase_retriever import insert_chat_record
+from agent.agent import (
+    model_recall_response,
+    suggested_tags_prompt,
+    generate_chat_title_prompt,
+)
+from agent.supabase_retriever import (
+    get_pdf_from_storage,
+    insert_chat_record,
+    get_chat_name,
+)
 
 # Load environment variables
 load_dotenv(override=True)
@@ -72,7 +79,7 @@ def chat(user_input, messages, user_id, chat_id, is_guest=False, include_source=
 
     # model response
     response = client.chat.completions.create(
-        model="gpt-4.1-nano",  # or gpt-4o-mini
+        model="gpt-4o-mini",  # or gpt-4o-mini
         messages=messages,
     )
     assistant_reply = response.choices[0].message.content
@@ -92,7 +99,11 @@ def chat(user_input, messages, user_id, chat_id, is_guest=False, include_source=
     )
 
     if not is_guest:
-        insert_chat_record(user_id, messages, chat_id)
+        chat_name = get_chat_name(chat_id, user_id)
+        if not chat_name:
+            chat_name = generate_chat_title(messages[0]["content"])
+        insert_chat_record(user_id, messages, chat_id, chat_name)
+
     return assistant_reply, messages
 
 
@@ -102,12 +113,29 @@ def suggested_tags(document_title: str):
     """
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",  # or gpt-4o
+        model="gpt-4.1-nano",  # or gpt-4o
         messages=[{"role": "user", "content": suggested_tags_prompt(document_title)}],
     )
     assistant_reply = response.choices[0].message.content
     tags = assistant_reply.split(",")
     return tags
+
+
+def generate_chat_title(first_message: str):
+    """
+    Takes in a first message and a user id and returns a generated chat title.
+    """
+    response = client.chat.completions.create(
+        model="gpt-4.1-nano",  # or gpt-4o
+        messages=[
+            {
+                "role": "user",
+                "content": generate_chat_title_prompt(first_message),
+            }
+        ],
+    )
+    assistant_reply = response.choices[0].message.content
+    return assistant_reply
 
 
 if __name__ == "__main__":

@@ -12,6 +12,12 @@ Your response should be a list of tags, separated by commas, nothing else. No up
 Document title:
 """
 
+GENERATE_CHAT_TITLE_PROMPT = """
+I will give you a first message from a chat.
+Return a title for the chat.
+First message:
+"""
+
 
 def model_recall_response(user_input: str, user_id: str, is_guest: bool):
     """Fetches relevant information from the vector database, and then uses that information in the prompt for the model.
@@ -61,3 +67,12 @@ def suggested_tags_prompt(document_title: str):
     Takes in a document title and returns a list of suggested tags.
     """
     return SUGGESTED_TAGS_PROMPT + document_title
+
+
+def generate_chat_title_prompt(first_message: str):
+    """
+    Takes in a first message and a user id and returns a prompt for the model to generate a chat title.
+    """
+    cleaned_first_message = first_message.split("This was the user's input: ")[1]
+    print(cleaned_first_message)
+    return GENERATE_CHAT_TITLE_PROMPT + cleaned_first_message
