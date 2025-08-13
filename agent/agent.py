@@ -48,7 +48,7 @@ def model_recall_response(user_input: str, user_id: str, is_guest: bool):
             + "This was the user's input: "
             + user_input
         )
-    if results["distances"][0][0] < 1.15:
+    if results["distances"][0] and results["distances"][0][0] < 1.15:
         source_document_title = results["metadatas"][0][0]["title"]
     else:
         source_document_title = None

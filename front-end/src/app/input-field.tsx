@@ -20,7 +20,7 @@ interface ChatbotInputProps {
 }
 
 export default function ChatbotInput({
-  placeholder = "Type your message...",
+  placeholder = "What would you like to know?",
   disabled = false,
   setMessagesHandler,
   chatMessages,
