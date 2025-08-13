@@ -25,6 +25,7 @@ import {
   Heart,
   Briefcase,
 } from "lucide-react";
+import { toast } from "sonner";
 import { uploadFiles } from "@/lib/utils";
 import { useUser } from "@auth0/nextjs-auth0";
 import { useRandomId } from "@/context";
@@ -36,49 +37,49 @@ const suggestedDocuments = [
     name: "Driver's License",
     icon: CreditCard,
     description: "Valid driver's license",
-    tags: ["Driver's License", "ID"],
+    tags: ["license", "id"],
   },
   {
     id: "car-registration",
     name: "Car Registration",
     icon: Car,
     description: "Vehicle registration documents",
-    tags: ["Car Registration", "Vehicle"],
+    tags: ["registration", "vehicle"],
   },
   {
     id: "car-insurance",
     name: "Car Insurance",
     icon: Shield,
     description: "Auto insurance policy",
-    tags: ["Car Insurance", "Insurance", "Vehicle"],
+    tags: ["insurance", "vehicle"],
   },
   {
     id: "health-insurance",
     name: "Health Insurance",
     icon: Heart,
     description: "Health insurance card",
-    tags: ["Health Insurance", "Insurance", "Health"],
+    tags: ["insurance", "health"],
   },
   {
     id: "home-insurance",
     name: "Home Insurance",
     icon: Home,
     description: "Homeowner's/renter's insurance",
-    tags: ["Home Insurance", "Insurance", "Home"],
+    tags: ["insurance", "home"],
   },
   {
     id: "passport",
     name: "Passport",
     icon: FileText,
     description: "Valid passport",
-    tags: ["Passport", "ID", "Travel"],
+    tags: ["passport", "id", "travel"],
   },
   {
     id: "employment-docs",
     name: "Employment Documents",
     icon: Briefcase,
     description: "Pay stubs, employment letter",
-    tags: ["Employment"],
+    tags: ["employment"],
   },
 ];
 
@@ -93,7 +94,10 @@ export default function UploadSuggestionsModal({
   const { user } = useUser();
   const { randomId } = useRandomId();
   const { apiUrl } = useApiUrl();
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleFileUpload = async (documentId: string, tags: string[]) => {
+    setIsUploading(true);
     // Create a file input element
     const input = document.createElement("input");
     input.type = "file";
@@ -105,11 +109,13 @@ export default function UploadSuggestionsModal({
       if (file) {
         // Here you would typically upload the file to your server
         console.log(`Uploading ${file.name} for ${documentId}`);
-        setUploadedFiles((prev) => new Set(prev).add(documentId));
 
         if (!file) return;
         console.log("tags", tags);
         await uploadFiles([file], apiUrl, user, randomId, tags); // TODO: add the document label to the file
+        setUploadedFiles((prev) => new Set(prev).add(documentId));
+
+        setIsUploading(false);
       }
     };
 

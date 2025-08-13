@@ -9,7 +9,13 @@ import { useUser } from "@auth0/nextjs-auth0";
 import UploadMetadataModal from "./upload-metadata-modal";
 import { DocumentInfoInput } from "./upload-metadata-modal";
 
-export default function UploadButton() {
+export default function UploadButton({
+  text,
+  variant,
+}: {
+  text: string;
+  variant: "default" | "outline";
+}) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const { randomId } = useRandomId();
@@ -64,9 +70,9 @@ export default function UploadButton() {
         fileName={file?.name || ""}
         onSave={handleFileUpload}
       />
-      <Button onClick={handleAttachment} className="gap-2" variant="outline">
+      <Button onClick={handleAttachment} className="gap-2" variant={variant}>
         <Upload className="h-4 w-4" />
-        <span className="hidden sm:inline">Upload</span>
+        <span className="hidden sm:inline">{text}</span>
       </Button>
     </>
   );
