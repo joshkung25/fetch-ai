@@ -148,7 +148,7 @@ export default function DocumentsPage() {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const data = await res.json();
-    console.log("documents", data.documents[2]);
+    //console.log("documents", data.documents[2]);
     setDocuments(
       data.documents.map((meta: any, idx: number) => ({
         id: (meta.title || "doc") + idx,
@@ -281,33 +281,38 @@ export default function DocumentsPage() {
     fileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handleFileUpload");
-    const file = e.target.files?.[0];
-    console.log("file", file);
-    if (!file) return;
-    if (!apiUrl) {
-      toast.error("API URL is not defined");
-      return;
+const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = Array.from(e.target.files ?? []);
+  if (files.length === 0) return;
+  if (!apiUrl) {
+    toast.error("API URL is not defined");
+    return;
+  }
+
+  await uploadFiles(files, apiUrl, user, randomId);
+  // Wait 1 second before fetching documents
+  setTimeout(() => {
+    fetchDocuments();
+  }, 1000);
+};
+
+const handleBulkDelete = async () => {
+  const accessToken = await getAccessToken();
+  for (const docId of selectedDocuments) {
+    const doc = documents.find((d) => d.id === docId);
+    if (doc) {
+      await fetch(`${apiUrl}/delete?title=${encodeURIComponent(doc.name)}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
     }
-
-    await uploadFiles([file], apiUrl, user, randomId);
-
-    await fetchDocuments();
-  };
-
-  const handleBulkDelete = async () => {
-    for (const docId of selectedDocuments) {
-      const doc = documents.find((d) => d.id === docId);
-      if (doc) {
-        await fetch(`${apiUrl}/delete?title=${encodeURIComponent(doc.name)}`, {
-          method: "DELETE",
-        });
-      }
-    }
-    await fetchDocuments();
-    setSelectedDocuments([]);
-  };
+  }
+  // Remove deleted documents from local state
+  setDocuments((prevDocs) =>
+    prevDocs.filter((doc) => !selectedDocuments.includes(doc.id))
+  );
+  setSelectedDocuments([]);
+};
 
   const toggleDocumentSelection = (docId: string) => {
     setSelectedDocuments((prev) =>
@@ -376,6 +381,7 @@ export default function DocumentsPage() {
         className="hidden"
         onChange={handleFileUpload}
         accept="image/*,text/*,.pdf,.doc,.docx"
+        multiple
       />
       <NavbarNew nav_header="Documents" />
       {/* Toolbar */}
