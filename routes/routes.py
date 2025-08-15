@@ -6,7 +6,7 @@ from agent.retriever import (
     delete_doc_from_collection,
     delete_collection,
 )
-from agent.chat import chat, suggested_tags, generate_chat_title
+from agent.chat import chat, suggested_tags
 from agent.supabase_retriever import (
     upload_pdf_to_storage,
     insert_pdf_record,
@@ -17,7 +17,6 @@ from agent.supabase_retriever import (
     get_pdf_from_storage,
     get_chat_record_by_id,
     get_chat_list_by_user_id,
-    insert_chat_record,
 )
 from parser.pdf_parser import parse_pdf
 import tempfile
@@ -78,7 +77,7 @@ async def add_doc_route(
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(file_bytes)
             tmp_path = tmp.name
-            doc_chunks = parse_pdf(tmp_path)
+            doc_chunks = await parse_pdf(tmp_path)
 
         # Add to collection
         if guest_random_id:
@@ -115,7 +114,7 @@ async def chat_route(
     messages = request.message_history
     chat_id = request.chat_id
     if request.guest_random_id:
-        chat_response = chat(
+        return chat(
             user_input,
             messages,
             request.guest_random_id,
@@ -124,7 +123,7 @@ async def chat_route(
             include_source=request.include_source,
         )
     else:
-        chat_response = chat(
+        return chat(
             user_input,
             messages,
             user_id,
@@ -132,10 +131,6 @@ async def chat_route(
             is_guest=False,
             include_source=request.include_source,
         )
-    if not request.guest_random_id:
-        chat_name = generate_chat_title(messages[0]["content"])
-        insert_chat_record(user_id, messages, chat_id, chat_name)
-    return chat_response
 
 
 @router.get("/list")

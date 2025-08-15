@@ -100,7 +100,9 @@ def chat(user_input, messages, user_id, chat_id, is_guest=False, include_source=
 
     if not is_guest:
         chat_name = get_chat_name(chat_id, user_id)
-        if not chat_name:
+        # print("chat_name", chat_name)
+        if chat_name is None:
+            print("Generating chat name")
             chat_name = generate_chat_title(messages[0]["content"])
         insert_chat_record(user_id, messages, chat_id, chat_name)
 

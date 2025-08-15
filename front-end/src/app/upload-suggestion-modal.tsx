@@ -147,7 +147,7 @@ export default function UploadSuggestionsModal({
                   className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-primary/10">
+                    <div className="p-2 rounded-full bg-blue-600/20">
                       <IconComponent className="h-5 w-5 text-primary" />
                     </div>
                     <div>
@@ -184,7 +184,7 @@ export default function UploadSuggestionsModal({
                 variant="outline"
                 className="w-full"
               >
-                Continue Later
+                Continue
               </Button>
             </div>
           </CardContent>

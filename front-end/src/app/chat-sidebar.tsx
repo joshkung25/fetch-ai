@@ -424,7 +424,9 @@ export default function ChatSidebar() {
                 <p className="text-xs mt-1">
                   {searchQuery
                     ? "Try a different search term"
-                    : "Start a new conversation"}
+                    : user
+                    ? "Start a new conversation"
+                    : "Log in to view your chats"}
                 </p>
               </div>
             )}

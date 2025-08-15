@@ -382,9 +382,10 @@ export default function DocumentsPage() {
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center justify-center gap-4 px-6 py-3">
           <Button
-            variant="destructive"
+            variant="outline"
             size="sm"
             onClick={handleDeleteCollection}
+            className="border-destructive text-destructive hover:bg-destructive hover:text-white dark:border-destructive dark:text-destructive dark:hover:bg-destructive dark:hover:text-white"
           >
             Delete Collection
           </Button>

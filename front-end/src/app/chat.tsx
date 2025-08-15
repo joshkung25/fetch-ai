@@ -36,13 +36,15 @@ export default function Chat({ chat }: { chat: Chat }) {
   useEffect(() => {
     const fetchDocCount = async () => {
       setMounted(true);
-      const accessToken = await getAccessToken();
-      const response = await fetch(`${apiUrl}/list`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const data = await response.json();
-      if (user && data.status === "error") {
-        setOpenModal(true);
+      if (user) {
+        const accessToken = await getAccessToken();
+        const response = await fetch(`${apiUrl}/list`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = await response.json();
+        if (data.status === "error") {
+          setOpenModal(true);
+        }
       }
     };
     fetchDocCount();

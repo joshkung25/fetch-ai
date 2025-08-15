@@ -178,8 +178,8 @@ export default function ChatbotInput({
             size="sm"
             className={`h-8 w-8 p-0 hover:cursor-pointer ${
               loading
-                ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
-                : "hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 hover:text-white"
+                ? "bg-gradient-to-r from-blue-500/90 to-purple-500/90 text-white"
+                : "hover:bg-gradient-to-r hover:from-blue-500/90 hover:to-purple-500/90 hover:text-white"
             }`}
             onClick={handleAllInput}
           >
