@@ -21,7 +21,7 @@ export default function NavbarNew({ nav_header }: { nav_header: string }) {
 
   return (
     <>
-      <header className="flex h-16 w-full shrink-0 items-center gap-2 px-4 justify-between bg-transparent z-10 border-b">
+      <header className="flex h-16 w-full shrink-0 items-center gap-2 px-4 justify-between bg-transparent z-10">
         <div className="flex items-center gap-3">
           <SidebarTrigger className="-ml-1" />
           {/* <FileText className="h-5 w-5" /> */}
