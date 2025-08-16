@@ -29,12 +29,12 @@ export default function NavbarNew({ nav_header }: { nav_header: string }) {
         </div>
         <div className="flex items-center gap-4 pr-8">
           <UploadSuggestionsModal open={open} setOpen={setOpen} />
-          <UploadButton />
+          <UploadButton text="Upload" variant="default" />
           {/* <ThemeToggle /> */}
-          {user && (
-            <>
-              <SettingsDropdown />
-              {/* <Button
+          {/* {user && ( */}
+          <>
+            <SettingsDropdown />
+            {/* <Button
                 variant="ghost"
                 className="hover:cursor-pointer"
                 onClick={() => {
@@ -43,8 +43,8 @@ export default function NavbarNew({ nav_header }: { nav_header: string }) {
               >
                 <Settings className="h-5 w-5" />
               </Button> */}
-            </>
-          )}
+          </>
+          {/* )} */}
           {user ? (
             <a href="/auth/logout">
               <Button variant="ghost" className="hover:cursor-pointer">

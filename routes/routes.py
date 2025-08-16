@@ -77,7 +77,7 @@ async def add_doc_route(
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(file_bytes)
             tmp_path = tmp.name
-            doc_chunks = parse_pdf(tmp_path)
+            doc_chunks = await parse_pdf(tmp_path)
 
         # Add to collection
         if guest_random_id:

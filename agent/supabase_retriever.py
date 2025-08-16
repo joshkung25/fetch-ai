@@ -145,7 +145,7 @@ def insert_chat_record(
     user_id: str,
     chat_history: list,
     chat_id: str,
-    # id: Optional[str] = None,
+    chat_name: str,
 ) -> bool:
     """Inserts a record into the chats table."""
     try:
@@ -155,7 +155,7 @@ def insert_chat_record(
                 {
                     "auth0_id": user_id,
                     "chat_id": chat_id,
-                    "chat_name": chat_id,
+                    "chat_name": chat_name,
                     "chat_history": chat_history,
                 },
                 on_conflict="chat_id",
@@ -226,8 +226,23 @@ def get_chat_list_by_user_id(user_id: str) -> Optional[list]:
             .eq("auth0_id", user_id)
             .execute()
         )
-        print("result", result)
         return result.data if result.data else None
     except Exception as e:
         print("Exception getting chat list:", e)
+        return None
+
+
+def get_chat_name(chat_id: str, user_id: str) -> Optional[str]:
+    """Gets a chat name from the chats table by id."""
+    try:
+        result = (
+            supabase.table("chats")
+            .select("chat_name")
+            .eq("chat_id", chat_id)
+            .eq("auth0_id", user_id)
+            .execute()
+        )
+        return result.data[0]["chat_name"] if result.data else None
+    except Exception as e:
+        print("Exception getting chat name:", e)
         return None
