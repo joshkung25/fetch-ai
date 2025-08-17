@@ -47,6 +47,7 @@ import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
 import UploadSuggestionsModal from "../upload-suggestion-modal";
 import NavbarNew from "../navbar-new";
+import UploadButton from "../upload-button";
 // // Mock data for documents
 // const mockDocuments = [
 //   {
@@ -133,7 +134,7 @@ export default function DocumentsPage() {
   const { user } = useUser();
   const [documents, setDocuments] = React.useState<DocumentMeta[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [viewMode, setViewMode] = React.useState<ViewMode>("grid");
+  const [viewMode, setViewMode] = React.useState<ViewMode>("list");
   const [sortBy, setSortBy] = React.useState<SortOption>("date");
   const [filterBy, setFilterBy] = React.useState<FilterOption>("all");
   const [selectedDocuments, setSelectedDocuments] = React.useState<string[]>(
@@ -381,9 +382,10 @@ export default function DocumentsPage() {
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center justify-center gap-4 px-6 py-3">
           <Button
-            variant="destructive"
+            variant="outline"
             size="sm"
             onClick={handleDeleteCollection}
+            className="border-destructive text-destructive hover:bg-destructive hover:text-white dark:border-destructive dark:text-destructive dark:hover:bg-destructive dark:hover:text-white"
           >
             Delete Collection
           </Button>
@@ -439,20 +441,20 @@ export default function DocumentsPage() {
             {/* View Mode Toggle */}
             <div className="flex items-center border rounded-md">
               <Button
-                variant={viewMode === "grid" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-                className="rounded-r-none"
-              >
-                <Grid3X3 className="h-4 w-4" />
-              </Button>
-              <Button
                 variant={viewMode === "list" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("list")}
-                className="rounded-l-none"
+                className="rounded-r-none"
               >
                 <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className="rounded-l-none"
+              >
+                <Grid3X3 className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -497,10 +499,11 @@ export default function DocumentsPage() {
                   : "Upload your first document to get started"
                 : "Login to get started and view your documents"}
             </p>
-            <Button onClick={handleAttachment} className="gap-2">
+            {/* <Button onClick={handleAttachment} className="gap-2">
               <Upload className="h-4 w-4" />
               Upload Document
-            </Button>
+            </Button> */}
+            <UploadButton text="Upload Document" variant="default" />
             <p className="text-xs text-muted-foreground fixed bottom-0 pb-12">
               Your documents are stored in private, encrypted storage and
               protected by strict backend authentication — only you can access

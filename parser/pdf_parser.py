@@ -3,9 +3,10 @@ from PIL import Image
 import pytesseract
 from pdf2image import convert_from_path
 import tiktoken
+import asyncio
 
 
-def tokenize_and_chunk(
+async def tokenize_and_chunk(
     text, max_tokens=400, overlap=50, model_name="text-embedding-3-small"
 ):
     tokenizer = tiktoken.encoding_for_model(model_name)
@@ -23,14 +24,15 @@ def tokenize_and_chunk(
     return chunks
 
 
-def ocr_pdf(filepath: str):
+async def ocr_pdf(filepath: str):
     images = convert_from_path(filepath, dpi=300)
     all_chunks = []
 
     for i, img in enumerate(images):
         print(f"OCR'ing page {i + 1}")
-        text = pytesseract.image_to_string(img, lang="eng")
-        page_chunks = tokenize_and_chunk(text)
+        text = await asyncio.to_thread(pytesseract.image_to_string, img, lang="eng")
+
+        page_chunks = await tokenize_and_chunk(text)
 
         for j, chunk in enumerate(page_chunks):
             all_chunks.append(
@@ -42,23 +44,22 @@ def ocr_pdf(filepath: str):
                     "doc_type": "ocr",
                 }
             )
-    print(all_chunks)
     return all_chunks
 
 
-def parse_pdf(filepath, doc_type=None):
+async def parse_pdf(filepath, doc_type=None):
     doc = fitz.open(filepath)
     sample_text = get_sample_text(doc)
 
     if len(sample_text.strip()) < 20:
         print("OCR fallback triggered.")
-        return ocr_pdf(filepath)
+        return await ocr_pdf(filepath)
 
     print("Token-based parsing triggered.")
     all_chunks = []
     for page_number, page in enumerate(doc):
         full_text = page.get_text()
-        page_chunks = tokenize_and_chunk(full_text)
+        page_chunks = await tokenize_and_chunk(full_text)
 
         for i, chunk in enumerate(page_chunks):
             all_chunks.append(
