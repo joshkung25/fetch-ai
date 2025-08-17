@@ -116,10 +116,10 @@ export default function Chat({ chat }: { chat: Chat }) {
               <p className="text-muted-foreground">
                 Upload a file and ask a question to get started.
               </p>
-              <div className="flex justify-center p-4 pt-10 max-w-4xl mx-auto">
+              <div className="flex justify-center p-4 pt-10 max-w-3xl mx-auto">
                 <InputField
                   setMessagesHandler={setMessages}
-                  chatMessages={chat.chatHistory}
+                  chatMessages={messages}
                   setIsThinking={setIsThinking}
                   chatId={chat.chatId}
                 />
@@ -127,7 +127,7 @@ export default function Chat({ chat }: { chat: Chat }) {
             </div>
           ) : (
             <div>
-              <ul className="space-y-6">
+              <ul className="space-y-6 mx-auto max-w-4xl">
                 {cleanMessages(messages).map((message, index) => (
                   <li
                     key={index}
@@ -173,12 +173,12 @@ export default function Chat({ chat }: { chat: Chat }) {
               </ul>
               {/* Input area - fixed on top of other components */}
               <div
-                className={`absolute bottom-0 left-0 right-0 z-50 p-4 pb-5 max-w-4xl mx-auto`}
+                className={`absolute bottom-0 left-0 right-0 z-50 pb-5 max-w-3xl mx-auto`}
               >
                 {/* <div className="w-full max-w-4xl mx-auto bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/10 p-4"> */}
                 <InputField
                   setMessagesHandler={setMessages}
-                  chatMessages={chat.chatHistory}
+                  chatMessages={messages}
                   setIsThinking={setIsThinking}
                   chatId={chat.chatId}
                 />

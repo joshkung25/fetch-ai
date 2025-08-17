@@ -123,7 +123,7 @@ export default function ChatbotInput({
     }
   };
   return (
-    <div className="w-full mx-auto bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/10">
+    <div className="w-full mx-auto bg-blue-100/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/10">
       {/* File preview - you can conditionally show this */}
       {files.length > 0 && (
         <div className="mb-2 p-2 bg-muted rounded-md flex items-center justify-between">
@@ -182,10 +182,10 @@ export default function ChatbotInput({
             variant="ghost"
             disabled={disabled}
             size="sm"
-            className={`h-10 w-10 p-0 hover:cursor-pointer ${
+            className={`h-9 w-9 p-0 hover:cursor-pointer ${
               loading
-                ? "bg-gradient-to-r from-blue-500/90 to-purple-500/90 text-white"
-                : "hover:bg-gradient-to-r hover:from-blue-500/90 hover:to-purple-500/90 hover:text-white"
+                ? "bg-gradient-to-r from-blue-500/50 to-purple-500/50 text-white"
+                : "hover:bg-gradient-to-r hover:from-blue-500/50 hover:to-purple-500/70 hover:text-white"
             }`}
             onClick={handleAllInput}
           >
