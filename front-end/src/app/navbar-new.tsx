@@ -29,7 +29,7 @@ export default function NavbarNew({ nav_header }: { nav_header: string }) {
         </div>
         <div className="flex items-center gap-4 pr-8">
           <UploadSuggestionsModal open={open} setOpen={setOpen} />
-          <UploadButton text="Upload" variant="default" />
+          <UploadButton text="Upload" variant="outline" />
           {/* <ThemeToggle /> */}
           {/* {user && ( */}
           <>

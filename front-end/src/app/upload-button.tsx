@@ -70,7 +70,7 @@ export default function UploadButton({
         fileName={file?.name || ""}
         onSave={handleFileUpload}
       />
-      <Button onClick={handleAttachment} className="gap-2" variant={variant}>
+      <Button onClick={handleAttachment} className="gap-2 " variant={variant}>
         <Upload className="h-4 w-4" />
         <span className="hidden sm:inline">{text}</span>
       </Button>

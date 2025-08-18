@@ -98,7 +98,7 @@ export default function Chat({ chat }: { chat: Chat }) {
         {/* Messages area - grows with content */}
         <div className="flex-1 overflow-y-auto pb-40 pt-16 px-4 md:px-10 lg:px-24 xl:px-48">
           {messages.length === 0 ? (
-            <div className="text-center py-32">
+            <div className="text-center py-40">
               {/* <Image
                 src="/docs_ai_logo3.png"
                 alt="Fetch AI"
@@ -108,20 +108,21 @@ export default function Chat({ chat }: { chat: Chat }) {
                 priority={true}
               /> */}
               {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
-              <h2 className="text-3xl font-semibold mb-2">
+              <h2 className="text-3xl font-semibold mb-2 text-black/70 dark:text-white/70">
                 {user
-                  ? "Welcome back, " + user.given_name + "!"
+                  ? "Welcome back, " + user.given_name
                   : "Welcome to Fetch AI"}
               </h2>
-              <p className="text-muted-foreground">
+              {/* <p className="text-muted-foreground">
                 Upload a file and ask a question to get started.
-              </p>
+              </p> */}
               <div className="flex justify-center p-4 pt-10 max-w-3xl mx-auto">
                 <InputField
                   setMessagesHandler={setMessages}
                   chatMessages={messages}
                   setIsThinking={setIsThinking}
                   chatId={chat.chatId}
+                  animate={true}
                 />
               </div>
             </div>
@@ -181,6 +182,7 @@ export default function Chat({ chat }: { chat: Chat }) {
                   chatMessages={messages}
                   setIsThinking={setIsThinking}
                   chatId={chat.chatId}
+                  animate={false}
                 />
                 {/* </div> */}
               </div>
