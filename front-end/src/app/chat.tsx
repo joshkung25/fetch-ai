@@ -108,7 +108,7 @@ export default function Chat({ chat }: { chat: Chat }) {
                 priority={true}
               /> */}
               {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
-              <h2 className="text-3xl font-semibold mb-2 text-black/70 dark:text-white/70">
+              <h2 className="text-3xl font-medium mb-2 bg-gradient-to-r from-gray-700 via-gray-500 to-gray-700 dark:from-gray-300 dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent drop-shadow-sm">
                 {user
                   ? "Welcome back, " + user.given_name
                   : "Welcome to Fetch AI"}
