@@ -9,8 +9,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { getAccessToken, useUser } from "@auth0/nextjs-auth0";
-import { Leapfrog } from "ldrs/react";
-import "ldrs/react/Leapfrog.css";
+import { DotPulse } from "ldrs/react";
+import "ldrs/react/DotPulse.css";
 import ReactMarkdown from "react-markdown";
 import formatAgentResponse from "./format-response";
 import { useRef } from "react";
@@ -164,9 +164,9 @@ export default function Chat({ chat }: { chat: Chat }) {
                 ))}
                 {isThinking && (
                   <li className="pl-6">
-                    <Leapfrog
-                      size="20"
-                      speed="3"
+                    <DotPulse
+                      size="22"
+                      speed="2"
                       color={theme === "dark" ? "white" : "black"}
                     />
                   </li>

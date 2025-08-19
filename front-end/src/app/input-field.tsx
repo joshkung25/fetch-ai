@@ -127,6 +127,7 @@ export default function ChatbotInput({
   return (
     <div className="w-full mx-auto relative overflow-hidden rounded-2xl">
       {/* Liquid mirror background layers */}
+      {/* <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-indigo-400/15 to-purple-400/20 dark:from-blue-500/10 dark:via-indigo-500/5 dark:to-purple-500/10 backdrop-blur-2xl"></div> */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-indigo-400/15 to-purple-400/20 dark:from-blue-500/15 dark:via-indigo-500/10 dark:to-purple-500/15 backdrop-blur-2xl"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-white/10 dark:from-white/10 dark:via-transparent dark:to-white/5"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-300/15 to-transparent dark:from-transparent dark:via-blue-400/20 dark:to-transparent"></div>
