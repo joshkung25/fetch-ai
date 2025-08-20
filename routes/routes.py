@@ -17,6 +17,7 @@ from agent.supabase_retriever import (
     get_pdf_from_storage,
     get_chat_record_by_id,
     get_chat_list_by_user_id,
+    delete_chat_record_by_id,
 )
 from parser.pdf_parser import parse_pdf
 import tempfile
@@ -46,6 +47,10 @@ class ChatRequest(BaseModel):
 
 class DeleteRequest(BaseModel):
     title: str
+
+
+class DeleteChatRequest(BaseModel):
+    chat_id: str
 
 
 class AddUserRequest(BaseModel):  # TODO: make more secure, any user can add any user
@@ -218,3 +223,13 @@ def get_chat(chat_id: str, user_id: str = Depends(get_current_user)):
 def get_chat_list(user_id: str = Depends(get_current_user)):
     user_id = user_id.replace("|", "")
     return get_chat_list_by_user_id(user_id)
+
+
+@router.post("/delete-chat")
+def delete_chat(request: DeleteChatRequest, user_id: str = Depends(get_current_user)):
+    user_id = user_id.replace("|", "")
+    try:
+        delete_chat_record_by_id(request.chat_id, user_id)
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
