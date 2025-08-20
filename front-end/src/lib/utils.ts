@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 
 
 export async function uploadFiles(files: File[], apiUrl: string, user: User | null | undefined, randomId: string, tags?: string[]) {
-
+  toast.loading("Uploading...",);
   for (const file of files) {
     const formData = new FormData();
     formData.append("file", file);
@@ -37,7 +37,8 @@ export async function uploadFiles(files: File[], apiUrl: string, user: User | nu
         method: "POST",
         body: formData,
       });
-      console.log("response", response);
+      toast.dismiss();
+
       if (!response.ok) {
         if (response.status === 413) {
           toast.error("File size too large");
@@ -48,7 +49,6 @@ export async function uploadFiles(files: File[], apiUrl: string, user: User | nu
       }
       toast.success("File uploaded successfully");
     } catch (error) {
-      console.log("error", error);
       if (error instanceof Error && error.message.includes("413")) {
         toast.error("File size too large");
       } else {

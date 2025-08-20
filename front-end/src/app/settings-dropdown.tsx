@@ -18,10 +18,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import { useSettings } from "@/context";
+import { useUser } from "@auth0/nextjs-auth0";
 
 export default function SettingsDropdown() {
   const { setTheme, theme } = useTheme();
   const { includeSource, setIncludeSource } = useSettings();
+  const { user } = useUser();
   const handleAdditionalMenu = () => {
     // This function can be used to open another menu/dialog
     console.log("Opening additional menu...");
@@ -38,18 +40,21 @@ export default function SettingsDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>Settings</DropdownMenuLabel>
-        <DropdownMenuSeparator />
 
         {/* Include source toggle */}
-        <div className="flex items-center justify-between px-2 py-1.5">
-          <span className="text-sm">Source in responses</span>
-          <Switch
-            checked={includeSource}
-            onCheckedChange={setIncludeSource}
-            aria-label="Toggle include source in response"
-          />
-        </div>
-
+        {user && (
+          <>
+            <DropdownMenuSeparator />
+            <div className="flex items-center justify-between px-2 py-1.5">
+              <span className="text-sm">Source in responses</span>
+              <Switch
+                checked={includeSource}
+                onCheckedChange={setIncludeSource}
+                aria-label="Toggle include source in response"
+              />
+            </div>
+          </>
+        )}
         <DropdownMenuSeparator />
 
         {/* Theme submenu */}

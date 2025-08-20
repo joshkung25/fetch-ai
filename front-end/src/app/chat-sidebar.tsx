@@ -356,7 +356,7 @@ export default function ChatSidebar() {
           <MessageSquarePlus className="h-4 w-4" />
           New Chat
         </Button>
-        <Button
+        {/* <Button
           variant="ghost"
           onClick={handleAttachment}
           className="w-full justify-start gap-2 h-10 hover:cursor-pointer"
@@ -364,7 +364,7 @@ export default function ChatSidebar() {
         >
           <FileUp className="h-4 w-4" />
           Upload a Document
-        </Button>
+        </Button> */}
         <Button
           variant="ghost"
           onClick={() => router.push("/docs")}
@@ -478,7 +478,9 @@ export default function ChatSidebar() {
                 <p className="text-xs mt-1">
                   {searchQuery
                     ? "Try a different search term"
-                    : "Start a new conversation"}
+                    : user
+                    ? "Start a new conversation"
+                    : "Log in to view your chats"}
                 </p>
               </div>
             )}

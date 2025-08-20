@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Send, Paperclip, X, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Message } from "./types/chat";
@@ -123,7 +123,7 @@ export default function ChatbotInput({
     }
   };
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full mx-auto bg-blue-100/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/10">
       {/* File preview - you can conditionally show this */}
       {files.length > 0 && (
         <div className="mb-2 p-2 bg-muted rounded-md flex items-center justify-between">
@@ -142,23 +142,28 @@ export default function ChatbotInput({
       )}
 
       {/* Input area */}
-      <div className="flex items-end gap-2 p-2 border rounded-lg bg-background shadow-sm">
-        <div className="flex-1">
-          <Input
-            value={userInput}
-            placeholder={placeholder}
-            disabled={disabled}
-            className="border-0 shadow-none focus-visible:ring-0 resize-none"
-            onChange={(e) => {
-              setUserInput(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleAllInput();
-              }
-            }}
-          />
-        </div>
+      <div className="flex items-end gap-2 p-2 border rounded-xl bg-transparent shadow-sm">
+        {/* <div className="flex-1"> */}
+        <Textarea
+          value={userInput}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="border-0 shadow-none focus-visible:ring-0 resize-none min-h-[40px] max-h-32 overflow-y-auto"
+          style={{ height: "auto" }}
+          onChange={(e) => {
+            setUserInput(e.target.value);
+            // Auto-resize the textarea
+            e.target.style.height = "auto";
+            e.target.style.height = Math.min(e.target.scrollHeight, 128) + "px";
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleAllInput();
+            }
+          }}
+        />
+        {/* </div> */}
 
         <div className="flex items-center gap-1">
           {/* File attachment button */}
@@ -166,7 +171,7 @@ export default function ChatbotInput({
             variant="ghost"
             size="sm"
             disabled={disabled}
-            className="h-8 w-8 p-0 hover:cursor-pointer"
+            className="h-10 w-10 p-0 hover:cursor-pointer"
             onClick={handleAttachment}
           >
             <Paperclip className="h-4 w-4" />
@@ -174,12 +179,13 @@ export default function ChatbotInput({
 
           {/* Send button */}
           <Button
+            variant="ghost"
             disabled={disabled}
             size="sm"
-            className={`h-8 w-8 p-0 hover:cursor-pointer ${
+            className={`h-9 w-9 p-0 hover:cursor-pointer ${
               loading
-                ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
-                : "hover:bg-gradient-to-r hover:from-purple-500 hover:to-blue-500 hover:text-white"
+                ? "bg-gradient-to-r from-blue-500/50 to-purple-500/50 text-white"
+                : "hover:bg-gradient-to-r hover:from-blue-500/50 hover:to-purple-500/70 hover:text-white"
             }`}
             onClick={handleAllInput}
           >

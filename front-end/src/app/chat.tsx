@@ -36,13 +36,15 @@ export default function Chat({ chat }: { chat: Chat }) {
   useEffect(() => {
     const fetchDocCount = async () => {
       setMounted(true);
-      const accessToken = await getAccessToken();
-      const response = await fetch(`${apiUrl}/list`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const data = await response.json();
-      if (user && data.status === "error") {
-        setOpenModal(true);
+      if (user) {
+        const accessToken = await getAccessToken();
+        const response = await fetch(`${apiUrl}/list`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = await response.json();
+        if (data.status === "error") {
+          setOpenModal(true);
+        }
       }
     };
     fetchDocCount();
@@ -92,28 +94,21 @@ export default function Chat({ chat }: { chat: Chat }) {
       <NavbarNew nav_header="Fetch AI" />
       <UploadSuggestionsModal open={openModal} setOpen={setOpenModal} />
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden relative">
         {/* Messages area - grows with content */}
-        <div className="flex-1 overflow-y-auto pb-20 pt-16 px-4 md:px-10 lg:px-24 xl:px-48">
+        <div className="flex-1 overflow-y-auto pb-40 pt-16 px-4 md:px-10 lg:px-24 xl:px-48">
           {messages.length === 0 ? (
             <div className="text-center py-32">
               {/* <Image
-                src={logoSrc}
-                alt="Fetch Logo"
-                width={200}
-                height={200}
-                className="mx-auto mb-4"
-              /> */}
-              <Image
                 src="/docs_ai_logo3.png"
                 alt="Fetch AI"
                 width={100}
                 height={100}
                 className="mx-auto mb-4 opacity-25"
                 priority={true}
-              />
+              /> */}
               {/* <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" /> */}
-              <h2 className="text-xl font-semibold mb-2">
+              <h2 className="text-3xl font-semibold mb-2">
                 {user
                   ? "Welcome back, " + user.given_name + "!"
                   : "Welcome to Fetch AI"}
@@ -121,63 +116,76 @@ export default function Chat({ chat }: { chat: Chat }) {
               <p className="text-muted-foreground">
                 Upload a file and ask a question to get started.
               </p>
+              <div className="flex justify-center p-4 pt-10 max-w-3xl mx-auto">
+                <InputField
+                  setMessagesHandler={setMessages}
+                  chatMessages={messages}
+                  setIsThinking={setIsThinking}
+                  chatId={chat.chatId}
+                />
+              </div>
             </div>
           ) : (
-            <ul className="space-y-6">
-              {cleanMessages(messages).map((message, index) => (
-                <li
-                  key={index}
-                  className={`p-3 rounded-lg ${
-                    message.role === "user"
-                      ? "bg-blue-200/50 dark:bg-blue-900/50 ml-auto w-fit max-w-xs md:max-w-lg"
-                      : "mr-auto w-fit max-w-xs md:max-w-screen-lg"
-                  }`}
-                  ref={messageEndRef}
-                >
-                  {/* {message.content} */}
-                  {/* <ReactMarkdown>{message.content}</ReactMarkdown> */}
-                  {message.role === "assistant"
-                    ? formatAgentResponse(message.content)
-                    : message.content}
+            <div>
+              <ul className="space-y-6 mx-auto max-w-4xl">
+                {cleanMessages(messages).map((message, index) => (
+                  <li
+                    key={index}
+                    className={`p-3 rounded-xl ${
+                      message.role === "user"
+                        ? "bg-blue-200/50 dark:bg-blue-900/50 ml-auto w-fit max-w-xs md:max-w-lg"
+                        : "mr-auto w-fit max-w-xs md:max-w-screen-lg"
+                    }`}
+                    ref={messageEndRef}
+                  >
+                    {/* {message.content} */}
+                    {/* <ReactMarkdown>{message.content}</ReactMarkdown> */}
+                    {message.role === "assistant"
+                      ? formatAgentResponse(message.content)
+                      : message.content}
 
-                  {message.source_document && (
-                    <div className="mt-2 flex items-center">
-                      <FileText className="inline h-4 w-4 mr-1 text-muted-foreground" />
-                      <p
-                        className="text-sm text-muted-foreground cursor-pointer"
-                        onClick={() => {
-                          if (message.source_document) {
-                            handlePreview(message.source_document);
-                          }
-                        }}
-                      >
-                        {message.source_document}
-                      </p>
-                    </div>
-                  )}
-                </li>
-              ))}
-              {isThinking && (
-                <li className="pl-6">
-                  <Leapfrog
-                    size="20"
-                    speed="3"
-                    color={theme === "dark" ? "white" : "black"}
-                  />
-                </li>
-              )}
-            </ul>
+                    {message.source_document && (
+                      <div className="mt-2 flex items-center">
+                        <FileText className="inline h-4 w-4 mr-1 text-muted-foreground" />
+                        <p
+                          className="text-sm text-muted-foreground cursor-pointer"
+                          onClick={() => {
+                            if (message.source_document) {
+                              handlePreview(message.source_document);
+                            }
+                          }}
+                        >
+                          {message.source_document}
+                        </p>
+                      </div>
+                    )}
+                  </li>
+                ))}
+                {isThinking && (
+                  <li className="pl-6">
+                    <Leapfrog
+                      size="20"
+                      speed="3"
+                      color={theme === "dark" ? "white" : "black"}
+                    />
+                  </li>
+                )}
+              </ul>
+              {/* Input area - fixed on top of other components */}
+              <div
+                className={`absolute bottom-0 left-0 right-0 z-50 pb-5 max-w-3xl mx-auto`}
+              >
+                {/* <div className="w-full max-w-4xl mx-auto bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/10 p-4"> */}
+                <InputField
+                  setMessagesHandler={setMessages}
+                  chatMessages={messages}
+                  setIsThinking={setIsThinking}
+                  chatId={chat.chatId}
+                />
+                {/* </div> */}
+              </div>
+            </div>
           )}
-        </div>
-
-        {/* Input area - fixed at bottom */}
-        <div className="flex-shrink-0 p-4 bg-background border-t">
-          <InputField
-            setMessagesHandler={setMessages}
-            chatMessages={chat.chatHistory}
-            setIsThinking={setIsThinking}
-            chatId={chat.chatId}
-          />
         </div>
       </div>
     </div>
