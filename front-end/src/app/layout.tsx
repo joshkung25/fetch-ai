@@ -10,6 +10,7 @@ import { Metadata } from "next";
 import { Toaster } from "sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ContextProvider } from "@/context";
+import { DocumentsProvider } from "@/context/DocumentsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,8 +44,10 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <ContextProvider>
             <SidebarProvider>
-              <ChatSidebar />
-              {children}
+              <DocumentsProvider>
+                <ChatSidebar />
+                {children}
+              </DocumentsProvider>
             </SidebarProvider>
           </ContextProvider>
         </ThemeProvider>
