@@ -1,10 +1,11 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, Response
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, Response, Body
 from fastapi.security import HTTPAuthorizationCredentials
 from agent.retriever import (
     add_doc_to_collection,
     get_all_user_docs_metadata,
     delete_doc_from_collection,
     delete_collection,
+    get_collection,
 )
 from agent.chat import chat, suggested_tags
 from agent.supabase_retriever import (
@@ -17,6 +18,8 @@ from agent.supabase_retriever import (
     get_pdf_from_storage,
     get_chat_record_by_id,
     get_chat_list_by_user_id,
+    get_pdf_record_by_title,
+    supabase,
 )
 from parser.pdf_parser import parse_pdf
 import tempfile
@@ -24,6 +27,8 @@ from pydantic import BaseModel
 from typing import List, Dict
 from auth.auth import get_current_user
 import logging
+import json
+import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -53,6 +58,13 @@ class AddUserRequest(BaseModel):  # TODO: make more secure, any user can add any
     email: str
     name: str
 
+class UpdateTagsRequest(BaseModel):
+    title: str
+    tags: list[str]
+
+class ReplaceDocRequest(BaseModel):
+    title: str
+    tags: list[str] | None = None
 
 @router.get("/")
 def root():
@@ -218,3 +230,76 @@ def get_chat(chat_id: str, user_id: str = Depends(get_current_user)):
 def get_chat_list(user_id: str = Depends(get_current_user)):
     user_id = user_id.replace("|", "")
     return get_chat_list_by_user_id(user_id)
+
+@router.post("/update-tags")
+def update_tags(
+    request: UpdateTagsRequest,
+    user_id: str = Depends(get_current_user),
+):
+    """
+    Updates tags for a document in both Supabase and ChromaDB
+    """
+    user_id = user_id.replace("|", "")
+    try:
+        supabase.table("pdfs") \
+            .update({"tags": request.tags}) \
+            .eq("title", request.title) \
+            .eq("auth0_id", user_id) \
+            .execute()
+
+        collection = get_collection(user_id)
+        docs = collection.get(include=["ids", "metadatas"])
+        ids_to_update = []
+        metadatas_to_update = []
+        for doc_id, meta in zip(docs["ids"], docs["metadatas"]):
+            if meta.get("title") == request.title:
+                ids_to_update.append(doc_id)
+                new_meta = dict(meta)
+                new_meta["tags"] = ",".join(request.tags)
+                metadatas_to_update.append(new_meta)
+        if ids_to_update:
+            collection.update(
+                ids=ids_to_update,
+                metadatas=metadatas_to_update
+            )
+
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@router.post("/replace")
+async def replace_doc_route(
+    file: UploadFile = File(...),
+    request: str = Form(...),
+    user_id: str = Depends(get_current_user),
+):
+    user_id = user_id.replace("|", "")
+    try:
+        req_data = json.loads(request)
+        title = req_data["title"]
+        tags = req_data.get("tags", [])
+
+        file_bytes = await file.read()
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(file_bytes)
+            tmp_path = tmp.name
+            doc_chunks = parse_pdf(tmp_path)
+
+        # Remove old doc from ChromaDB and Supabase
+        delete_doc_from_collection(title, user_id)
+        delete_pdf_from_storage(title, user_id)
+        delete_pdf_record(title, user_id)
+
+        # Add new doc
+        add_doc_to_collection(doc_chunks, title, user_id, tags)
+        file_path = upload_pdf_to_storage(file_bytes, title, user_id)
+        if file_path:
+            now = datetime.datetime.utcnow().isoformat()
+            result = insert_pdf_record(title, user_id, file_path, tags, created_at=now)
+            if not result:
+                raise HTTPException(status_code=500, detail="Supabase insert failed")
+        return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"Error replacing document: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

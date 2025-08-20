@@ -47,63 +47,10 @@ import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
 import UploadSuggestionsModal from "../upload-suggestion-modal";
 import NavbarNew from "../navbar-new";
-// // Mock data for documents
-// const mockDocuments = [
-//   {
-//     id: "doc1",
-//     name: "project-requirements.pdf",
-//     type: "PDF",
-//     size: "2.4 MB",
-//     uploadDate: new Date("2024-01-15T14:20:00"),
-//     tags: ["requirements", "project"],
-//     description: "Detailed project requirements and specifications",
-//   },
-//   {
-//     id: "doc2",
-//     name: "api-documentation.md",
-//     type: "Markdown",
-//     size: "156 KB",
-//     uploadDate: new Date("2024-01-14T09:15:00"),
-//     tags: ["api", "documentation"],
-//     description: "Complete API documentation with examples",
-//   },
-//   {
-//     id: "doc3",
-//     name: "database-schema.sql",
-//     type: "SQL",
-//     size: "45 KB",
-//     uploadDate: new Date("2024-01-13T16:30:00"),
-//     tags: ["database", "schema"],
-//     description: "Database schema definition and migrations",
-//   },
-//   {
-//     id: "doc4",
-//     name: "user-guide.docx",
-//     type: "Word",
-//     size: "1.8 MB",
-//     uploadDate: new Date("2024-01-12T11:45:00"),
-//     tags: ["guide", "user"],
-//     description: "Comprehensive user guide and tutorials",
-//   },
-//   {
-//     id: "doc5",
-//     name: "config.json",
-//     type: "JSON",
-//     size: "12 KB",
-//     uploadDate: new Date("2024-01-11T08:30:00"),
-//     tags: ["config", "settings"],
-//     description: "Application configuration file",
-//   },
-//   {
-//     id: "doc6",
-//     name: "test-results.xlsx",
-//     type: "Excel",
-//     size: "890 KB",
-//     uploadDate: new Date("2024-01-10T16:45:00"),
-//     tags: ["testing", "results"],
-//     description: "Test execution results and metrics",
-//   },
-// ];
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { useDocuments } from "@/context/DocumentsContext";
+
+//import { Document, Page } from "react-pdf"; 
 
 type ViewMode = "grid" | "list";
 type SortOption = "name" | "date" | "size" | "type";
@@ -119,7 +66,7 @@ type FilterOption =
 export type DocumentMeta = {
   id: string;
   name: string;
-  type: "pdf";
+  type: string;
   size: string;
   uploadDate: Date;
   tags: string[];
@@ -131,7 +78,7 @@ export default function DocumentsPage() {
   //const apiUrl = "http://localhost:8001";
   // console.log("API URL:", apiUrl);
   const { user } = useUser();
-  const [documents, setDocuments] = React.useState<DocumentMeta[]>([]);
+  const { documents, fetchDocuments } = useDocuments();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<ViewMode>("grid");
   const [sortBy, setSortBy] = React.useState<SortOption>("date");
@@ -141,38 +88,49 @@ export default function DocumentsPage() {
   );
   const { randomId } = useRandomId();
   const [open, setOpen] = useState(false);
-  const fetchDocuments = React.useCallback(async () => {
-    if (!user) return; // TODO: Handle guest mode
+  const [modifyOpen, setModifyOpen] = useState(false);
+  const [modifyDoc, setModifyDoc] = useState<DocumentMeta | null>(null);
+  const [newTags, setNewTags] = useState<string>("");
+  const [allTags, setAllTags] = useState<string[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string>("__all__");
+  const [showReplaceModal, setShowReplaceModal] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+
+  const fetchAllTags = React.useCallback(async () => {
+    if (!user) return;
     const accessToken = await getAccessToken();
     const res = await fetch(`${apiUrl}/list`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const data = await res.json();
-    // console.log("documents", data.documents[2]);
-    setDocuments(
-      data.documents.map((meta: any, idx: number) => ({
-        id: (meta.title || "doc") + idx,
-        name: meta.title || "Untitled",
-        type: "pdf", // TODO: add type
-        // meta.type ||
-        // (meta.title?.split(".").pop()?.toLowerCase() ?? "unknown"),
-        size: meta.size || "-", // TODO: add size
-        uploadDate: meta.uploadDate ? new Date(meta.uploadDate) : new Date(),
-        tags: meta.tags ? meta.tags.split(",") : [], // TODO: add tags
-        description: meta.description || "", // TODO: add description
-      }))
-    );
-  }, [user, apiUrl]);
+    // Collect all tags from documents
+    const tagsSet = new Set<string>();
+    if (data.documents && data.documents.length > 0) {
+      data.documents.forEach((meta: any) => {
+        if (Array.isArray(meta.tags)) {
+          meta.tags.forEach((tag: string) => tagsSet.add(tag));
+        } else if (typeof meta.tags === "string") {
+          meta.tags
+            .split(",")
+            .map((t: string) => t.trim())
+            .filter(Boolean)
+            .forEach((tag: string) => tagsSet.add(tag));
+        }
+      });
+    }
+    setAllTags(Array.from(tagsSet));
+  }, [user, apiUrl, getAccessToken]);
 
   useEffect(() => {
     fetchDocuments();
-  }, [fetchDocuments]);
+    fetchAllTags();
+  }, [fetchDocuments, fetchAllTags]);
 
   // Filter and search documents
   const filteredDocuments = React.useMemo(() => {
     let filtered = documents;
 
-    // Apply search filter, add back in later
+    // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter(
         (doc: DocumentMeta) =>
@@ -187,6 +145,13 @@ export default function DocumentsPage() {
     // Apply type filter
     if (filterBy !== "all") {
       filtered = filtered.filter((doc) => doc.type.toLowerCase() === filterBy);
+    }
+
+    // Apply tag filter
+    if (selectedTag && selectedTag !== "__all__") {
+      filtered = filtered.filter((doc) =>
+        doc.tags.map((t) => t.toLowerCase()).includes(selectedTag.toLowerCase())
+      );
     }
 
     // Apply sorting
@@ -206,7 +171,7 @@ export default function DocumentsPage() {
     });
 
     return filtered;
-  }, [documents, searchQuery, filterBy, sortBy]);
+  }, [documents, searchQuery, filterBy, sortBy, selectedTag]);
 
   const getFileIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -281,32 +246,71 @@ export default function DocumentsPage() {
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handleFileUpload");
     const file = e.target.files?.[0];
-    console.log("file", file);
     if (!file) return;
     if (!apiUrl) {
       toast.error("API URL is not defined");
       return;
     }
 
-    await uploadFiles([file], apiUrl, user, randomId);
-
     await fetchDocuments();
+
+    const duplicate = documents.find(doc => doc.name === file.name);
+    if (duplicate) {
+      setPendingFile(file);
+      setShowReplaceModal(true);
+      return;
+    }
+
+    await uploadFiles([file], apiUrl, user, randomId);
+    await fetchDocuments();
+  };
+
+  const handleReplaceDocument = async () => {
+    if (!pendingFile || !apiUrl) return;
+    const formData = new FormData();
+    formData.append("file", pendingFile);
+    formData.append(
+      "request",
+      JSON.stringify({
+        title: pendingFile.name,
+        tags: [], 
+      })
+    );
+
+    const accessToken = await getAccessToken();
+    const res = await fetch(`${apiUrl}/replace`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: formData,
+    });
+
+    if (res.ok) {
+      await fetchDocuments();
+      toast.success("Document replaced successfully");
+    } else {
+      toast.error("Failed to replace document");
+    }
+
+    setShowReplaceModal(false);
+    setPendingFile(null);
+    fileInputRef.current!.value = "";
   };
 
   const handleBulkDelete = async () => {
-    for (const docId of selectedDocuments) {
-      const doc = documents.find((d) => d.id === docId);
-      if (doc) {
-        await fetch(`${apiUrl}/delete?title=${encodeURIComponent(doc.name)}`, {
-          method: "DELETE",
-        });
-      }
+      const accessToken = await getAccessToken();
+  for (const docId of selectedDocuments) {
+    const doc = documents.find((d) => d.id === docId);
+    if (doc) {
+      await fetch(`${apiUrl}/delete?title=${encodeURIComponent(doc.name)}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` }, // <-- Add this line
+      });
     }
-    await fetchDocuments();
-    setSelectedDocuments([]);
-  };
+  }
+  await fetchDocuments();
+  setSelectedDocuments([]);
+};
 
   const toggleDocumentSelection = (docId: string) => {
     setSelectedDocuments((prev) =>
@@ -325,12 +329,11 @@ export default function DocumentsPage() {
   };
 
   const handlePreview = async (docId: string) => {
-    console.log("handlePreview", docId);
     const doc = documents.find((d) => d.id === docId);
     if (!doc) return;
     const accessToken = await getAccessToken();
     const response = await fetch(
-      `${apiUrl}/preview?title=${encodeURIComponent(doc.name)}`,
+      `${apiUrl}/preview-url?title=${encodeURIComponent(doc.name)}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
@@ -359,12 +362,42 @@ export default function DocumentsPage() {
     a.click();
   };
 
-  const handleDeleteCollection = async () => {
+const handleDeleteCollection = async () => {
+  const accessToken = await getAccessToken();
+  await fetch(`${apiUrl}/delete-collection`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  await fetchDocuments(); // Refresh the list after deletion
+  setSelectedDocuments([]); // Clear selection
+};
+
+  const handleModifyTags = (doc: DocumentMeta) => {
+    setModifyDoc(doc);
+    setNewTags(doc.tags.join(", "));
+    setModifyOpen(true);
+  };
+
+  const handleSaveTags = async () => {
+    if (!modifyDoc) return;
     const accessToken = await getAccessToken();
-    await fetch(`${apiUrl}/delete-collection`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${accessToken}` },
+    const tagsArray = newTags.split(",").map(tag => tag.trim()).filter(Boolean);
+
+    await fetch(`${apiUrl}/update-tags`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        title: modifyDoc.name,
+        tags: tagsArray,
+      }),
     });
+    await fetchDocuments(); // <-- Move this before closing modal
+    setModifyOpen(false);
+    setModifyDoc(null);
+    toast.success("Tags updated successfully"); 
   };
 
   return (
@@ -431,6 +464,25 @@ export default function DocumentsPage() {
                 <SelectItem value="name">Name</SelectItem>
                 <SelectItem value="size">Size</SelectItem>
                 <SelectItem value="type">Type</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Tag Dropdown */}
+            <Select
+              value={selectedTag}
+              onValueChange={(value: string) => setSelectedTag(value)}
+            >
+              <SelectTrigger className="w-32">
+                <span className="mr-2">🏷️</span>
+                <SelectValue placeholder="All Tags" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">All Tags</SelectItem>
+                {allTags.map((tag) => (
+                  <SelectItem key={tag} value={tag}>
+                    {tag}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -560,6 +612,12 @@ export default function DocumentsPage() {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
+                          onClick={() => handleModifyTags(doc)}
+                        >
+                          <Settings className="h-4 w-4 mr-2" />
+                          Modify Tags
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           onClick={() => handleDeleteDocument(doc.id)}
                           className="text-destructive focus:text-destructive"
                         >
@@ -666,6 +724,12 @@ export default function DocumentsPage() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
+                        onClick={() => handleModifyTags(doc)}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Modify Tags
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
                         onClick={() => handleDeleteDocument(doc.id)}
                         className="text-destructive focus:text-destructive"
                       >
@@ -680,6 +744,46 @@ export default function DocumentsPage() {
           </div>
         )}
       </div>
+
+      {/* Modify Tags Modal */}
+      <Dialog open={modifyOpen} onOpenChange={setModifyOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modify Tags for {modifyDoc?.name}</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={newTags}
+            onChange={e => setNewTags(e.target.value)}
+            placeholder="Enter tags separated by commas"
+          />
+          <div className="flex gap-2 mt-4">
+            <Button onClick={handleSaveTags}>Save</Button>
+            <DialogClose asChild>
+              <Button variant="outline" onClick={() => setModifyOpen(false)}>Cancel</Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Replace Document Modal */}
+      <Dialog open={showReplaceModal} onOpenChange={setShowReplaceModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Replace Document
+            </DialogTitle>
+          </DialogHeader>
+          <p>
+            A document named <b>{pendingFile?.name}</b> already exists. Do you want to replace it?
+          </p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={handleReplaceDocument}>Yes, Replace</Button>
+            <DialogClose asChild>
+              <Button variant="outline" onClick={() => setShowReplaceModal(false)}>Cancel</Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

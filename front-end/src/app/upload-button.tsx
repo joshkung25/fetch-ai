@@ -5,16 +5,21 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser, getAccessToken } from "@auth0/nextjs-auth0";
 import UploadMetadataModal from "./upload-metadata-modal";
 import { DocumentInfoInput } from "./upload-metadata-modal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { useDocuments } from "@/context/DocumentsContext";
 
 export default function UploadButton() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const { randomId } = useRandomId();
   const { user } = useUser();
+  const { documents, fetchDocuments } = useDocuments();
   const [isMetadataModalOpen, setIsMetadataModalOpen] = useState(false);
+  const [showReplaceModal, setShowReplaceModal] = useState(false);
+  const [pendingMetadata, setPendingMetadata] = useState<DocumentInfoInput | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
 
@@ -28,15 +33,71 @@ export default function UploadButton() {
     fileInputRef.current?.click();
   };
 
+  // Check for duplicate before upload
   const handleFileUpload = async (metadata?: DocumentInfoInput) => {
-    console.log("file", file);
     if (!file) return;
     if (!apiUrl) {
       toast.error("API URL is not defined");
       return;
     }
 
+    const duplicate = documents.find(doc => doc.name === file.name);
+    if (duplicate) {
+      setPendingMetadata(metadata);
+      setShowReplaceModal(true);
+      return;
+    }
+
     await uploadFiles([file], apiUrl, user, randomId, metadata?.tags);
+    await fetchDocuments();
+    setFile(null);
+    setIsMetadataModalOpen(false);
+  };
+
+  // Handle replace
+  const handleReplaceDocument = async () => {
+    if (!file || !apiUrl) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append(
+      "request",
+      JSON.stringify({
+        title: file.name,
+        tags: pendingMetadata?.tags || [],
+      })
+    );
+
+    // Get a fresh Auth0 token
+    const accessToken = await getAccessToken();
+    const res = await fetch(`${apiUrl}/replace`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: formData,
+    });
+
+    if (res.ok) {
+      await fetchDocuments();
+      toast.success("Document replaced successfully");
+    } else {
+      let errorMsg = "Unknown error";
+      try {
+        const error = await res.json();
+        if (typeof error === "string") {
+          errorMsg = error;
+        } else if (error.detail) {
+          errorMsg = error.detail;
+        } else {
+          errorMsg = JSON.stringify(error);
+        }
+      } catch (e) {
+        errorMsg = "Unknown error";
+      }
+      toast.error("Failed to replace document: " + errorMsg);
+    }
+
+    setShowReplaceModal(false);
+    setFile(null);
+    setIsMetadataModalOpen(false);
   };
 
   return (
@@ -45,10 +106,20 @@ export default function UploadButton() {
         ref={fileInputRef}
         type="file"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            setFile(file);
+        onChange={async (e) => {
+          const selectedFile = e.target.files?.[0];
+          if (!selectedFile) return;
+
+          // Always refresh documents before checking for duplicates
+          await fetchDocuments();
+
+          setFile(selectedFile);
+
+          const duplicate = documents.find(doc => doc.name === selectedFile.name);
+          if (duplicate) {
+            setIsMetadataModalOpen(false);
+            setShowReplaceModal(true);
+            return;
           }
           setIsMetadataModalOpen(true);
         }}
@@ -68,6 +139,25 @@ export default function UploadButton() {
         <Upload className="h-4 w-4" />
         <span className="hidden sm:inline">Upload</span>
       </Button>
+
+      <Dialog open={showReplaceModal} onOpenChange={setShowReplaceModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Replace Document
+            </DialogTitle>
+          </DialogHeader>
+          <p>
+            A document named <b>{file?.name}</b> already exists. Do you want to replace it?
+          </p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={handleReplaceDocument}>Yes, Replace</Button>
+            <DialogClose asChild>
+              <Button variant="outline" onClick={() => setShowReplaceModal(false)}>Cancel</Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
