@@ -1,4 +1,13 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, Response, Body
+from fastapi import (
+    APIRouter,
+    UploadFile,
+    File,
+    Form,
+    Depends,
+    HTTPException,
+    Response,
+    Body,
+)
 from fastapi.security import HTTPAuthorizationCredentials
 from agent.retriever import (
     add_doc_to_collection,
@@ -18,6 +27,7 @@ from agent.supabase_retriever import (
     get_pdf_from_storage,
     get_chat_record_by_id,
     get_chat_list_by_user_id,
+    delete_chat_record_by_id,
     get_pdf_record_by_title,
     supabase,
 )
@@ -53,18 +63,25 @@ class DeleteRequest(BaseModel):
     title: str
 
 
+class DeleteChatRequest(BaseModel):
+    chat_id: str
+
+
 class AddUserRequest(BaseModel):  # TODO: make more secure, any user can add any user
     user_id: str
     email: str
     name: str
 
+
 class UpdateTagsRequest(BaseModel):
     title: str
     tags: list[str]
 
+
 class ReplaceDocRequest(BaseModel):
     title: str
     tags: list[str] | None = None
+
 
 @router.get("/")
 def root():
@@ -231,6 +248,17 @@ def get_chat_list(user_id: str = Depends(get_current_user)):
     user_id = user_id.replace("|", "")
     return get_chat_list_by_user_id(user_id)
 
+
+@router.post("/delete-chat")
+def delete_chat(request: DeleteChatRequest, user_id: str = Depends(get_current_user)):
+    user_id = user_id.replace("|", "")
+    try:
+        delete_chat_record_by_id(request.chat_id, user_id)
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 @router.post("/update-tags")
 def update_tags(
     request: UpdateTagsRequest,
@@ -241,11 +269,9 @@ def update_tags(
     """
     user_id = user_id.replace("|", "")
     try:
-        supabase.table("pdfs") \
-            .update({"tags": request.tags}) \
-            .eq("title", request.title) \
-            .eq("auth0_id", user_id) \
-            .execute()
+        supabase.table("pdfs").update({"tags": request.tags}).eq(
+            "title", request.title
+        ).eq("auth0_id", user_id).execute()
 
         collection = get_collection(user_id)
         docs = collection.get(include=["ids", "metadatas"])
@@ -258,10 +284,7 @@ def update_tags(
                 new_meta["tags"] = ",".join(request.tags)
                 metadatas_to_update.append(new_meta)
         if ids_to_update:
-            collection.update(
-                ids=ids_to_update,
-                metadatas=metadatas_to_update
-            )
+            collection.update(ids=ids_to_update, metadatas=metadatas_to_update)
 
         return {"status": "ok"}
     except Exception as e:

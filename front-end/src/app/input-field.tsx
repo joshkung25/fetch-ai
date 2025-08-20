@@ -17,6 +17,7 @@ interface ChatbotInputProps {
   chatMessages?: Message[];
   setIsThinking?: (isThinking: boolean) => void;
   chatId: string;
+  animate?: boolean;
 }
 
 export default function ChatbotInput({
@@ -26,6 +27,7 @@ export default function ChatbotInput({
   chatMessages,
   setIsThinking,
   chatId,
+  animate = true,
 }: ChatbotInputProps) {
   const [userInput, setUserInput] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
@@ -123,78 +125,100 @@ export default function ChatbotInput({
     }
   };
   return (
-    <div className="w-full mx-auto bg-blue-100/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/10">
-      {/* File preview - you can conditionally show this */}
-      {files.length > 0 && (
-        <div className="mb-2 p-2 bg-muted rounded-md flex items-center justify-between">
-          <span className="text-sm text-muted-foreground truncate">
-            {files.map((file) => file.name).join(", ")}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0"
-            onClick={() => setFiles([])}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
+    <div className="w-full mx-auto relative overflow-hidden rounded-2xl">
+      {/* Liquid mirror background layers */}
+      {/* <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-indigo-400/15 to-purple-400/20 dark:from-blue-500/10 dark:via-indigo-500/5 dark:to-purple-500/10 backdrop-blur-2xl"></div> */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-indigo-400/15 to-purple-400/20 dark:from-blue-500/15 dark:via-indigo-500/10 dark:to-purple-500/15 backdrop-blur-2xl"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-white/10 dark:from-white/10 dark:via-transparent dark:to-white/5"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-300/15 to-transparent dark:from-transparent dark:via-blue-400/20 dark:to-transparent"></div>
+
+      {/* Animated shimmer overlay */}
+      {animate && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/40 to-transparent dark:from-transparent dark:via-white/30 dark:to-transparent translate-x-[-100%] animate-shimmer-smooth"></div>
+          {/* Additional shimmer for light mode */}
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent dark:hidden translate-x-[-100%] animate-shimmer-smooth"
+            style={{ animationDelay: "3s" }}
+          ></div>
+        </>
       )}
 
-      {/* Input area */}
-      <div className="flex items-end gap-2 p-2 border rounded-xl bg-transparent shadow-sm">
-        {/* <div className="flex-1"> */}
-        <Textarea
-          value={userInput}
-          placeholder={placeholder}
-          disabled={disabled}
-          className="border-0 shadow-none focus-visible:ring-0 resize-none min-h-[40px] max-h-32 overflow-y-auto"
-          style={{ height: "auto" }}
-          onChange={(e) => {
-            setUserInput(e.target.value);
-            // Auto-resize the textarea
-            e.target.style.height = "auto";
-            e.target.style.height = Math.min(e.target.scrollHeight, 128) + "px";
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleAllInput();
-            }
-          }}
-        />
-        {/* </div> */}
+      {/* Main content container */}
+      <div className="relative z-10 bg-white/20 dark:bg-black/20 backdrop-blur-xl border border-white/40 dark:border-white/20 rounded-2xl shadow-2xl shadow-black/30 dark:shadow-black/50">
+        {/* File preview - you can conditionally show this */}
+        {files.length > 0 && (
+          <div className="mb-2 p-3 bg-white/15 dark:bg-black/15 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-xl flex items-center justify-between">
+            <span className="text-sm text-muted-foreground truncate">
+              {files.map((file) => file.name).join(", ")}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={() => setFiles([])}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
 
-        <div className="flex items-center gap-1">
-          {/* File attachment button */}
-          <Button
-            variant="ghost"
-            size="sm"
+        {/* Input area */}
+        <div className="flex items-end gap-2 p-2 border border-white/30 dark:border-white/20 rounded-xl bg-white/10 dark:bg-black/10 backdrop-blur-md shadow-sm">
+          {/* <div className="flex-1"> */}
+          <Textarea
+            value={userInput}
+            placeholder={placeholder}
             disabled={disabled}
-            className="h-10 w-10 p-0 hover:cursor-pointer"
-            onClick={handleAttachment}
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
+            className="border-0 shadow-none focus-visible:ring-0 resize-none min-h-[40px] max-h-32 overflow-y-auto"
+            style={{ height: "auto" }}
+            onChange={(e) => {
+              setUserInput(e.target.value);
+              // Auto-resize the textarea
+              e.target.style.height = "auto";
+              e.target.style.height =
+                Math.min(e.target.scrollHeight, 128) + "px";
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleAllInput();
+              }
+            }}
+          />
+          {/* </div> */}
 
-          {/* Send button */}
-          <Button
-            variant="ghost"
-            disabled={disabled}
-            size="sm"
-            className={`h-9 w-9 p-0 hover:cursor-pointer ${
-              loading
-                ? "bg-gradient-to-r from-blue-500/50 to-purple-500/50 text-white"
-                : "hover:bg-gradient-to-r hover:from-blue-500/50 hover:to-purple-500/70 hover:text-white"
-            }`}
-            onClick={handleAllInput}
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
+          <div className="flex items-center gap-1">
+            {/* File attachment button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={disabled}
+              className="h-10 w-10 p-0 hover:cursor-pointer"
+              onClick={handleAttachment}
+            >
+              <Paperclip className="h-4 w-4" />
+            </Button>
+
+            {/* Send button */}
+            <Button
+              variant="ghost"
+              disabled={disabled}
+              size="sm"
+              className={`h-9 w-9 p-0 hover:cursor-pointer ${
+                loading
+                  ? "bg-gradient-to-r from-blue-400/30 to-purple-400/60 text-white"
+                  : "hover:bg-gradient-to-r hover:from-blue-400/30 hover:to-purple-400/60 hover:text-white"
+              }`}
+              onClick={handleAllInput}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 

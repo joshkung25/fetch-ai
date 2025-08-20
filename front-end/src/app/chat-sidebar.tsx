@@ -178,8 +178,22 @@ export default function ChatSidebar() {
     router.push("/");
   };
 
-  const handleDeleteChat = (chatId: string) => {
+  const handleDeleteChat = async (chatId: string) => {
     setChats((prev) => prev.filter((chat) => chat.chatId !== chatId));
+    let accessToken = null;
+    if (user) {
+      accessToken = await getAccessToken();
+    }
+    const response = await fetch(`${apiUrl}/delete-chat`, {
+      method: "POST",
+      body: JSON.stringify({ chat_id: chatId }),
+      headers: user
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          }
+        : { "Content-Type": "application/json" },
+    });
   };
 
   const handleRenameChat = (chatId: string) => {
@@ -291,7 +305,6 @@ export default function ChatSidebar() {
   }, [user]);
 
   const handleChatClick = (chatId: string) => {
-    console.log("handleChatClick", chatId);
     router.push(`/chat/${chatId}`);
   };
 
