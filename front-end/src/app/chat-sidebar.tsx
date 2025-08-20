@@ -52,6 +52,10 @@ import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
 import Image from "next/image";
 import type { ChatSidebar } from "./types/chat";
+import UploadMetadataModal from "./upload-metadata-modal";
+import { DocumentInfoInput } from "./upload-metadata-modal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { useDocuments } from "@/context/DocumentsContext";
 
 // Mock data for existing chats
 const mockChats = [
@@ -127,10 +131,14 @@ export default function ChatSidebar() {
   const [sortBy, setSortBy] = React.useState<SortOption>("recent");
   const [chats, setChats] = React.useState<ChatSidebar[]>([]);
   const [chatMessages, setChatMessages] = React.useState<Message[]>([]);
-  const [file, setFile] = React.useState<File>();
+  const [isMetadataModalOpen, setIsMetadataModalOpen] = React.useState(false);
+  const [showReplaceModal, setShowReplaceModal] = React.useState(false);
+  const [pendingMetadata, setPendingMetadata] = React.useState<DocumentInfoInput | undefined>(undefined);
+  const [file, setFile] = React.useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useUser();
   const { randomId } = useRandomId();
+  const { documents, fetchDocuments } = useDocuments();
 
   const router = useRouter();
 
@@ -200,31 +208,73 @@ export default function ChatSidebar() {
     }
   };
 
-  const handleAttachment = () => {
-    console.log("handleAttachment");
-    // Trigger the file input click to open file picker
-    fileInputRef.current?.click();
-  };
-
-  const handleUploadDocument = async () => {
-    console.log("handleUploadDocument", file);
-    if (file === undefined) {
-      console.log("No files selected");
-      return;
-    }
+  // Check for duplicate before upload
+  const handleFileUpload = async (metadata?: DocumentInfoInput) => {
+    if (!file) return;
     if (!apiUrl) {
       toast.error("API URL is not defined");
       return;
     }
-    await uploadFiles([file], apiUrl, user, randomId);
-    setFile(undefined);
+
+    const duplicate = documents.find(doc => doc.name === file.name);
+    if (duplicate) {
+      setPendingMetadata(metadata);
+      setShowReplaceModal(true);
+      return;
+    }
+
+    await uploadFiles([file], apiUrl, user, randomId, metadata?.tags);
+    await fetchDocuments(); // <-- Ensure this finishes before closing modal
+    setFile(null);
+    setIsMetadataModalOpen(false);
+    fileInputRef.current!.value = "";
   };
 
-  useEffect(() => {
-    if (file) {
-      handleUploadDocument();
+  // Handle replace
+  const handleReplaceDocument = async () => {
+    if (!file || !apiUrl) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append(
+      "request",
+      JSON.stringify({
+        title: file.name,
+        tags: pendingMetadata?.tags || [],
+      })
+    );
+
+    const accessToken = await getAccessToken();
+    const res = await fetch(`${apiUrl}/replace`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: formData,
+    });
+
+    if (res.ok) {
+      await fetchDocuments(); // <-- Ensure this finishes before closing modal
+      toast.success("Document replaced successfully");
+    } else {
+      let errorMsg = "Unknown error";
+      try {
+        const error = await res.json();
+        if (typeof error === "string") {
+          errorMsg = error;
+        } else if (error.detail) {
+          errorMsg = error.detail;
+        } else {
+          errorMsg = JSON.stringify(error);
+        }
+      } catch (e) {
+        errorMsg = "Unknown error";
+      }
+      toast.error("Failed to replace document: " + errorMsg);
     }
-  }, [file]);
+
+    setShowReplaceModal(false);
+    setFile(null);
+    setIsMetadataModalOpen(false);
+    fileInputRef.current!.value = "";
+  };
 
   useEffect(() => {
     if (user) {
@@ -271,6 +321,10 @@ export default function ChatSidebar() {
     };
     fetchChatList();
   }, [user]);
+
+  const handleAttachment = async () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <Sidebar className="border-r">
@@ -438,16 +492,53 @@ export default function ChatSidebar() {
       <input
         ref={fileInputRef}
         type="file"
-        multiple
         className="hidden"
         accept="image/*,text/*,.pdf,.doc,.docx"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            setFile(file);
+        onChange={async (e) => {
+          const selectedFile = e.target.files?.[0];
+          if (!selectedFile) return;
+
+          await fetchDocuments();
+
+          setFile(selectedFile);
+
+          const duplicate = documents.find(doc => doc.name === selectedFile.name);
+          if (duplicate) {
+            setIsMetadataModalOpen(false);
+            setShowReplaceModal(true);
+            return;
           }
+          setIsMetadataModalOpen(true);
         }}
       />
+      <UploadMetadataModal
+        isOpen={isMetadataModalOpen}
+        onClose={() => {
+          setIsMetadataModalOpen(false);
+          setFile(null);
+          fileInputRef.current!.value = "";
+        }}
+        fileName={file?.name || ""}
+        onSave={handleFileUpload}
+      />
+      <Dialog open={showReplaceModal} onOpenChange={setShowReplaceModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Replace Document
+            </DialogTitle>
+          </DialogHeader>
+          <p>
+            A document named <b>{file?.name}</b> already exists. Do you want to replace it?
+          </p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={handleReplaceDocument}>Yes, Replace</Button>
+            <DialogClose asChild>
+              <Button variant="outline" onClick={() => setShowReplaceModal(false)}>Cancel</Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
