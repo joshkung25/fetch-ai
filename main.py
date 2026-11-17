@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.routes import router
-
+import asyncio
 from agent.chat import start_chat
 
 # from parser.pdf_parser import parse_pdf_token_chunks
@@ -29,7 +29,7 @@ app.add_middleware(
 app.include_router(router)
 
 
-if __name__ == "__main__":
+async def main():
     # resume_chunks = parse_pdf_token_chunks("public/resume.pdf", doc_type="resume")
     # transcript_chunks = parse_pdf_token_chunks(
     #     "public/transcript.pdf", doc_type="transcript"
@@ -47,6 +47,12 @@ if __name__ == "__main__":
     # )
     # add_doc_to_collection(transcript_chunks, "transcript")
 
-    # transcript_chunks_jacob = parse_pdf("public/Jacob_Transcript_Test.pdf")
-    # add_doc_to_collection(transcript_chunks_jacob, "jacob_transcript")
+    # transcript_chunks_jacob = await parse_pdf("public/Jacob_Transcript_Test.pdf")
+    # add_doc_to_collection(
+    #     transcript_chunks_jacob, "jacob_transcript", "guest", is_guest=True
+    # )
     start_chat()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -50,7 +50,7 @@ def model_recall_response(user_input: str, user_id: str, is_guest: bool):
         )
     else:
         RAG_ASSISTANT_PROMPT = (
-            "There was no relevant information found, tell them to make sure they upload relevant documents. Then use your general knowledge to respond. "
+            "There was no relevant information found. If they are asking about personal information, tell them to make sure they upload relevant documents. Default to your general knowledge to respond. "
             + "This was the user's input: "
             + user_input
         )
@@ -59,7 +59,7 @@ def model_recall_response(user_input: str, user_id: str, is_guest: bool):
     else:
         source_document_title = None
 
-    return RAG_ASSISTANT_PROMPT, source_document_title
+    return RAG_ASSISTANT_PROMPT, source_document_title, user_input
 
 
 def suggested_tags_prompt(document_title: str):
