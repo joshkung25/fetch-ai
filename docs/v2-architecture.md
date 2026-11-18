@@ -34,15 +34,21 @@ flowchart TD
 
 | File | Role | Status |
 |---|---|---|
+| **shared** | | |
 | `taxonomy.py` | Shared label vocabulary (DocType → Category) used by both labeler and parser | done |
 | `schemas.py` | Data types: DocumentRecord, ParsedQuery, RoutePlan, ContextBlock… | done |
+| `store.py` | v2 Chroma layout: document collection + chunk collection | done |
+| `config.py` | Model names, collection suffixes, tunables | done |
+| **upload (`ingest/`)** | | |
+| `ingest/labeler.py` | Doc labeling (LLM structured output) | done |
+| `ingest/pipeline.py` | `ingest_document()` entry point | stub |
+| **chat (`query/`)** | | |
+| `query/parser.py` | Query → ParsedQuery (LLM) | stub |
+| `query/router.py` | ParsedQuery → strategy (pure function) | stub |
+| `query/strategies.py` | One retrieval strategy per route | stub |
+| `query/pipeline.py` | `retrieve()` entry point | stub |
+| **ranking (`rankers/`)** | | |
 | `rankers/base.py` | `Ranker` interface — the plug-in point for the class ranking model | done |
-| `labeler.py` | Ingest-time doc labeling (LLM) | stub |
-| `query_parser.py` | Query → ParsedQuery (LLM) | stub |
-| `router.py` | ParsedQuery → strategy (pure function) | stub |
-| `store.py` | v2 Chroma layout: document collection + chunk collection | stub |
-| `strategies.py` | One retrieval strategy per route | stub |
-| `pipeline.py` | `ingest_document()` / `retrieve()` entry points | stub |
 
 ## Storage change
 

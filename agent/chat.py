@@ -71,7 +71,7 @@ def chat(user_input, messages, user_id, chat_id, is_guest=False, include_source=
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
     user_id = user_id.replace("|", "")
-    input_to_model, source_document_title = model_recall_response(
+    input_to_model, source_document_title, _ = model_recall_response(
         user_input, user_id, is_guest
     )
     if len(messages) == 0:
