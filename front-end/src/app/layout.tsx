@@ -23,8 +23,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Percival",
-  description: "Percival AI",
+  title: "Munin",
+  description: "Munin AI",
   icons: {
     icon: "/favicon.ico",
   },

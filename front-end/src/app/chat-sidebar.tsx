@@ -345,18 +345,18 @@ export default function ChatSidebar() {
         <div className="flex items-center gap-2">
           <Image
             src="/docs_ai_logo_3.png"
-            alt="Percival"
+            alt="Munin"
             width={35}
             height={35}
             priority={true}
           />
         </div>
         <p className="text-sm text-muted-foreground">
-          Powered by <span className="font-bold">Percival</span>
+          Powered by <span className="font-bold">Munin</span>
         </p>
       </div>
       {/* <div className="flex pt-5 pl-4">
-        <Image src="/klerk_icon.png" alt="Percival" width={30} height={30} />
+        <Image src="/klerk_icon.png" alt="Munin" width={30} height={30} />
       </div> */}
 
       <SidebarHeader className="border-b p-2 pt-4">

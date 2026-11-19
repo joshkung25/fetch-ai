@@ -1,6 +1,6 @@
-# Percival AI
+# Munin AI
 
-Percival is an AI-powered document recall system that can save/read your docs/files and can fetch info from them across chats based on semantic querying.
+Munin is an AI-powered document recall system that can save/read your docs/files and can fetch info from them across chats based on semantic querying.
 
 ## Getting Started
 
