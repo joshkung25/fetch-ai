@@ -41,12 +41,12 @@ flowchart TD
 | `config.py` | Model names, collection suffixes, tunables | done |
 | **upload (`ingest/`)** | | |
 | `ingest/labeler.py` | Doc labeling (LLM structured output) | done |
-| `ingest/pipeline.py` | `ingest_document()` entry point | stub |
+| `ingest/entry.py` | `ingest_document()` entry point | stub |
 | **chat (`query/`)** | | |
 | `query/parser.py` | Query → ParsedQuery (LLM) | stub |
 | `query/router.py` | ParsedQuery → strategy (pure function) | stub |
 | `query/strategies.py` | One retrieval strategy per route | stub |
-| `query/pipeline.py` | `retrieve()` entry point | stub |
+| `query/entry.py` | `retrieve()` entry point | stub |
 | **ranking (`rankers/`)** | | |
 | `rankers/base.py` | `Ranker` interface — the plug-in point for the class ranking model | done |
 
