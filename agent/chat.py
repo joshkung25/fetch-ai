@@ -46,22 +46,24 @@ def start_chat():
         if user_input.lower() in ["exit", "quit"]:
             break
 
-        messages.append(
-            {
-                "role": "user",
-                "content": model_recall_response(user_input, "guest", is_guest=True),
-            }
+        input_to_model, source_document_title, user_input = model_recall_response(
+            user_input, "guest", is_guest=True
         )
+
+        if len(messages) == 0:
+            input_to_model = DOCS_ASSISTANT_PROMPT + input_to_model
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",  # or gpt-4o
-            messages=messages,
+            messages=[*messages, {"role": "user", "content": input_to_model}],
         )
 
         assistant_reply = response.choices[0].message.content
         print(f"Assistant: {assistant_reply}")
 
+        messages.append({"role": "user", "content": user_input})
         messages.append({"role": "assistant", "content": assistant_reply})
+        print(f"History: {messages}")
 
 
 def chat(user_input, messages, user_id, chat_id, is_guest=False, include_source=False):
@@ -69,7 +71,7 @@ def chat(user_input, messages, user_id, chat_id, is_guest=False, include_source=
     Takes in a user input and a list of messages, and returns a response from the AI assistant.
     """
     user_id = user_id.replace("|", "")
-    input_to_model, source_document_title = model_recall_response(
+    input_to_model, source_document_title, _ = model_recall_response(
         user_input, user_id, is_guest
     )
     if len(messages) == 0:
