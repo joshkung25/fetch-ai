@@ -343,21 +343,28 @@ export default function ChatSidebar() {
     <Sidebar className="border-r">
       <div className="flex pt-5 pl-4 items-center gap-2">
         <div className="flex items-center gap-2">
+          {/* Both rendered; CSS picks one so there's no flash before the theme loads */}
           <Image
-            src="/docs_ai_logo_3.png"
+            src="/munin-logo/munin-mark-black.svg"
             alt="Munin"
-            width={35}
-            height={35}
+            width={28}
+            height={28}
             priority={true}
+            className="dark:hidden"
+          />
+          <Image
+            src="/munin-logo/munin-mark-white.svg"
+            alt="Munin"
+            width={28}
+            height={28}
+            priority={true}
+            className="hidden dark:block"
           />
         </div>
         <p className="text-sm text-muted-foreground">
           Powered by <span className="font-bold">Munin</span>
         </p>
       </div>
-      {/* <div className="flex pt-5 pl-4">
-        <Image src="/klerk_icon.png" alt="Munin" width={30} height={30} />
-      </div> */}
 
       <SidebarHeader className="border-b p-2 pt-4">
         <Button

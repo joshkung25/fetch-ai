@@ -26,7 +26,11 @@ export const metadata: Metadata = {
   title: "Munin",
   description: "Munin AI",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/munin-logo/munin-app-icon-dark.svg", type: "image/svg+xml" },
+      { url: "/munin-logo/munin-app-icon-dark.png", type: "image/png" },
+    ],
+    apple: "/munin-logo/munin-app-icon-dark.png",
   },
 };
 

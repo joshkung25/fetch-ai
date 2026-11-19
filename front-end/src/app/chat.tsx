@@ -73,9 +73,6 @@ export default function Chat({ chat }: { chat: Chat }) {
     );
   };
 
-  const logoSrc =
-    theme === "dark" ? "/fetchai_logo_dark.png" : "/fetchai_logo.png";
-
   const handlePreview = async (source_document_title: string) => {
     const accessToken = await getAccessToken();
     const pdfBlob = await fetch(
@@ -100,7 +97,7 @@ export default function Chat({ chat }: { chat: Chat }) {
           {messages.length === 0 ? (
             <div className="text-center py-40">
               {/* <Image
-                src="/docs_ai_logo3.png"
+                src="/munin-logo/munin-mark-black.svg"
                 alt="Munin"
                 width={100}
                 height={100}
