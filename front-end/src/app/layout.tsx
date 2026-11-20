@@ -27,10 +27,10 @@ export const metadata: Metadata = {
   description: "Munin AI",
   icons: {
     icon: [
-      { url: "/munin-logo/munin-app-icon-dark.svg", type: "image/svg+xml" },
-      { url: "/munin-logo/munin-app-icon-dark.png", type: "image/png" },
+      { url: "/munin-index-logo/munin-index-app-icon-dark.svg", type: "image/svg+xml" },
+      { url: "/munin-index-logo/munin-index-app-icon-dark.png", type: "image/png" },
     ],
-    apple: "/munin-logo/munin-app-icon-dark.png",
+    apple: "/munin-index-logo/munin-index-app-icon-dark.png",
   },
 };
 

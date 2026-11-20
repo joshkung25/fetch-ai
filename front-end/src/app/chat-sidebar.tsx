@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import MuninLogo from "@/components/munin-logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -340,8 +341,9 @@ export default function ChatSidebar() {
 
   return (
     <Sidebar className="border-r">
-      <div className="flex h-16 items-center px-4">
-        <span className="text-lg font-semibold tracking-tight">Munin</span>
+      <div className="flex h-16 items-center gap-2 px-4">
+        <MuninLogo size={22} />
+        <span className="text-lg font-semibold tracking-tight">munin</span>
       </div>
 
       <SidebarHeader className="border-b p-2 pt-4">

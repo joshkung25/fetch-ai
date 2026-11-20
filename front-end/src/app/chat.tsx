@@ -97,7 +97,7 @@ export default function Chat({ chat }: { chat: Chat }) {
           {messages.length === 0 ? (
             <div className="text-center py-40">
               {/* <Image
-                src="/munin-logo/munin-mark-black.svg"
+                src="/munin-index-logo/munin-index-mark-black.svg"
                 alt="Munin"
                 width={100}
                 height={100}

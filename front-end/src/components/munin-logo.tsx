@@ -5,7 +5,7 @@ export default function MuninLogo({ size = 24 }: { size?: number }) {
   return (
     <>
       <Image
-        src="/munin-logo/munin-mark-black.svg"
+        src="/munin-index-logo/munin-index-mark-black.svg"
         alt="Munin"
         width={size}
         height={size}
@@ -13,7 +13,7 @@ export default function MuninLogo({ size = 24 }: { size?: number }) {
         className="dark:hidden"
       />
       <Image
-        src="/munin-logo/munin-mark-white.svg"
+        src="/munin-index-logo/munin-index-mark-white.svg"
         alt="Munin"
         width={size}
         height={size}
