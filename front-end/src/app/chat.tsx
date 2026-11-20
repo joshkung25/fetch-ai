@@ -73,9 +73,6 @@ export default function Chat({ chat }: { chat: Chat }) {
     );
   };
 
-  const logoSrc =
-    theme === "dark" ? "/fetchai_logo_dark.png" : "/fetchai_logo.png";
-
   const handlePreview = async (source_document_title: string) => {
     const accessToken = await getAccessToken();
     const pdfBlob = await fetch(
@@ -91,7 +88,7 @@ export default function Chat({ chat }: { chat: Chat }) {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      <NavbarNew nav_header="Fetch AI" />
+      <NavbarNew />
       <UploadSuggestionsModal open={openModal} setOpen={setOpenModal} />
 
       <div className="flex flex-1 flex-col overflow-hidden relative">
@@ -100,8 +97,8 @@ export default function Chat({ chat }: { chat: Chat }) {
           {messages.length === 0 ? (
             <div className="text-center py-40">
               {/* <Image
-                src="/docs_ai_logo3.png"
-                alt="Fetch AI"
+                src="/munin-index-logo/munin-index-mark-black.svg"
+                alt="Munin"
                 width={100}
                 height={100}
                 className="mx-auto mb-4 opacity-25"
@@ -111,7 +108,7 @@ export default function Chat({ chat }: { chat: Chat }) {
               <h2 className="text-3xl font-medium mb-2 bg-gradient-to-r from-gray-700 via-gray-500 to-gray-700 dark:from-gray-300 dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent drop-shadow-sm">
                 {user
                   ? "Welcome back, " + user.given_name
-                  : "Welcome to Fetch AI"}
+                  : "Welcome to Munin"}
               </h2>
               {/* <p className="text-muted-foreground">
                 Upload a file and ask a question to get started.

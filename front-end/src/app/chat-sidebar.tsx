@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import MuninLogo from "@/components/munin-logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,7 +51,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
-import Image from "next/image";
 import type { ChatSidebar } from "./types/chat";
 import UploadMetadataModal from "./upload-metadata-modal";
 import { DocumentInfoInput } from "./upload-metadata-modal";
@@ -341,23 +341,10 @@ export default function ChatSidebar() {
 
   return (
     <Sidebar className="border-r">
-      <div className="flex pt-5 pl-4 items-center gap-2">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/docs_ai_logo_3.png"
-            alt="Fetch AI"
-            width={35}
-            height={35}
-            priority={true}
-          />
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Powered by <span className="font-bold">Fetch</span>
-        </p>
+      <div className="flex h-16 items-center gap-2 px-4">
+        <MuninLogo size={22} />
+        <span className="text-lg font-semibold tracking-tight">munin</span>
       </div>
-      {/* <div className="flex pt-5 pl-4">
-        <Image src="/klerk_icon.png" alt="Fetch AI" width={30} height={30} />
-      </div> */}
 
       <SidebarHeader className="border-b p-2 pt-4">
         <Button

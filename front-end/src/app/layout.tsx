@@ -23,10 +23,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fetch AI",
-  description: "Fetch AI",
+  title: "Munin",
+  description: "Munin AI",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/munin-index-logo/munin-index-app-icon-dark.svg", type: "image/svg+xml" },
+      { url: "/munin-index-logo/munin-index-app-icon-dark.png", type: "image/png" },
+    ],
+    apple: "/munin-index-logo/munin-index-app-icon-dark.png",
   },
 };
 
