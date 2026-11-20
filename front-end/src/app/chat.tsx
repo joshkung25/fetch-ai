@@ -88,7 +88,7 @@ export default function Chat({ chat }: { chat: Chat }) {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      <NavbarNew nav_header="Munin" />
+      <NavbarNew />
       <UploadSuggestionsModal open={openModal} setOpen={setOpenModal} />
 
       <div className="flex flex-1 flex-col overflow-hidden relative">

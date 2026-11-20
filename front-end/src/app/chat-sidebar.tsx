@@ -50,7 +50,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { uploadFiles } from "@/lib/utils";
 import { useRandomId } from "@/context";
-import Image from "next/image";
 import type { ChatSidebar } from "./types/chat";
 import UploadMetadataModal from "./upload-metadata-modal";
 import { DocumentInfoInput } from "./upload-metadata-modal";
@@ -341,29 +340,8 @@ export default function ChatSidebar() {
 
   return (
     <Sidebar className="border-r">
-      <div className="flex pt-5 pl-4 items-center gap-2">
-        <div className="flex items-center gap-2">
-          {/* Both rendered; CSS picks one so there's no flash before the theme loads */}
-          <Image
-            src="/munin-logo/munin-mark-black.svg"
-            alt="Munin"
-            width={28}
-            height={28}
-            priority={true}
-            className="dark:hidden"
-          />
-          <Image
-            src="/munin-logo/munin-mark-white.svg"
-            alt="Munin"
-            width={28}
-            height={28}
-            priority={true}
-            className="hidden dark:block"
-          />
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Powered by <span className="font-bold">Munin</span>
-        </p>
+      <div className="flex h-16 items-center px-4">
+        <span className="text-lg font-semibold tracking-tight">Munin</span>
       </div>
 
       <SidebarHeader className="border-b p-2 pt-4">
